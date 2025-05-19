@@ -12,13 +12,12 @@ import { NgProgressRouter } from 'ngx-progressbar/router';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { ToastrModule } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
+import { BreadcrumbComponent, ErrorCodeComponent, PageHeaderComponent } from '@shared/components';
+import { DisableControlDirective } from '@shared/directives/disable-control.directive';
+import { ToObservablePipe } from '@shared/pipes/to-observable.pipe';
+import { SafeUrlPipe } from '@shared/pipes/safe-url.pipe';
 
-import { BreadcrumbComponent } from './components/breadcrumb/breadcrumb.component';
-import { PageHeaderComponent } from './components/page-header/page-header.component';
-import { ErrorCodeComponent } from './components/error-code/error-code.component';
-import { DisableControlDirective } from './directives/disable-control.directive';
-import { SafeUrlPipe } from './pipes/safe-url.pipe';
-import { ToObservablePipe } from './pipes/to-observable.pipe';
+
 
 const MODULES: any[] = [
   CommonModule,

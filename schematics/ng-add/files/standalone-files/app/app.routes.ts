@@ -2,12 +2,13 @@ import { Routes } from '@angular/router';
 import { authGuard } from '@core';
 import { AdminLayoutComponent } from '@theme/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from '@theme/auth-layout/auth-layout.component';
-import { DashboardComponent } from './routes/dashboard/dashboard.component';
-import { Error403Component } from './routes/sessions/403.component';
-import { Error404Component } from './routes/sessions/404.component';
-import { Error500Component } from './routes/sessions/500.component';
-import { LoginComponent } from './routes/sessions/login/login.component';
-import { RegisterComponent } from './routes/sessions/register/register.component';
+import { DashboardComponent } from 'app/routes/dashboard/dashboard.component';
+import { Error403Component } from 'app/routes/sessions/403.component';
+import { Error404Component } from 'app/routes/sessions/404.component';
+import { Error500Component } from 'app/routes/sessions/500.component';
+import { LoginComponent } from 'app/routes/sessions/login/login.component';
+import { RegisterComponent } from 'app/routes/sessions/register/register.component';
+
 
 export const routes: Routes = [
   {
