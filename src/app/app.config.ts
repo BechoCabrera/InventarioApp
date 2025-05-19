@@ -1,10 +1,5 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  inject,
-  provideAppInitializer,
-} from '@angular/core';
+
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 
@@ -37,6 +32,12 @@ import { PaginatorI18nService } from '@shared';
 import { InMemDataService } from '@shared/in-mem/in-mem-data.service';
 import { routes } from './app.routes';
 import { FormlyConfigModule } from './formly-config';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  inject,
+  provideAppInitializer,
+} from '@angular/core';
 
 // Required for AOT compilation
 function TranslateHttpLoaderFactory(http: HttpClient) {
@@ -76,12 +77,12 @@ export const appConfig: ApplicationConfig = {
     }),
     importProvidersFrom(
       NgxPermissionsModule.forRoot(),
-      FormlyConfigModule.forRoot(),
+      FormlyConfigModule.forRoot()
       // 👇 ❌ This is only used for demo purpose, remove it in the realworld application
-      InMemoryWebApiModule.forRoot(InMemDataService, {
-        dataEncapsulation: false,
-        passThruUnknownUrl: true,
-      })
+      // InMemoryWebApiModule.forRoot(InMemDataService, {
+      //   dataEncapsulation: false,
+      //   passThruUnknownUrl: true,
+      // })
     ),
     {
       provide: MatPaginatorIntl,

@@ -1,11 +1,6 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  inject,
-  provideAppInitializer,
-} from '@angular/core';<% if(animations!='excluded') { %>
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';<% } %>
+import {ApplicationConfig, importProvidersFrom, inject, provideAppInitializer} from '@angular/core';
+
 import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
 
 import { provideDateFnsAdapter } from '@angular/material-date-fns-adapter';
@@ -34,10 +29,9 @@ import {
 import { environment } from '@env/environment';
 import { PaginatorI18nService } from '@shared';
 import { routes } from './app.routes';
-import { FormlyConfigModule } from './formly-config';
 
 import { LoginService } from '@core/authentication/login.service';
-import { FakeLoginService } from './fake-login.service';
+import { FormlyConfigModule } from 'app/formly-config';
 
 // Required for AOT compilation
 function TranslateHttpLoaderFactory(http: HttpClient) {
@@ -59,8 +53,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     { provide: BASE_URL, useValue: environment.baseUrl },
     provideAppInitializer(() => inject(TranslateLangService).load()),
-    provideAppInitializer(() => inject(StartupService).load()),<% if(animations!='excluded') { %>
-    provideAnimationsAsync(<% if(animations=='disabled') { %>'noop'<% } %>),<% } %>
     provideHttpClient(withInterceptors(interceptors)),
     provideRouter(
       routes,
@@ -82,7 +74,7 @@ export const appConfig: ApplicationConfig = {
     // ==================================================
     // 👇 ❌ Remove it in the realworld application
     //
-    { provide: LoginService, useClass: FakeLoginService },
+    // { provide: LoginService, useClass: FakeLoginService },
     //
     // ==================================================
     {

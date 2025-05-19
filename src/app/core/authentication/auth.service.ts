@@ -1,20 +1,35 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, iif, map, merge, of, share, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  iif,
+  map,
+  merge,
+  Observable,
+  of,
+  share,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { filterObject, isEmptyObject } from './helpers';
-import { User } from './interface';
+import { Token, User } from './interface';
 import { LoginService } from './login.service';
 import { TokenService } from './token.service';
+import { environment } from '@env/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
   private readonly loginService = inject(LoginService);
   private readonly tokenService = inject(TokenService);
 
   private user$ = new BehaviorSubject<User>({});
+
   private change$ = merge(
-    this.tokenService.change(),
+    this.tokenService.change(), // asumo que emite evento cuando cambia token
     this.tokenService.refresh().pipe(switchMap(() => this.refresh()))
   ).pipe(
     switchMap(() => this.assignUser()),
@@ -29,7 +44,7 @@ export class AuthService {
     return this.change$;
   }
 
-  check() {
+  check(): boolean {
     return this.tokenService.valid();
   }
 
@@ -41,13 +56,20 @@ export class AuthService {
   }
 
   refresh() {
-    return this.loginService
-      .refresh(filterObject({ refresh_token: this.tokenService.getRefreshToken() }))
-      .pipe(
-        catchError(() => of(undefined)),
-        tap(token => this.tokenService.set(token)),
-        map(() => this.check())
-      );
+    const refreshToken = this.tokenService.getRefreshToken();
+    if (!refreshToken) {
+      return of(false);
+    }
+
+    return this.loginService.refresh(filterObject({ refresh_token: refreshToken })).pipe(
+      catchError(() => of(undefined)),
+      tap(token => {
+        if (token) {
+          this.tokenService.set(token);
+        }
+      }),
+      map(() => this.check())
+    );
   }
 
   logout() {
@@ -57,17 +79,18 @@ export class AuthService {
     );
   }
 
-  user() {
-    return this.user$.pipe(share());
+  user(): Observable<User> {
+    return this.user$.asObservable().pipe(share());
   }
 
   menu() {
     return iif(() => this.check(), this.loginService.menu(), of([]));
   }
 
-  private assignUser() {
+  private assignUser(): Observable<User> {
     if (!this.check()) {
-      return of({}).pipe(tap(user => this.user$.next(user)));
+      this.user$.next({});
+      return of({});
     }
 
     if (!isEmptyObject(this.user$.getValue())) {

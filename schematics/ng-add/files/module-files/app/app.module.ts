@@ -1,15 +1,12 @@
 import { inject, NgModule, provideAppInitializer } from '@angular/core';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { BrowserModule } from '@angular/platform-browser';<% if(animations!='excluded') { %>
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';<% } %>
+import { BrowserModule } from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
 
-import { CoreModule } from '@core/core.module';
-import { ThemeModule } from '@theme/theme.module';
-import { SharedModule } from '@shared/shared.module';
+
+
 import { RoutesModule } from './routes/routes.module';
-import { FormlyConfigModule } from './formly-config';
+
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { provideToastr } from 'ngx-toastr';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
@@ -46,7 +43,13 @@ const interceptors = [
 ];
 
 import { LoginService } from '@core/authentication/login.service';
-import { FakeLoginService } from './fake-login.service';
+import { FormlyConfigModule } from 'app/formly-config';
+import { CoreModule } from './core/core.module';
+import { ThemeModule } from './theme/theme.module';
+import { SharedModule } from './shared/shared.module';
+import { AppComponent } from './app.component';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+// import { FakeLoginService } from './fake-login.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -63,8 +66,8 @@ import { FakeLoginService } from './fake-login.service';
     { provide: BASE_URL, useValue: environment.baseUrl },
     provideAppInitializer(() => inject(TranslateLangService).load()),
     provideAppInitializer(() => inject(StartupService).load()),
-    provideHttpClient(withInterceptors(interceptors)),<% if(animations!='excluded') { %>
-    provideAnimationsAsync(<% if(animations=='disabled') { %>'noop'<% } %>),<% } %>
+    provideHttpClient(withInterceptors(interceptors)),
+    provideAnimationsAsync(),
     provideToastr(),
     provideTranslateService({
       loader: {
@@ -76,7 +79,7 @@ import { FakeLoginService } from './fake-login.service';
     // ==================================================
     // 👇 ❌ Remove it in the realworld application
     //
-    { provide: LoginService, useClass: FakeLoginService },
+    // { provide: LoginService, useClass: FakeLoginService },
     //
     // ==================================================
   ],
