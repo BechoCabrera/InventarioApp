@@ -10,6 +10,7 @@ import { Error404Component } from './sessions/404.component';
 import { Error500Component } from './sessions/500.component';
 import { SharedModule } from '../shared/shared.module';
 
+
 const COMPONENTS: any[] = [
   DashboardComponent,
   LoginComponent,

@@ -7,19 +7,19 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
+import { DashboardService } from './dashboard.service';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { MatListModule } from '@angular/material/list';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
-import { RouterLink } from '@angular/router';
-import { SettingsService } from '@core';
-import { MtxAlertModule } from '@ng-matero/extensions/alert';
 import { MtxProgressModule } from '@ng-matero/extensions/progress';
+import { MtxAlertModule } from '@ng-matero/extensions/alert';
+import { SettingsService } from '@core';
 import { Subscription } from 'rxjs';
-import { DashboardService } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',

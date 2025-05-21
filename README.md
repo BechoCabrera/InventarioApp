@@ -117,7 +117,7 @@ $ ng g ng-matero:module abc
 $ ng g ng-matero:page def -m=abc
 ```
 
-Take a look at `http://localhost:4200/#/abc/def`, enjoy it!
+Take a look at `https://localhos:4200/#/abc/def`, enjoy it!
 
 ## 💻 Development
 
@@ -128,7 +128,7 @@ $ npm install
 $ npm run start
 ```
 
-Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Navigate to `https://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## 🗺 Roadmap
 

@@ -1,21 +1,24 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-
 import { MaterialModule } from '../material.module';
 import { MaterialExtensionsModule } from '../material-extensions.module';
 import { FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
-import { NgProgressbar } from 'ngx-progressbar';
-import { NgProgressRouter } from 'ngx-progressbar/router';
 import { NgxPermissionsModule } from 'ngx-permissions';
 import { ToastrModule } from 'ngx-toastr';
 import { TranslateModule } from '@ngx-translate/core';
-import { BreadcrumbComponent, ErrorCodeComponent, PageHeaderComponent } from '@shared/components';
-import { DisableControlDirective } from '@shared/directives/disable-control.directive';
+import { NgProgressbar } from 'ngx-progressbar';
+import { NgProgressRouter } from 'ngx-progressbar/router';
+import { BreadcrumbComponent } from '@shared/components/breadcrumb/breadcrumb.component';
+import { PageHeaderComponent } from '@shared/components/page-header/page-header.component';
+import { ErrorCodeComponent } from '@shared/components/error-code/error-code.component';
+
 import { ToObservablePipe } from '@shared/pipes/to-observable.pipe';
 import { SafeUrlPipe } from '@shared/pipes/safe-url.pipe';
+import { NgModule } from '@angular/core';
+import { DisableControlDirective } from '@shared/directives/disable-control.directive';
+
 
 
 

@@ -2,9 +2,7 @@ import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatLineModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list';
-
 import { BreadcrumbComponent } from '@shared';
-
 @Component({
   selector: 'app-grid-list',
   templateUrl: './grid-list.component.html',

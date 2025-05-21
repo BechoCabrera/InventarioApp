@@ -30,6 +30,7 @@ export class LoginService {
   }
 
   menu() {
-    return this.http.get<{ menu: Menu[] }>(`${this.apiUrl}/user/menu`).pipe(map(res => res.menu));
+    // return this.http.get<{ menu: Menu[] }>(`${this.apiUrl}/menu`).pipe(map(res => res.menu));
+    return this.http.get<Menu[]>(`${this.apiUrl}/menu`);
   }
 }

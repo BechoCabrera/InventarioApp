@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { environment } from '@env/environment';
+
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './sessions/login/login.component';
@@ -11,6 +11,7 @@ import { Error500Component } from './sessions/500.component';
 import { authGuard } from '@core';
 import { AdminLayoutComponent } from '@theme/admin-layout/admin-layout.component';
 import { AuthLayoutComponent } from '@theme/auth-layout/auth-layout.component';
+import { environment } from '@env/environment.prod';
 
 const routes: Routes = [
   {

@@ -86,7 +86,7 @@ export class SettingsService {
   getTranslateLang() {
     if (this.options.language === 'auto') {
       const browserLang = navigator.language;
-      return this.languages.includes(browserLang) ? browserLang : 'en-US';
+      return this.languages.includes(browserLang) ? browserLang : 'es-CO';
     }
     return this.options.language;
   }

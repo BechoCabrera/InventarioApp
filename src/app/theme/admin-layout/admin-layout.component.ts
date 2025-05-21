@@ -1,4 +1,3 @@
-import { BidiModule } from '@angular/cdk/bidi';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   Component,
@@ -8,7 +7,6 @@ import {
   ViewEncapsulation,
   inject,
 } from '@angular/core';
-import { MatSidenav, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { NgProgressbar } from 'ngx-progressbar';
 import { NgProgressRouter } from 'ngx-progressbar/router';
@@ -20,6 +18,8 @@ import { HeaderComponent } from '../header/header.component';
 import { SidebarNoticeComponent } from '../sidebar-notice/sidebar-notice.component';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { TopmenuComponent } from '../topmenu/topmenu.component';
+import { BidiModule } from '@angular/cdk/bidi';
+import { MatSidenav, MatSidenavContent, MatSidenavModule } from '@angular/material/sidenav';
 
 const MOBILE_MEDIAQUERY = 'screen and (max-width: 599px)';
 const TABLET_MEDIAQUERY = 'screen and (min-width: 600px) and (max-width: 959px)';
