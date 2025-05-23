@@ -1,27 +1,24 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { catchError, map, tap, throwError } from 'rxjs';
+import { map, tap } from 'rxjs';
 
-import { Menu } from '@core';
+import { Menu, TokenService } from '@core';
 import { Token, User } from './interface';
 import { environment } from '@env/environment';
-import { Console } from 'console';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoginService {
-  headers: HttpHeaders = new HttpHeaders();
-
+  protected readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl; // Ejemplo: 'https://localhost:7027/api'
-  constructor(private http: HttpClient) {}
+  private readonly tokenService = inject(TokenService);
   login(username: string, password: string, rememberMe = false) {
-    // return this.http.post<Token>(`${this.apiUrl}/auth/login`, { username, password, rememberMe });
     return this.http
       .post<Token>(`${this.apiUrl}/auth/login`, { username, password, rememberMe })
       .pipe(
         tap((response: Token) => {
-          localStorage.setItem('authToken', response.accessToken); // Guardamos el token
+          this.tokenService.set(response);
         })
       );
   }
@@ -39,12 +36,6 @@ export class LoginService {
   }
 
   menu() {
-    return this.http.post<Menu[]>(`${this.apiUrl}/menu`, {}).pipe(
-      tap(menu => console.log('✅ Menú recibido:', menu)),
-      catchError(error => {
-        console.error('❌ Error al obtener el menú:', error);
-        return throwError(() => new Error('No se pudo obtener el menú'));
-      })
-    );
+    return this.http.get<Menu[]>(`${this.apiUrl}/menu`);
   }
 }

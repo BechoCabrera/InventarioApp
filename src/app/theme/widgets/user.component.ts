@@ -62,8 +62,17 @@ export class UserComponent implements OnInit {
   }
 
   logout() {
-    this.auth.logout().subscribe(() => {
-      this.router.navigateByUrl('/auth/login');
+    this.auth.logout().subscribe({
+      next: res => {
+        if (res && res.message === 'Sesión cerrada correctamente.') {
+          this.router.navigateByUrl('/auth/login');
+        } else {
+          console.warn('⚠️ Logout inesperado:', res);
+        }
+      },
+      error: err => {
+        console.error('❌ Error al cerrar sesión:', err);
+      },
     });
   }
 

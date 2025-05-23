@@ -75,7 +75,7 @@ export class AuthService {
   logout() {
     return this.loginService.logout().pipe(
       tap(() => this.tokenService.clear()),
-      map(() => !this.check())
+      map(response => response) // <- Esto es importante
     );
   }
 
@@ -84,7 +84,9 @@ export class AuthService {
   }
 
   menu() {
-    return iif(() => this.check(), this.loginService.menu(), of([]));
+    const isValid = this.check();
+    console.log('🔍 ¿Token válido?', isValid);
+    return iif(() => isValid, this.loginService.menu(), of([]));
   }
 
   private assignUser(): Observable<User> {

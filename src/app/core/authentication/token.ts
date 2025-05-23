@@ -20,30 +20,32 @@ export abstract class BaseToken {
     return this.attributes.exp;
   }
 
-  valid() {
+  valid(): boolean {
     return this.hasAccessToken() && !this.isExpired();
   }
 
-  getBearerToken() {
+  getBearerToken(): string {
     return this.access_token
       ? [capitalize(this.token_type), this.access_token].join(' ').trim()
       : '';
   }
 
-  needRefresh() {
+  needRefresh(): boolean {
     return this.exp !== undefined && this.exp >= 0;
   }
 
-  getRefreshTime() {
+  getRefreshTime(): number {
     return timeLeft((this.exp ?? 0) - 5);
   }
 
-  private hasAccessToken() {
+  private hasAccessToken(): boolean {
     return !!this.access_token;
   }
 
-  private isExpired() {
-    return this.exp !== undefined && this.exp - currentTimestamp() <= 0;
+  protected isExpired(): boolean {
+    const exp = this.exp;
+    if (!exp) return true;
+    return exp - currentTimestamp() <= 0;
   }
 }
 
@@ -54,34 +56,32 @@ export class JwtToken extends SimpleToken {
 
   static is(accessToken: string): boolean {
     try {
-      const [_header] = accessToken.split('.');
-      const header = JSON.parse(base64.decode(_header));
-
-      return header.typ.toUpperCase().includes('JWT');
-    } catch (e) {
+      const [header] = accessToken.split('.');
+      const json = base64.decode(header);
+      const parsed = JSON.parse(json);
+      return parsed.typ?.toUpperCase().includes('JWT');
+    } catch {
       return false;
     }
   }
 
-  get exp() {
+  get exp(): number | undefined {
     return this.payload?.exp;
   }
 
   private get payload(): { exp?: number } {
-    if (!this.access_token) {
+    if (!this.access_token) return {};
+    if (this._payload) return this._payload;
+
+    try {
+      const [, payload] = this.access_token.split('.');
+      const data = JSON.parse(base64.decode(payload));
+      if (!data.exp) {
+        data.exp = this.attributes.exp;
+      }
+      return (this._payload = data);
+    } catch {
       return {};
     }
-
-    if (this._payload) {
-      return this._payload;
-    }
-
-    const [, payload] = this.access_token.split('.');
-    const data = JSON.parse(base64.decode(payload));
-    if (!data.exp) {
-      data.exp = this.attributes.exp;
-    }
-
-    return (this._payload = data);
   }
 }

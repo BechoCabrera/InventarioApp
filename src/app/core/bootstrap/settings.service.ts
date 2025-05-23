@@ -28,7 +28,7 @@ export class SettingsService {
 
   private htmlElement = this.document.querySelector('html')!;
 
-  private storedOptions: AppSettings = this.store.get(this.key);
+  private storedOptions: AppSettings = this.store.get(this.key) ?? ({} as AppSettings);
 
   options: AppSettings = Object.assign(defaults, this.storedOptions);
 

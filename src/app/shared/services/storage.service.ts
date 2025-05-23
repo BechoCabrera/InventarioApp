@@ -4,8 +4,13 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class LocalStorageService {
-  get(key: string) {
-    return JSON.parse(localStorage.getItem(key) || '{}') || {};
+  get<T = any>(key: string): T | null {
+    const raw = localStorage.getItem(key);
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
   set(key: string, value: any): boolean {

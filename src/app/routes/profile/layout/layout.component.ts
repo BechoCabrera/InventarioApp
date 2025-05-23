@@ -9,6 +9,7 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService, User } from '@core';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageHeaderComponent } from '@shared';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-profile-layout',
@@ -33,12 +34,25 @@ export class ProfileLayoutComponent implements OnInit {
   user!: User;
 
   ngOnInit(): void {
-    this.auth.user().subscribe(user => (this.user = user));
+    this.auth
+      .user()
+      .pipe(take(1))
+      .subscribe(user => (this.user = user)); //pero se mantiene suscrito para siempre, lo que puede provocar memory leaks si este componente se destruye/recrea frecuentemente.
+    //  this.auth.user().subscribe(user => (this.user = user)); //si quieres que se actualice al cambiar usuario, entonces no hay problema con la suscripción viva.
   }
 
   logout() {
-    this.auth.logout().subscribe(() => {
-      this.router.navigateByUrl('/auth/login');
+    this.auth.logout().subscribe({
+      next: (res: any) => {
+        if (res && res.message === 'Sesión cerrada correctamente.') {
+          this.router.navigateByUrl('/auth/login');
+        } else {
+          console.warn('⚠️ Logout inesperado:', res);
+        }
+      },
+      error: err => {
+        console.error('❌ Error al cerrar sesión:', err);
+      },
     });
   }
 }

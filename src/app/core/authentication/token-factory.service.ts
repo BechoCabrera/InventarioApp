@@ -1,20 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Token } from './interface';
-import { SimpleToken, JwtToken, BaseToken } from './token';
+import { JwtToken, SimpleToken, BaseToken } from './token';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class TokenFactory {
-  create(attributes: Token): BaseToken | undefined {
-    if (!attributes.access_token) {
-      return undefined;
+  create(token?: Token | null): BaseToken {
+    if (!token?.access_token) return new SimpleToken({ access_token: '' });
+
+    if (JwtToken.is(token.access_token)) {
+      return new JwtToken(token);
     }
 
-    if (JwtToken.is(attributes.access_token)) {
-      return new JwtToken(attributes);
-    }
-
-    return new SimpleToken(attributes);
+    return new SimpleToken(token);
   }
 }

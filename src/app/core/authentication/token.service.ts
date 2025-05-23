@@ -1,33 +1,26 @@
 import { Injectable, OnDestroy, inject } from '@angular/core';
 import { BehaviorSubject, Subject, Subscription, share, timer } from 'rxjs';
-
 import { LocalStorageService } from '@shared';
 import { currentTimestamp, filterObject } from './helpers';
 import { Token } from './interface';
 import { BaseToken } from './token';
 import { TokenFactory } from './token-factory.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class TokenService implements OnDestroy {
   private readonly key = 'ng-matero-token';
-
   private readonly store = inject(LocalStorageService);
   private readonly factory = inject(TokenFactory);
 
   private readonly change$ = new BehaviorSubject<BaseToken | undefined>(undefined);
   private readonly refresh$ = new Subject<BaseToken | undefined>();
-
   private timer$?: Subscription;
-
   private _token?: BaseToken;
 
   private get token(): BaseToken | undefined {
     if (!this._token) {
       this._token = this.factory.create(this.store.get(this.key));
     }
-
     return this._token;
   }
 
@@ -37,13 +30,11 @@ export class TokenService implements OnDestroy {
 
   refresh() {
     this.buildRefresh();
-
     return this.refresh$.pipe(share());
   }
 
   set(token?: Token) {
     this.save(token);
-
     return this;
   }
 

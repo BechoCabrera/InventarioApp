@@ -11,40 +11,34 @@ export function tokenInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn)
   const tokenService = inject(TokenService);
 
   const includeBaseUrl = (url: string) => {
-    if (!baseUrl) {
-      return false;
-    }
+    if (!baseUrl) return false;
     return new RegExp(`^${baseUrl.replace(/\/$/, '')}`, 'i').test(url);
   };
 
   const shouldAppendToken = (url: string) => !hasHttpScheme(url) || includeBaseUrl(url);
 
-  const handler = () => {
-    if (req.url.includes('/auth/logout')) {
-      router.navigateByUrl('/auth/login');
-    }
-
-    if (router.url.includes('/auth/login')) {
-      router.navigateByUrl('/dashboard');
-    }
+  const handleRouteRedirect = () => {
+    if (req.url.includes('/auth/logout')) router.navigateByUrl('/auth/login');
+    if (router.url.includes('/auth/login')) router.navigateByUrl('/dashboard');
   };
 
   if (tokenService.valid() && shouldAppendToken(req.url)) {
     return next(
       req.clone({
-        headers: req.headers.append('Authorization', tokenService.getBearerToken()),
+        headers: req.headers.set('Authorization', tokenService.getBearerToken()), // 👈
         withCredentials: true,
       })
-    ).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          tokenService.clear();
-        }
-        return throwError(() => error);
-      }),
-      tap(() => handler())
     );
   }
 
-  return next(req).pipe(tap(() => handler()));
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        tokenService.clear();
+        router.navigateByUrl('/auth/login');
+      }
+      return throwError(() => error);
+    }),
+    tap(() => handleRouteRedirect())
+  );
 }
