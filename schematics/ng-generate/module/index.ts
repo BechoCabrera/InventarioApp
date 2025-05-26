@@ -18,9 +18,10 @@ import * as ts from '@schematics/angular/third_party/github.com/Microsoft/TypeSc
 import { InsertChange } from '@schematics/angular/utility/change';
 import { buildRelativePath, findModuleFromOptions } from '@schematics/angular/utility/find-module';
 import { parseName } from '@schematics/angular/utility/parse-name';
-import { createDefaultPath, getWorkspace } from '@schematics/angular/utility/workspace';
+
 import { addRouteDeclarationToModule } from '../../utils';
 import { Schema as ModuleOptions, RoutingScope } from './schema';
+import { createDefaultPath, getWorkspace } from '@schematics/angular/utility/workspace';
 
 function buildRelativeModulePath(options: ModuleOptions, modulePath: string): string {
   const importModulePath = normalize(
