@@ -48,6 +48,9 @@ export class StartupService {
       'canRead',
       'MANAGE_PRODUCTS',
       'MANAGE_CLIENTS',
+      'MANAGE_BILLING',
+      'VIEW_BILLING_HISTORY',
+      'MANAGE_INVENTORY',
     ];
     this.permissonsService.loadPermissions(permissions);
     this.rolesService.flushRoles();
