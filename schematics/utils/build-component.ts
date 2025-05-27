@@ -44,11 +44,12 @@ import {
 } from '@schematics/angular/utility/find-module';
 import { parseName } from '@schematics/angular/utility/parse-name';
 import { validateHtmlSelector } from '@schematics/angular/utility/validation';
-import { getWorkspace } from '@schematics/angular/utility/workspace';
+
 import { ProjectType } from '@schematics/angular/utility/workspace-models';
 import { readFileSync, statSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { addRouteDeclarationToModule } from './ast-utils';
+import { getWorkspace } from '@schematics/angular/utility/workspace';
 
 export interface ComponentOptions extends Schema {
   pageName: string;
@@ -287,7 +288,7 @@ export function buildComponent(
   additionalFiles: Record<string, string> = {}
 ): Rule {
   return async (host: Tree, context: FileSystemSchematicContext) => {
-    const workspace = await getWorkspace(host);
+    const workspace: any = await getWorkspace(host);
     const project = getProjectFromWorkspace(workspace, options.project);
     const mainFilePath = getProjectMainFile(project);
     const defaultComponentOptions = getDefaultComponentOptions(project) as any;
