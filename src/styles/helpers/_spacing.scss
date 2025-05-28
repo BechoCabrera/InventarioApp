@@ -111,5 +111,52 @@ $utilities: (
     property: gap,
     class: gap,
     values: variables.$spacers
+  ),
+  'display': (
+  property: display,
+  class: d,
+  values: (
+    flex: flex,
+    block: block,
+    inline: inline,
+    'inline-block': inline-block,
+    none: none
   )
+),
+'justify-content': (
+  property: justify-content,
+  class: justify,
+  values: (
+    start: flex-start,
+    end: flex-end,
+    center: center,
+    between: space-between,
+    around: space-around,
+    evenly: space-evenly
+  )
+),
+'align-items': (
+  property: align-items,
+  class: items,
+  values: (
+    start: flex-start,
+    end: flex-end,
+    center: center,
+    stretch: stretch,
+    baseline: baseline
+  )
+)
 );
+@each $name, $utility in $utilities {
+  $property: map.get($utility, property);
+  $class: map.get($utility, class);
+  $values: map.get($utility, values);
+
+  @each $key, $value in $values {
+    .#{$class}-#{$key} {
+      @each $prop in $property {
+        #{$prop}: #{$value};
+      }
+    }
+  }
+}

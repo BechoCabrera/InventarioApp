@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '@env/environment';
+import { User } from '@core';
 
 export interface Product {
   productId?: string;
@@ -12,14 +14,15 @@ export interface Product {
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  barCode?: string;
+  user: User;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = '/api/products';
-
+  private readonly apiUrl = `${environment.apiUrl}/products`; // ← CORREGIDO
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Product[]> {
@@ -34,8 +37,8 @@ export class ProductService {
     return this.http.post<Product>(this.apiUrl, product);
   }
 
-  update(id: string, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+  update(id: string, isActive: boolean): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, isActive);
   }
 
   delete(id: string): Observable<void> {

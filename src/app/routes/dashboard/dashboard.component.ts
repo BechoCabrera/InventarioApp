@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   notifySubscription = Subscription.EMPTY;
 
-  isShowAlert = true;
+  isShowAlert = false;
 
   introducingItems = [
     {
