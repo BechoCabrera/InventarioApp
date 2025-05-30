@@ -1,0 +1,36 @@
+$form-utilities: (
+  // Clase base .form-header
+  'form-header': (
+    class: 'form-header',
+    property: (display, align-items, flex-wrap, gap),
+    values: (flex center wrap 1rem),
+  ),
+
+  // Alineación horizontal (separado para permitir variación dinámica)
+  'form-header-justify': (
+    class: 'justify',
+    property: justify-content,
+    values: (
+      start: flex-start,
+      center: center,
+      end: flex-end,
+      between: space-between,
+      around: space-around
+    )
+  ),
+
+  // Contenedor de botones
+  'btn-row': (
+    class: 'btn-row',
+    property: display,
+    values: (flex),
+  ),
+
+  'btn-row-gap': (
+    class: 'btn-row-gap',
+    property: gap,
+    values: (1rem),
+  ),
+);
+
+$utilities: $form-utilities;

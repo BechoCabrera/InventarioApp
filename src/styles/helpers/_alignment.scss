@@ -3,5 +3,16 @@ $utilities: (
     property: vertical-align,
     class: align,
     values: baseline top middle bottom text-bottom text-top
+  ),
+  'justify': (
+    class: 'justify',
+    property: justify-content,
+    values: (
+      start: flex-start,
+      center: center,
+      end: flex-end,
+      between: space-between,
+      around: space-around
+    )
   )
 );

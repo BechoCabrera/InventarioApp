@@ -33,9 +33,11 @@
 
       <mat-form-field appearance="fill" class="field">
         <mat-label>Categoría</mat-label>
-        <mat-select formControlName="categoryId">
+        <mat-select formControlName="categoryId" required>
           <mat-option value="">Sin categoría</mat-option>
-          <!-- Agrega opciones dinámicas aquí -->
+          <mat-option *ngFor="let cat of dataCategory" [value]="cat.categoryId">
+            {{ cat.name }}
+          </mat-option>
         </mat-select>
       </mat-form-field>
 
@@ -80,7 +82,7 @@
     <!-- Categoría -->
     <ng-container matColumnDef="category">
       <th mat-header-cell *matHeaderCellDef>Categoría</th>
-      <td mat-cell *matCellDef="let element">{{ element.categories }}</td>
+      <td mat-cell *matCellDef="let element">{{ element.categoryName }}</td>
     </ng-container>
     <!--Registrado por-->
     <ng-container matColumnDef="username">

@@ -16,6 +16,7 @@ export interface Product {
   updatedAt?: string;
   barCode?: string;
   user: User;
+  categoryName: string;
 }
 
 @Injectable({

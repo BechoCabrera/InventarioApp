@@ -13,8 +13,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Product, ProductService } from '../product.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
-import { BehaviorSubject } from 'rxjs';
-import { User } from '@core';
+import { Category, CategoryService } from '../category.service';
 
 @Component({
   selector: 'app-create-product',
@@ -49,13 +48,14 @@ export class CreateProductComponent implements OnInit {
     'isActive',
     'actions',
   ];
-  private user$ = new BehaviorSubject<User>({});
+
   private readonly toast = inject(ToastrService);
   constructor(
     private fb: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private categoryService: CategoryService
   ) {}
-
+  dataCategory: Category[] = [];
   ngOnInit(): void {
     this.form = this.fb.group({
       name: [null, Validators.required],
@@ -67,8 +67,12 @@ export class CreateProductComponent implements OnInit {
     });
 
     this.loadProducts();
+    this.setCatedoryData();
   }
 
+  setCatedoryData(): void {
+    this.categoryService.getAll().subscribe(data => (this.dataCategory = data));
+  }
   loadProducts(): void {
     this.productService.getAll().subscribe({
       next: data => {

@@ -16,7 +16,7 @@
 @use 'overflow';
 @use 'interaction';
 @use 'object';
-
+@use 'form';
 $utilities: functions.map-collect(
   variables.$utilities,
   position.$utilities,
@@ -31,6 +31,7 @@ $utilities: functions.map-collect(
   overflow.$utilities,
   interaction.$utilities,
   object.$utilities,
+  form.$utilities
 );
 
 @each $key, $utility in $utilities {
