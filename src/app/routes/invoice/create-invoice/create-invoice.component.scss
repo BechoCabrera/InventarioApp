@@ -1,0 +1,79 @@
+@use '../../../../styles/helpers/api' as *;
+
+.product-card {
+  padding: 2rem;
+  margin: 2rem auto;
+  color: white;
+  background: #1e1e2f;
+  border-radius: 16px;
+}
+
+.title {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+mat-card {
+  padding: 1rem;
+  margin: 2rem;
+}
+
+mat-table {
+  width: 100%;
+}
+
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+}
+
+.btn-row {
+ display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.full-width-table {
+  width: 100%;
+  margin-top: 24px;
+}
+
+mat-chip.chip-disabled {
+  color: #333;
+  background-color: #ccc;
+}
+
+.chip-activo {
+  color: white;
+  background-color: #4caf50; // verde
+}
+
+.chip-inactivo {
+  color: white;
+  background-color: #f44336; // rojo
+}
+

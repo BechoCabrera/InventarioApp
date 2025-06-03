@@ -14,7 +14,7 @@ export interface Client {
 
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  private readonly apiUrl = `${environment.apiUrl}/products`; // ← CORREGIDO
+  private readonly apiUrl = `${environment.apiUrl}/clients`; // ← CORREGIDO
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Client[]> {

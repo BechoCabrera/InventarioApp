@@ -1,0 +1,40 @@
+@use '../../../../styles/helpers/spacing' as *;
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+}
+
+.btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}

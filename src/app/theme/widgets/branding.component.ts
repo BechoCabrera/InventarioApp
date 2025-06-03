@@ -4,9 +4,9 @@ import { Component, Input } from '@angular/core';
   selector: 'app-branding',
   template: `
     <a class="branding" href="/">
-      <img src="images/matero.png" class="branding-logo" alt="logo" />
+      <img src="images/logo-tienda.png" class="branding-logo" alt="logo" />
       @if (showName) {
-        <span class="branding-name">Nombre de la empresa</span>
+        <span class="branding-name">Dulzumat</span>
       }
     </a>
   `,
@@ -22,7 +22,7 @@ import { Component, Input } from '@angular/core';
     }
 
     .branding-logo {
-      width: 2rem;
+
       height: 2rem;
       border-radius: 50rem;
     }

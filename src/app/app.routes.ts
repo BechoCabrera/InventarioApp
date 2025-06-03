@@ -58,13 +58,12 @@ export const routes: Routes = [
         loadChildren: () => import('./routes/product/product.routes').then(m => m.productRoutes),
       },
       {
-        path: 'productos',
-        loadChildren: () => import('./routes/product/product.routes').then(m => m.productRoutes),
+        path: 'clientes',
+        loadChildren: () => import('./routes/client/client.routes').then(m => m.clientRoutes),
       },
       {
-        path: 'clients',
-        loadChildren: () =>
-          import('./routes/clients/client.routes').then(m => m.CreateClientComponent),
+        path: 'facturacion',
+        loadChildren: () => import('./routes/invoice/invoice.routes').then(m => m.invoiceRoutes),
       },
     ],
   },

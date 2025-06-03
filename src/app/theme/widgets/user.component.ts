@@ -55,7 +55,9 @@ export class UserComponent implements OnInit {
     this.auth
       .user()
       .pipe(
-        tap(user => (this.user = user)),
+        tap(user => {
+          this.user = user;
+        }),
         debounceTime(10)
       )
       .subscribe(() => this.cdr.detectChanges());

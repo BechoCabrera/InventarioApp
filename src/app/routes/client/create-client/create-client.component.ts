@@ -9,13 +9,13 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
-import { Client, ClientService } from '../product/client.service';
+import { Client, ClientService } from '../client.service';
 
 @Component({
-  selector: 'app-client',
-  standalone: true,
-  templateUrl: './client.component.html',
-  styleUrls: ['./client.component.scss'],
+  selector: 'app-create-client',
+  standalone:true,
+  templateUrl: './create-client.component.html',
+  styleUrl: './create-client.component.scss',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -28,6 +28,7 @@ import { Client, ClientService } from '../product/client.service';
     MatIconModule,
   ],
 })
+
 export class CreateClientComponent implements OnInit {
   form!: FormGroup;
   clients: Client[] = [];
