@@ -11,50 +11,57 @@ import { MatDividerModule } from '@angular/material/divider';
 @Component({
   selector: 'app-product-table',
   standalone: true,
-  imports: [CommonModule, MtxGridModule, MatIconModule, MatButtonModule,MatDividerModule,MatSlideToggleModule],
+  imports: [
+    CommonModule,
+    MtxGridModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatSlideToggleModule,
+  ],
   templateUrl: './product-table.component.html',
 })
 export class ProductTableComponent implements OnInit {
   products: Product[] = [];
 
-columns: MtxGridColumn[] = [
-  { header: 'Nombre', field: 'name' },
-  { header: 'Descripción', field: 'description' },
-  { header: 'Precio', field: 'price', type: 'number', width: '100px' },
-  { header: 'Stock', field: 'stock', type: 'number', width: '80px' },
-  { header: 'Categoría', field: 'categoryName' },
-  { header: 'Usuario', field: 'username' },
-  {
-    header: 'Estado',
-    field: 'isActive',
-    type: 'tag',
-    tag: {
-      true: { text: 'Activo', color: 'green' },
-      false: { text: 'Inactivo', color: 'red' },
+  columns: MtxGridColumn[] = [
+    { header: 'Nombre', field: 'name' },
+    { header: 'Descripción', field: 'description' },
+    { header: 'Precio', field: 'price', type: 'number', width: '100px' },
+    { header: 'Stock', field: 'stock', type: 'number', width: '80px' },
+    { header: 'Categoría', field: 'categoryName' },
+    { header: 'Usuario', field: 'username' },
+    {
+      header: 'Estado',
+      field: 'isActive',
+      type: 'tag',
+      tag: {
+        true: { text: 'Activo', color: 'green' },
+        false: { text: 'Inactivo', color: 'red' },
+      },
     },
-  },
-  {
-    header: 'Acciones',
-    field: 'actions',
-    type: 'button',
-    buttons: [
-      {
-        icon: 'edit',
-        type: 'icon',
-        color: 'primary',
-        tooltip: 'Editar',
-        //onClick: (record: Product) => this.editProduct(record),
-      },
-      {
-        icon: 'delete',
-        type: 'icon',
-        color: 'warn',
-        tooltip: 'Eliminar',
-       // onClick: (record: Product) => this.deleteProduct(record),
-      },
-    ],
-  },
-];
+    {
+      header: 'Acciones',
+      field: 'actions',
+      type: 'button',
+      buttons: [
+        {
+          icon: 'edit',
+          type: 'icon',
+          color: 'primary',
+          tooltip: 'Editar',
+          //onClick: (record: Product) => this.editProduct(record),
+        },
+        {
+          icon: 'delete',
+          type: 'icon',
+          color: 'warn',
+          tooltip: 'Eliminar',
+          // onClick: (record: Product) => this.deleteProduct(record),
+        },
+      ],
+    },
+  ];
 
   constructor(
     private productService: ProductService,
@@ -64,9 +71,7 @@ columns: MtxGridColumn[] = [
   ngOnInit(): void {
     this.loadProducts();
   }
-toggleEstado(arg:any){
-
-}
+  toggleEstado(arg: any) {}
   loadProducts(): void {
     this.productService.getAll().subscribe({
       next: data => (this.products = data),
