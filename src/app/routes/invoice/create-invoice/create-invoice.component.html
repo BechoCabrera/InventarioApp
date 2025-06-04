@@ -18,15 +18,19 @@
     </div>
 
     <div class="row p-x-16 p-y-8">
-      <mat-form-field appearance="fill" class="field">
+      <!-- <mat-form-field appearance="fill" class="field">
         <mat-label>Número de Factura</mat-label>
         <input matInput formControlName="invoiceNumber" required />
-      </mat-form-field>
+      </mat-form-field> -->
 
       <mat-form-field appearance="fill" class="field">
         <mat-label>Cliente</mat-label>
-        <input matInput formControlName="clientId" required />
-        <!-- Aquí puedes usar un select para clientes -->
+
+        <mat-select formControlName="clientId" required>
+          <mat-option *ngFor="let client of clients" [value]="client.clientId">
+            {{ client.name }}
+          </mat-option>
+        </mat-select>
       </mat-form-field>
 
       <mat-form-field appearance="fill" class="field">
@@ -42,30 +46,56 @@
         <mat-datepicker-toggle matSuffix [for]="pickerDue"></mat-datepicker-toggle>
         <mat-datepicker #pickerDue></mat-datepicker>
       </mat-form-field>
+
+      <mat-error *ngIf="form.hasError('dueBeforeIssue')">
+        La fecha de vencimiento no puede ser anterior a la fecha de emisión.
+      </mat-error>
     </div>
 
     <h3 class="p-x-16 p-y-8">Detalles</h3>
     <div formArrayName="details" class="p-x-16 p-y-8">
       <div *ngFor="let detail of details.controls; let i = index" [formGroupName]="i" class="row">
+        <!-- 🔍 Buscador de producto (nombre o código de barra) -->
         <mat-form-field appearance="fill" class="field">
-          <mat-label>Producto</mat-label>
-          <mat-select formControlName="productId" required>
-            <mat-option *ngFor="let product of products" [value]="product.productId">
-              {{ product.name }}
+          <mat-label>Buscar producto</mat-label>
+          <input
+            type="text"
+            matInput
+            [matAutocomplete]="auto"
+            formControlName="productSearch"
+           (input)="onDebouncedSearch($event, i)"
+            autocomplete="off"
+          />
+
+          <mat-autocomplete
+            #auto="matAutocomplete"
+            (optionSelected)="onProductSelected(i, $event.option.value)"
+          >
+            <mat-option *ngFor="let product of filteredProducts" [value]="product.name">
+              {{ product.name }} ({{ product.barCode }})
             </mat-option>
-          </mat-select>
+          </mat-autocomplete>
         </mat-form-field>
 
+        <!-- 📦 Stock (solo lectura) -->
+        <mat-form-field appearance="fill" class="field">
+          <mat-label>Stock</mat-label>
+          <input matInput type="number" formControlName="stock" readonly />
+        </mat-form-field>
+
+        <!-- 🔢 Cantidad -->
         <mat-form-field appearance="fill" class="field">
           <mat-label>Cantidad</mat-label>
           <input matInput type="number" formControlName="quantity" required />
         </mat-form-field>
 
+        <!-- 💰 Precio unitario -->
         <mat-form-field appearance="fill" class="field">
           <mat-label>Precio unitario</mat-label>
-          <input matInput type="number" formControlName="unitPrice" required />
+          <input matInput type="number" formControlName="unitPrice" readonly />
         </mat-form-field>
 
+        <!-- ❌ Botón eliminar -->
         <button mat-icon-button color="warn" (click)="removeDetail(i)">
           <mat-icon>delete</mat-icon>
         </button>

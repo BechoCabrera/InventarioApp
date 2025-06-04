@@ -8,7 +8,7 @@ export interface Product {
   productId?: string;
   name: string;
   description?: string;
-  price: number;
+  unitPrice: number;
   stock: number;
   categoryId?: string;
   isActive?: boolean;
@@ -44,5 +44,14 @@ export class ProductService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+  // 🔍 Buscar por nombre (like)
+  searchByName(name: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/search?name=${encodeURIComponent(name)}`);
+  }
+
+  // 🔍 Buscar por código de barras
+  getByBarCode(barCode: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/barcode/${barCode}`);
   }
 }

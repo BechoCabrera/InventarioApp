@@ -27,7 +27,7 @@ export class ProductTableComponent implements OnInit {
   columns: MtxGridColumn[] = [
     { header: 'Nombre', field: 'name' },
     { header: 'Descripción', field: 'description' },
-    { header: 'Precio', field: 'price', type: 'number', width: '100px' },
+    { header: 'Precio', field: 'unitPrice', type: 'number', width: '100px' },
     { header: 'Stock', field: 'stock', type: 'number', width: '80px' },
     { header: 'Categoría', field: 'categoryName' },
     { header: 'Usuario', field: 'username' },

@@ -39,9 +39,10 @@ export class CreateProductComponent implements OnInit {
   form!: FormGroup;
   products: Product[] = [];
   displayedColumns: string[] = [
+    'barCode',
     'name',
     'description',
-    'price',
+    'unitPrice',
     'stock',
     'category',
     'username',
@@ -58,9 +59,10 @@ export class CreateProductComponent implements OnInit {
   dataCategory: Category[] = [];
   ngOnInit(): void {
     this.form = this.fb.group({
+      barCode: [null, Validators.required],
       name: [null, Validators.required],
       description: [null, Validators.maxLength(200)],
-      price: [0, [Validators.required, Validators.min(0)]],
+      unitPrice: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
       categoryId: [null],
       isActive: [true],
