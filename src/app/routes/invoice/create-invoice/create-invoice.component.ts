@@ -1,6 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild, inject, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormArray,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +24,7 @@ import { Product, ProductService } from 'app/routes/product/product.service';
 import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DateAdapter } from '@angular/material/core';
+import { debounceTime, distinctUntilChanged, map, Observable, switchMap } from 'rxjs';
 @Component({
   selector: 'app-create-invoice',
   standalone: true,
@@ -53,7 +61,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['barCode', 'name', 'quantity', 'unitPrice', 'actions'];
   filteredProducts: Product[] = [];
   productSearchTimeouts: Record<number, number | ReturnType<typeof setTimeout>> = {};
-
+  searchControl = new FormControl('');
   constructor(
     private clientService: ClientService,
     private productService: ProductService,
@@ -69,24 +77,67 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       details: this.fb.array([]),
-      // Otros controles del formulario si es necesario
-      invoiceNumber: [null, Validators.required],
-      clientId: [null, Validators.required],
-      issueDate: [new Date(), Validators.required],
-      dueDate: [new Date(), Validators.required],
-      subtotalAmount: [0, Validators.required],
-      taxAmount: [0, Validators.required],
-      totalAmount: [0, Validators.required],
-      status: ['Emitida', Validators.required],
+      invoiceNumber: [null],
+      clientId: [null],
+      issueDate: [new Date()],
+      dueDate: [new Date()],
+      subtotalAmount: [0],
+      taxAmount: [0],
+      totalAmount: [0],
+      status: ['Emitida'],
+
       paymentMethod: [''],
+      productSearch: [''],
     });
     this.details.valueChanges.subscribe(() => {
       this.updateTotals();
     });
 
     this.loadClients();
-  }
 
+    this.searchControl.valueChanges
+      .pipe(
+        debounceTime(1000), // Espera 1 segundo después de la última tecla
+        distinctUntilChanged(), // Solo realiza la consulta si el valor cambia
+        switchMap(value => this.searchProducts(value || '')) // Llama a la función de búsqueda
+      )
+      .subscribe(products => {
+        this.filteredProducts = products;
+      });
+  }
+  trackByProductId(index: number, product: Product): number {
+    if (!product || !product.productId) {
+      return index; // Si el producto no tiene productId, usamos el índice como fallback
+    } else return 0;
+  }
+  searchProducts(value: string): Observable<Product[]> {
+    // Si es un código de barras, devolvemos el producto dentro de un arreglo
+    if (value != '') {
+      if (/^\d+$/.test(value)) {
+        return this.productService.getByBarCode(value).pipe(
+          map(product => {
+            // Si el producto se encuentra, agregamos el producto a la lista de detalles
+            if (product) {
+              this.filteredProducts = [product];
+              this.onProductSelected(product.name);
+              return [];
+            } else {
+              // Si el producto no es encontrado, retornamos un arreglo vacío o el valor que prefieras
+              return [];
+            }
+          })
+        );
+      } else {
+        // Si es una búsqueda por nombre, devolvemos el arreglo de productos
+        return this.productService.searchByName(value);
+      }
+    } else {
+      return new Observable<Product[]>(observer => {
+        observer.next([]); // Si el valor está vacío, devolvemos un arreglo vacío
+        observer.complete();
+      });
+    }
+  }
   get details(): FormArray {
     return this.form.get('details') as FormArray;
   }
@@ -95,12 +146,12 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     return this.details.controls.map((detail: any) => detail.value);
   }
 
-  onProductSelected(name: string): void {
+  onProductSelected(barCode: string): void {
     // Verificar si el producto ya está en la lista
-    const selectedProduct = this.filteredProducts.find(p => p.name === name);
+    const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
 
     if (!selectedProduct) {
-      this.toast.warning('Producto no encontrado.');
+      this.clearProductSearchInput();
       return;
     }
 
@@ -115,45 +166,25 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // Agregar un nuevo detalle solo si el producto no está ya agregado
-    const currentGroup = this.fb.group({
+    this.addProductToDetails(selectedProduct);
+  }
+
+  addProductToDetails(selectedProduct: Product): void {
+    // Asegúrate de que cada detalle es un FormGroup
+    const productGroup = this.fb.group({
       barCode: [selectedProduct.barCode],
       name: [selectedProduct.name],
       productSearch: [selectedProduct.name],
       productId: [selectedProduct.productId, Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
+      total: [0], // Esto es el total que calculamos más tarde
     });
 
-    // Agregar el nuevo producto al array de detalles
-    this.details.push(currentGroup);
-    console.log(this.details.value);
-    // Limpiar el campo de búsqueda de productos
-    this.details
-      .at(this.details.length - 1)
-      .get('productSearch')
-      ?.reset();
-
-    // Limpiar el texto visible en el input de búsqueda (en caso de que el formulario no lo limpie automáticamente)
-    const productSearchInput = document.querySelector(
-      'input[formControlName="productSearch"]'
-    ) as HTMLInputElement;
-    if (productSearchInput) {
-      productSearchInput.value = ''; // Limpiamos el valor visualmente en el input
-    }
-  }
-
-  setProduct(i: number, product: Product): void {
-    const group = this.details.at(i);
-    group.patchValue({
-      productId: product.productId,
-      unitPrice: product.unitPrice,
-      stock: product.stock,
-      productSearch: product.name,
-    });
-  }
-  onBlurSearch(): void {
-    // si el input se queda con texto pero no se seleccionó nada, puedes validarlo
+    // Añadimos el FormGroup al FormArray
+    this.details.push(productGroup);
+    this.toast.success('Producto agregado:', selectedProduct.name);
+    this.clearProductSearchInput();
   }
 
   dueDateAfterIssueDateValidator() {
@@ -165,63 +196,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
       return new Date(dueDate) < new Date(issueDate) ? { dueBeforeIssue: true } : null;
     };
-  }
-
-  handleProductSearch(value: string, index: number): void {
-    if (!value || value.length < 4) return; // Asegúrate de que el valor sea lo suficientemente largo para buscar
-
-    if (/^\d+$/.test(value)) {
-      this.productService.getByBarCode(value).subscribe(product => {
-        if (product) this.setProduct(index, product);
-      });
-    } else {
-      this.productService.searchByName(value).subscribe(products => {
-        this.filteredProducts = products;
-      });
-    }
-  }
-
-  onDebouncedSearch(event: any): void {
-    const value = event.target.value;
-
-    // Si el campo está vacío, limpiamos los productos filtrados y salimos
-    if (value === '') {
-      this.filteredProducts = [];
-      return;
-    }
-
-    // Si ya existe un timeout, lo limpiamos antes de crear uno nuevo
-    if (this.productSearchTimeouts) {
-      clearTimeout(this.productSearchTimeouts[event.target.value]);
-    }
-
-    // Esperamos 300ms después de la última tecla presionada para hacer la consulta
-    this.productSearchTimeouts[event.target.value] = setTimeout(() => {
-      // Realizamos la consulta por el código de barras cuando el valor tenga longitud suficiente
-      if (value.length >= 13) {
-        // Asegúrate de que el código de barras tenga una longitud adecuada
-        this.productService.getByBarCode(value).subscribe(products => {
-          // Si encontramos el producto, lo agregamos automáticamente a la tabla
-          if (products != null) {
-            const selectedProduct: Product = products;
-            // Verificamos si el producto ya está en la tabla
-            const isProductAlreadyAdded =
-              (this.details.controls as FormGroup[]).filter(
-                (detail: FormGroup) => detail.get('productId')?.value === selectedProduct.productId
-              ).length > 0;
-
-            if (!isProductAlreadyAdded) {
-              this.addDetailProduct(selectedProduct);
-            } else {
-              this.toast.warning('Este producto ya está en la lista.');
-              this.clearProductSearchInput();
-            }
-          } else {
-            this.toast.warning('Producto no encontrado.');
-          }
-        });
-      }
-    }, 300); // 300ms para el debounce, puedes ajustar según el comportamiento del lector
   }
 
   addDetailProduct(selectedProduct: Product) {
@@ -236,7 +210,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     // Agregamos el producto al FormArray
     this.details.push(currentGroup);
-    this.toast.success('Producto agregado:', selectedProduct.name);
+    this.toast.success('Producto agregado', selectedProduct.name);
     this.clearProductSearchInput();
   }
 
@@ -250,12 +224,11 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   clearProductSearchInput() {
-    const productSearchInput = document.querySelector(
-      'input[formControlName="productSearch"]'
-    ) as HTMLInputElement;
-    if (productSearchInput) {
-      productSearchInput.value = ''; // Limpiamos el valor visualmente en el input
-    }
+    // Limpiar el valor del input de búsqueda
+    this.searchControl.reset();
+
+    // Limpiar los productos filtrados
+    this.filteredProducts = [];
   }
 
   removeDetails(index: number): void {
@@ -306,27 +279,29 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   updateTotals(): void {
-    const details = this.details.value;
     let subtotal = 0;
 
-    details.forEach((item: any) => {
-      subtotal += (item.unitPrice || 0) * (item.quantity || 0);
+    this.details.controls.forEach((control: any) => {
+      const value = control.value;
+      subtotal += (value.unitPrice || 0) * (value.quantity || 0);
     });
 
-    const tax = subtotal * 0.19; // Ejemplo con IVA 19%
-    const total = subtotal + tax;
+    const total = subtotal;
 
     this.form.patchValue({
       subtotalAmount: subtotal,
-      taxAmount: tax,
+      taxAmount: 0,
       totalAmount: total,
     });
   }
+  updateQuantity(event: any): void {
+    const quantity = event.target.value; // Obtener el valor del input
 
-  updateQuantity(detail: any): void {
-    const quantity = detail.get('quantity').value;
-    const unitPrice = detail.get('unitPrice').value;
-    const total = quantity * unitPrice;
-    // Aquí puedes actualizar el total de la factura si es necesario.
+    this.form.value.details.forEach((detail: any, index: number) => {
+      const detailGroup = this.details.at(index) as FormGroup;
+      detailGroup.value.quantity = quantity; // Actualizar la cantidad en el FormGroup
+      detailGroup.value.total = detailGroup.value.unitPrice * quantity; // Calcular el total
+    });
+    this.updateTotals(); // Actualiza los totales generales
   }
 }

@@ -116,20 +116,25 @@
       <mat-form-field appearance="fill" class="field">
         <mat-label>Buscar producto</mat-label>
         <input
-          #productSearch
           matInput
           type="text"
+          [formControl]="searchControl"
           [matAutocomplete]="auto"
-          formControlName="productSearch"
-          (input)="onDebouncedSearch($event)"
           autocomplete="off"
         />
+
         <mat-autocomplete
           #auto="matAutocomplete"
           (optionSelected)="onProductSelected($event.option.value)"
         >
-          <mat-option *ngFor="let product of filteredProducts" [value]="product.name">
-            {{ product.name }} ({{ product.barCode }})
+          <!-- Mostrar nombre y productId de los productos filtrados -->
+          <mat-option *ngFor="let item of filteredProducts" [value]="item.barCode">
+            {{ item.barCode }} ({{ item.name }})
+          </mat-option>
+
+          <!-- Mensaje si no se encontraron productos -->
+          <mat-option *ngIf="filteredProducts.length === 0" disabled>
+            No se encontraron productos
           </mat-option>
         </mat-autocomplete>
       </mat-form-field>
@@ -154,12 +159,7 @@
         <ng-container matColumnDef="quantity">
           <th mat-header-cell *matHeaderCellDef>Cantidad</th>
           <td mat-cell *matCellDef="let detail">
-            <input
-              matInput
-              type="number"
-              formControlName="quantity"
-              (change)="updateQuantity(detail)"
-            />
+            <input matInput type="number" (change)="updateQuantity($event)" />
           </td>
         </ng-container>
 

@@ -51,7 +51,7 @@ export class HeaderComponent implements OnInit {
     });
 
     // Reemplazar "am" o "pm" a mayúsculas
-    time = time.replace(/(am|pm)/, match => match.toUpperCase());
+    time = time.replace(/(AM|PM)/, match => match.toUpperCase());
 
     this.currentTime = time;
 

@@ -8,7 +8,7 @@
   backdrop-filter: blur(8px);
 }
 
-.topo-bar {
+.top-bar {
   top: 10px;
   right: 20px;
   gap: 10px;
@@ -17,10 +17,3 @@
   color: #333;
 }
 
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  padding: 8px 24px;
-  font-size: 14px;
-  color: rgb(60, 60, 60);
-}
