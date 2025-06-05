@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -18,18 +18,11 @@ import { UserComponent } from '../widgets/user.component';
     class: 'matero-header',
   },
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    BrandingComponent,
-    GithubButtonComponent,
-    NotificationComponent,
-    TranslateComponent,
-    UserComponent,
-  ],
+  imports: [MatToolbarModule, MatButtonModule, MatIconModule, BrandingComponent, UserComponent],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  currentTime = '';
+  currentDate = '';
   @Input() showToggle = true;
   @Input() showBranding = false;
 
@@ -40,5 +33,33 @@ export class HeaderComponent {
     if (screenfull.isEnabled) {
       screenfull.toggle();
     }
+  }
+  ngOnInit(): void {
+    this.updateClock();
+    setInterval(() => this.updateClock(), 1000);
+  }
+
+  updateClock(): void {
+    const now = new Date();
+
+    // Obtener la hora con formato en 12 horas
+    let time = now.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true,
+    });
+
+    // Reemplazar "am" o "pm" a mayúsculas
+    time = time.replace(/(am|pm)/, match => match.toUpperCase());
+
+    this.currentTime = time;
+
+    this.currentDate = now.toLocaleDateString('es-CO', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
   }
 }

@@ -6,12 +6,15 @@ import { NgxPermissionsModule } from 'ngx-permissions';
 import { provideToastr } from 'ngx-toastr';
 import { provideTranslateService, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormlyConfigModule } from 'app/formly-config';
 import { CoreModule } from './core/core.module';
 import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import {
   apiInterceptor,
   BASE_URL,
@@ -55,6 +58,11 @@ const interceptors = [
     RoutesModule,
     FormlyConfigModule.forRoot(),
     NgxPermissionsModule.forRoot(),
+    BrowserAnimationsModule,
+    MatDialogModule,  // Importa MatDialogModule
+    MatButtonModule,  // Importa MatButtonModule si usas botones en el diálogo
+    MatFormFieldModule,
+    MatInputModule,
   ],
   providers: [
     { provide: BASE_URL, useValue: environment.baseUrl },

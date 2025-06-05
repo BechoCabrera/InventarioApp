@@ -39,7 +39,7 @@
 
       <mat-form-field appearance="fill" class="field">
         <mat-label>Categoría</mat-label>
-        <mat-select formControlName="categoryId" required>
+        <mat-select formControlName="categoryId">
           <mat-option value="">Sin categoría</mat-option>
           <mat-option *ngFor="let cat of dataCategory" [value]="cat.categoryId">
             {{ cat.name }}

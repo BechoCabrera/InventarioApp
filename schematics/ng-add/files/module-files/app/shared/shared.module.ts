@@ -19,6 +19,8 @@ import { SafeUrlPipe } from '@shared/pipes/safe-url.pipe';
 import { NgModule } from '@angular/core';
 import { DisableControlDirective } from '@shared/directives/disable-control.directive';
 
+import { MatDialogModule } from '@angular/material/dialog';  // Asegúrate de importar MatDialogModule
+import { MatButtonModule } from '@angular/material/button';  // Si usas botones en el modal
 
 
 
@@ -36,6 +38,8 @@ const MODULES: any[] = [
   TranslateModule,
   NgProgressbar,
   NgProgressRouter,
+  MatDialogModule,  // Añade MatDialogModule aquí
+  MatButtonModule,
 ];
 const COMPONENTS: any[] = [BreadcrumbComponent, PageHeaderComponent, ErrorCodeComponent];
 const DIRECTIVES: any[] = [DisableControlDirective];
