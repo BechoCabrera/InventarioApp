@@ -6,3 +6,11 @@
 @use 'styles/helpers';
 @use 'styles/plugins';
 @use 'styles/custom';
+
+.custom-dialog-container .mat-dialog-container {
+  padding: 0;
+  overflow: hidden;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}

@@ -1,0 +1,71 @@
+<!-- Plantilla POS para impresión térmica 58mm o 80mm -->
+<div #pdfContent style="font-family: monospace; font-size: 12px; width: 58mm; padding: 8px">
+  <div style="text-align: center">
+    <h3 style="margin: 0">DULZUMAT</h3>
+    <p style="margin: 0">NIT: 123456789-0</p>
+    <p style="margin: 0">Cra 10 #20-30</p>
+    <p style="margin: 0">Tel: 300 000 0000</p>
+    <hr />
+  </div>
+
+  <p>
+    <strong>Factura:</strong>
+    {{ invoice?.invoiceNumber }}
+  </p>
+  <p>
+    <strong>Fecha:</strong>
+    {{ invoice?.issueDate | date: 'short' }}
+  </p>
+  <p>
+    <strong>Cliente:</strong>
+    {{ invoice?.clientName }}
+  </p>
+
+  <hr />
+  <table style="width: 100%; font-size: 11px">
+    <thead>
+      <tr>
+        <th style="text-align: left">Prod</th>
+        <th style="text-align: center">Cant</th>
+        <th style="text-align: right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of invoice?.details">
+        <td>{{ item.productName }}</td>
+        <td style="text-align: center">{{ item.quantity }}</td>
+        <td style="text-align: right">
+          {{ item.unitPrice * item.quantity | currency: 'COP' : 'symbol' : '1.0-0' }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <hr />
+  <p>
+    <strong>Subtotal:</strong>
+    {{ invoice?.subtotalAmount | currency: 'COP' : 'symbol' : '1.0-0' }}
+  </p>
+  <p>
+    <strong>Impuesto:</strong>
+    {{ invoice?.taxAmount | currency: 'COP' : 'symbol' : '1.0-0' }}
+  </p>
+  <p>
+    <strong>Total:</strong>
+    {{ invoice?.totalAmount | currency: 'COP' : 'symbol' : '1.0-0' }}
+  </p>
+  <p>
+    <strong>Pago:</strong>
+    {{ invoice?.paymentMethod }}
+  </p>
+  <hr />
+
+  <div style="text-align: center">
+    <p>Gracias por su compra</p>
+    <p>______________________</p>
+    <p>Firma</p>
+  </div>
+</div>
+
+<div style="text-align: center; margin-top: 16px">
+  <button (click)="download()">🖨 Imprimir / PDF</button>
+</div>

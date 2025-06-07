@@ -1,0 +1,66 @@
+<div #pdfContent style="font-family: Arial, sans-serif; padding: 24px;">
+  <!-- Encabezado -->
+  <table style="width: 100%; margin-bottom: 20px;">
+    <tr>
+      <td style="width: 60%;">
+        <h1 style="margin: 0;">DULZUMAT</h1>
+        <p style="margin: 0; font-size: 14px;">NIT: 123456789-0</p>
+        <p style="margin: 0; font-size: 14px;">Cra 10 #20-30, Ciudad</p>
+        <p style="margin: 0; font-size: 14px;">Tel: 300 000 0000</p>
+      </td>
+      <td style="text-align: right;">
+        <img src="https://i.imgur.com/jk2sH7K.png" alt="logo" width="100" />
+        <h2 style="margin: 0; margin-top: 10px;">Factura</h2>
+        <p style="margin: 0; font-size: 14px;">Nro: {{ invoice?.invoiceNumber }}</p>
+        <p style="margin: 0; font-size: 14px;">Fecha: {{ invoice?.issueDate | date }}</p>
+        <p style="margin: 0; font-size: 14px;">Cliente: {{ invoice?.clientName }}</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Tabla de productos -->
+  <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+    <thead style="background-color: #f0f0f0;">
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio Unitario</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of invoice?.details">
+        <td>{{ item.productName }}</td>
+        <td style="text-align: center;">{{ item.quantity }}</td>
+        <td style="text-align: right;">{{ item.unitPrice | currency }}</td>
+        <td style="text-align: right;">{{ item.unitPrice * item.quantity | currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Totales -->
+  <table style="width: 100%; margin-top: 20px;">
+    <tr>
+      <td style="width: 60%;"></td>
+      <td style="text-align: right;">
+        <p><strong>Subtotal:</strong> {{ invoice?.subtotalAmount | currency }}</p>
+        <p><strong>Impuesto:</strong> {{ invoice?.taxAmount | currency }}</p>
+        <p><strong>Total:</strong> {{ invoice?.totalAmount | currency }}</p>
+        <p><strong>Método de pago:</strong> {{ invoice?.paymentMethod }}</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Firma -->
+  <div style="margin-top: 60px; text-align: center;">
+    <p>___________________________</p>
+    <p>Firma Autorizada</p>
+  </div>
+</div>
+
+<!-- Botón de descarga -->
+<div style="text-align: right; margin-top: 16px;">
+  <button (click)="download()" style="padding: 8px 16px; font-weight: bold;">
+    Descargar PDF
+  </button>
+</div>

@@ -58,7 +58,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
   form!: FormGroup;
-  displayedColumns: string[] = ['barCode', 'name', 'quantity', 'unitPrice', 'actions'];
+  displayedColumns: string[] = ['barCode', 'name', 'stock', 'quantity', 'unitPrice', 'actions'];
   filteredProducts: Product[] = [];
   productSearchTimeouts: Record<number, number | ReturnType<typeof setTimeout>> = {};
   searchControl = new FormControl('');
@@ -75,19 +75,18 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     }
   }
   ngOnInit(): void {
+    this.dateAdapter.setLocale('es-CO');
+
     this.form = this.fb.group({
       details: this.fb.array([]),
-      invoiceNumber: [null],
-      clientId: [null],
-      issueDate: [new Date()],
-      dueDate: [new Date()],
+      clientId: [null, Validators.required],
+      issueDate: [new Date(), Validators.required],
+      dueDate: [new Date(), Validators.required],
       subtotalAmount: [0],
       taxAmount: [0],
       totalAmount: [0],
-      status: ['Emitida'],
-
-      paymentMethod: [''],
-      productSearch: [''],
+      status: ['Generado'],
+      paymentMethod: [null, Validators.required],
     });
     this.details.valueChanges.subscribe(() => {
       this.updateTotals();
@@ -178,7 +177,8 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       productId: [selectedProduct.productId, Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
-      total: [0], // Esto es el total que calculamos más tarde
+      total: [0],
+      stock: [selectedProduct.stock],
     });
 
     // Añadimos el FormGroup al FormArray
@@ -206,6 +206,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       productId: [selectedProduct.productId, Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
+      stock: [selectedProduct.stock, [Validators.required, Validators.min(1)]],
     });
 
     // Agregamos el producto al FormArray
@@ -235,15 +236,15 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.details.removeAt(index);
   }
 
-  onSubmit(): void {
+  saveInvoice(): void {
     if (this.form.invalid) return;
     if (this.details.length === 0) {
       this.toast.warning('Debe agregar al menos un producto a la factura');
       return;
     }
-    const invoice = this.form.value;
+    const invoice: Invoice = this.form.value;
 
-    this.invoiceService.create(invoice).subscribe({
+    this.invoiceService.saveInvoice(invoice).subscribe({
       next: () => {
         this.toast.success('Factura guardada con éxito');
 
@@ -294,14 +295,17 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       totalAmount: total,
     });
   }
-  updateQuantity(event: any): void {
-    const quantity = event.target.value; // Obtener el valor del input
-
-    this.form.value.details.forEach((detail: any, index: number) => {
-      const detailGroup = this.details.at(index) as FormGroup;
-      detailGroup.value.quantity = quantity; // Actualizar la cantidad en el FormGroup
-      detailGroup.value.total = detailGroup.value.unitPrice * quantity; // Calcular el total
-    });
-    this.updateTotals(); // Actualiza los totales generales
+  updateQuantity(event: any, data: Product): void {
+    const quantity = event.target.value * 1;
+    const valueResulto: Product = this.form.value.details.find(
+      (a: Product) => a.barCode == data.barCode
+    );
+    if (valueResulto != null && valueResulto.stock >= quantity) {
+      valueResulto.quantity = quantity;
+    } else {
+      this.toast.error('La cantidad no es permitida.');
+      event.target.value = valueResulto.stock;
+    }
+    this.updateTotals();
   }
 }
