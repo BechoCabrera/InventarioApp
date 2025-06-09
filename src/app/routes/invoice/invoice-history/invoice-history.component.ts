@@ -31,7 +31,15 @@ export class InvoiceHistoryComponent implements OnInit {
   @ViewChild('pdfContent', { static: false }) pdfContent!: ElementRef;
   selectedInvoice: Invoice | null = null;
   invoices: Invoice[] = [];
-  displayedColumns = ['invoiceNumber', 'client', 'issueDate', 'totalAmount', 'status', 'actions'];
+  displayedColumns = [
+    'invoiceNumber',
+    'client',
+    'issueDate',
+    'totalAmount',
+    'status',
+    'entitiName',
+    'actions',
+  ];
 
   constructor(
     private invoiceService: InvoiceService,

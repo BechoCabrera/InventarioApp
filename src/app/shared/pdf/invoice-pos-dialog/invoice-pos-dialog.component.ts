@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common'; // 👈 AÑADE ESTO
   imports: [InvoicePosPdfComponent, MatProgressSpinnerModule, CommonModule], // ✅ importa aquí
 })
 export class InvoicePosDialogComponent {
-  @ViewChild(InvoicePosPdfComponent) child!: InvoicePosPdfComponent;
+  @ViewChild('childRef') child!: InvoicePosPdfComponent;
   constructor(
     public dialogRef: MatDialogRef<InvoicePosDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

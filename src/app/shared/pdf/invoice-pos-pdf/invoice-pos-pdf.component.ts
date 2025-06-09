@@ -14,7 +14,7 @@ export class InvoicePosPdfComponent {
   @ViewChild('pdfContent') pdfContent!: ElementRef;
   @Output() afterDownload = new EventEmitter<void>();
   isLoading = false;
-
+  child: any;
   download(): void {
     this.isLoading = true;
 
@@ -38,5 +38,6 @@ export class InvoicePosPdfComponent {
           this.afterDownload.emit();
         });
     }, 100); // ⏳ suficiente para esperar render
+    this.isLoading = false;
   }
 }

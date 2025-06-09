@@ -23,6 +23,7 @@ export interface Invoice {
   taxAmount: number;
   totalAmount: number;
   status: string;
+  entitiName: string;
   paymentMethod?: string;
   details?: InvoiceDetail[];
 }

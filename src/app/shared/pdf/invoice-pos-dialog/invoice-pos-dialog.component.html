@@ -1,15 +1,5 @@
+<app-invoice-pos-pdf #childRef [invoice]="data" (afterDownload)="close()"></app-invoice-pos-pdf>
+  <div class="dialog-footer">
+    <button mat-button (click)="print()" *ngIf="child && !child.isLoading">Imprimir</button>
+  </div>
 
-
-<app-invoice-pos-pdf [invoice]="data" (afterDownload)="close()" />
-<div class="dialog-footer">
-  <button
-    mat-flat-button
-    color="accent"
-    (click)="print()"
-    [disabled]="child.isLoading"
-  >
-    <mat-spinner *ngIf="child.isLoading" diameter="20" strokeWidth="3"></mat-spinner>
-    <span *ngIf="!child.isLoading">🖨️ Imprimir / PDF</span>
-    <span *ngIf="child.isLoading">&nbsp;Generando...</span>
-  </button>
-</div>
