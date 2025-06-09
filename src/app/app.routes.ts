@@ -65,6 +65,11 @@ export const routes: Routes = [
         path: 'facturacion',
         loadChildren: () => import('./routes/invoice/invoice.routes').then(m => m.invoiceRoutes),
       },
+      {
+        path: 'entiti-config',
+        loadChildren: () =>
+          import('./routes/entiti-config/entiti-config.routes').then(m => m.entitiConfigRoutes),
+      },
     ],
   },
   {

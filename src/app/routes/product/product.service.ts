@@ -17,6 +17,7 @@ export interface Product {
   barCode?: string;
   user: User;
   categoryName: string;
+  entitiName: string;
   quantity: number;
 }
 

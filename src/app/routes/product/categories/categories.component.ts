@@ -33,7 +33,7 @@ import { Category, CategoryService } from '../category.service';
 export class CreateCategoryComponent implements OnInit {
   form!: FormGroup;
   categories: Category[] = [];
-  displayedColumns: string[] = ['name', 'description', 'actions'];
+  displayedColumns: string[] = ['name', 'description', 'entitiName', 'actions'];
 
   private readonly toast = inject(ToastrService);
 

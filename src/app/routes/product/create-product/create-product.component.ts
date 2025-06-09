@@ -46,10 +46,10 @@ export class CreateProductComponent implements OnInit {
     'stock',
     'category',
     'username',
+    'entitiName',
     'isActive',
     'actions',
   ];
-
   private readonly toast = inject(ToastrService);
   constructor(
     private fb: FormBuilder,

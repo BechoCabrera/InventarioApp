@@ -13,7 +13,7 @@ import { Client, ClientService } from '../client.service';
 
 @Component({
   selector: 'app-create-client',
-  standalone:true,
+  standalone: true,
   templateUrl: './create-client.component.html',
   styleUrl: './create-client.component.scss',
   imports: [
@@ -28,11 +28,10 @@ import { Client, ClientService } from '../client.service';
     MatIconModule,
   ],
 })
-
 export class CreateClientComponent implements OnInit {
   form!: FormGroup;
   clients: Client[] = [];
-  displayedColumns: string[] = ['name', 'nit', 'email', 'phone', 'actions'];
+  displayedColumns: string[] = ['name', 'nit', 'email', 'phone', 'entitiName', 'actions'];
 
   private readonly toast = inject(ToastrService);
 

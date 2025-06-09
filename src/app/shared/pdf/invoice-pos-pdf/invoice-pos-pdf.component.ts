@@ -13,23 +13,30 @@ export class InvoicePosPdfComponent {
   @Input() invoice: any;
   @ViewChild('pdfContent') pdfContent!: ElementRef;
   @Output() afterDownload = new EventEmitter<void>();
+  isLoading = false;
 
   download(): void {
-    const element = this.pdfContent.nativeElement;
-    const height = element.offsetHeight * 0.264583;
+    this.isLoading = true;
 
-    const options = {
-      filename: `factura-pos-${this.invoice?.invoiceNumber || 'N/A'}.pdf`,
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: [58, height], orientation: 'portrait' },
-    };
+    // Esperamos a que el DOM se pinte antes de capturarlo
+    setTimeout(() => {
+      const element = this.pdfContent.nativeElement;
+      const height = element.offsetHeight * 0.264583;
 
-    html2pdf()
-      .from(element)
-      .set(options)
-      .save()
-      .then(() => {
-        this.afterDownload.emit(); // 👈 Cierra el modal
-      });
+      const options = {
+        filename: `factura-pos-${this.invoice?.invoiceNumber || 'N/A'}.pdf`,
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: [58, height], orientation: 'portrait' },
+      };
+
+      html2pdf()
+        .from(element)
+        .set(options)
+        .save()
+        .then(() => {
+          this.isLoading = false;
+          this.afterDownload.emit();
+        });
+    }, 100); // ⏳ suficiente para esperar render
   }
 }

@@ -1,0 +1,39 @@
+<mat-dialog-content class="form-container">
+  <h2 class="title">✏️ Editar Entidad</h2>
+
+  <form [formGroup]="form">
+    <div class="row">
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Code</mat-label>
+        <input matInput formControlName="code" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="entitiName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>NIT</mat-label>
+        <input matInput formControlName="entitiNit" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Dirección</mat-label>
+        <input matInput formControlName="entitiAddress" />
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Descripción</mat-label>
+        <input matInput formControlName="description" />
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="btn-row">
+  <button mat-stroked-button color="warn" (click)="cancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="form.invalid">
+    Actualizar
+  </button>
+</mat-dialog-actions>

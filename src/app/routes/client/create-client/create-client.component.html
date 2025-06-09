@@ -55,6 +55,11 @@
       <td mat-cell *matCellDef="let client">{{ client.phone }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="entitiName">
+      <th mat-header-cell *matHeaderCellDef>Nombre entidad</th>
+      <td mat-cell *matCellDef="let client">{{ client.entitiName }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef>Acciones</th>
       <td mat-cell *matCellDef="let client">

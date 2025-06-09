@@ -9,6 +9,7 @@ export interface Client {
   nit: string;
   email: string;
   phone: string;
+  entitiName: string;
   isActive?: boolean;
 }
 

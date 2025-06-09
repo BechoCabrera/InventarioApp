@@ -41,17 +41,8 @@ export class StartupService {
 
   private setPermissions(user: User) {
     // In a real app, you should get permissions and roles from the user information.
-    const permissions = [
-      'canAdd',
-      'canDelete',
-      'canEdit',
-      'canRead',
-      'MANAGE_PRODUCTS',
-      'MANAGE_CLIENTS',
-      'MANAGE_BILLING',
-      'VIEW_BILLING_HISTORY',
-      'MANAGE_INVENTORY',
-    ];
+    const permissions = user?.permissions || []; // Asegúrate que vengan del backend
+    console.log(permissions);
     this.permissonsService.loadPermissions(permissions);
     this.rolesService.flushRoles();
     this.rolesService.addRoles({ ADMIN: permissions });

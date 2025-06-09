@@ -1,4 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild, inject, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  inject,
+  AfterViewInit,
+  LOCALE_ID,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -25,6 +33,13 @@ import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DateAdapter } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged, map, Observable, switchMap } from 'rxjs';
+
+import { registerLocaleData } from '@angular/common';
+import localeCo from '@angular/common/locales/es-CO';
+import { MatDialog } from '@angular/material/dialog';
+import { InvoicePosDialogComponent } from '@shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
+
+registerLocaleData(localeCo, 'es-CO');
 @Component({
   selector: 'app-create-invoice',
   standalone: true,
@@ -45,7 +60,10 @@ import { debounceTime, distinctUntilChanged, map, Observable, switchMap } from '
     MatDatepickerModule,
     MatAutocompleteModule,
   ],
-  providers: [{ provide: MAT_DATE_LOCALE, useValue: 'es-CO' }],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
+    { provide: LOCALE_ID, useValue: 'es-CO' },
+  ],
 })
 export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   invoices: Invoice[] = [];
@@ -66,7 +84,8 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     private clientService: ClientService,
     private productService: ProductService,
     private dateAdapter: DateAdapter<any>,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ) {}
 
   ngAfterViewInit(): void {
@@ -248,6 +267,13 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       next: () => {
         this.toast.success('Factura guardada con éxito');
 
+        this.dialog.open(InvoicePosDialogComponent, {
+          data: invoice,
+          width: '380px',
+          maxWidth: '95vw',
+          panelClass: 'custom-dialog-container',
+        });
+
         this.form.reset();
         this.details.clear();
         this.form.patchValue({
@@ -307,5 +333,26 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       event.target.value = valueResulto.stock;
     }
     this.updateTotals();
+  }
+
+  incrementQuantity(index: number, data: any) {
+    const item = this.details.at(index);
+    const cant = item.value.quantity + 1;
+    if (data.stock >= cant) {
+      data.quantity = cant;
+    } else {
+      this.toast.error('La cantidad no es permitida. stock maximo: ' + data.stock);
+      data.quantity = data.stock;
+    }
+
+    this.updateTotals();
+  }
+
+  decrementQuantity(index: number) {
+    const item = this.details.at(index);
+    if (item.value.quantity > 1) {
+      item.patchValue({ quantity: item.value.quantity - 1 });
+      this.updateTotals();
+    }
   }
 }
