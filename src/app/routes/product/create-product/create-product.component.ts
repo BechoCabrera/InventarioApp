@@ -14,6 +14,7 @@ import { Product, ProductService } from '../product.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { Category, CategoryService } from '../category.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-create-product',
@@ -33,6 +34,7 @@ import { Category, CategoryService } from '../category.service';
     MatDividerModule,
     MatTableModule,
     MatChipsModule,
+    MatTooltipModule,
   ],
 })
 export class CreateProductComponent implements OnInit {
@@ -44,6 +46,7 @@ export class CreateProductComponent implements OnInit {
     'description',
     'unitPrice',
     'stock',
+    'stockSold',
     'category',
     'username',
     'entitiName',
