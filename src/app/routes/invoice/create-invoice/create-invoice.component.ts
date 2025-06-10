@@ -338,11 +338,12 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   incrementQuantity(index: number, data: any) {
     const item = this.details.at(index);
     const cant = item.value.quantity + 1;
-    if (data.stock >= cant) {
+    const stockTotal = item.value.stock - item.value.stockSold;
+    if (stockTotal >= cant) {
       data.quantity = cant;
     } else {
-      this.toast.error('La cantidad no es permitida. stock maximo: ' + data.stock);
-      data.quantity = data.stock;
+      this.toast.error('La cantidad no es permitida. stock maximo: ' + stockTotal);
+      data.quantity = stockTotal;
     }
 
     this.updateTotals();

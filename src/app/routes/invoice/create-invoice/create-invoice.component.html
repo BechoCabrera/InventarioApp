@@ -13,7 +13,7 @@
               (click)="saveInvoice()"
               [disabled]="form.invalid"
             >
-              Guardar
+              Pagar y Guardar
             </button>
             <button
               mat-stroked-button
@@ -130,7 +130,7 @@
             >
               💵 Efectivo
             </button>
-            <button
+            <button style="font-size: 12px;"
               mat-raised-button
               [color]="selectedPaymentMethod === 'Tranferencia' ? 'primary' : 'accent'"
               [ngClass]="{ 'selected-method': selectedPaymentMethod === 'Tranferencia' }"

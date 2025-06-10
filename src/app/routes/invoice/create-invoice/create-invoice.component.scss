@@ -63,7 +63,7 @@ mat-card {
   width: 120px;
   height: 40px;
   padding: 6px 14px;
-  font-size: 15px;
+  font-size: 12px;
   border-radius: 10px;
 }
 
@@ -234,3 +234,89 @@ mat-form-field.field .mat-form-field-infix {
   color: #bbb;
 }
 
+@media screen and (width <= 768px) {
+  .form-layout {
+    flex-direction: column;
+  }
+
+  .form-main,
+  .form-side {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: unset;
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .field {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .payment-methods {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-methods-wrapper {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    margin: 1rem auto;
+  }
+
+  .total-display-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
+@media screen and (width <= 768px) {
+  .product-item {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .product-actions {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .product-total {
+    width: auto;
+    margin-left: auto;
+    font-size: 12px;
+    text-align: left;
+  }
+}
+@media screen and (width <= 768px) {
+  .total-display-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 85%;
+    max-width: 100%;
+    padding: 0.75rem 1rem;
+
+    .total-label {
+      font-size: 14px;
+    }
+
+    .total-value {
+      gap: 0.25rem;
+      font-size: 18px;
+
+      .amount-icon {
+        font-size: 24px;
+      }
+    }
+  }
+}

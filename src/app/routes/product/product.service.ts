@@ -10,6 +10,7 @@ export interface Product {
   description?: string;
   unitPrice: number;
   stock: number;
+  stockSold: number;
   categoryId?: string;
   isActive?: boolean;
   createdAt?: string;
