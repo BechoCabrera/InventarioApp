@@ -1,0 +1,46 @@
+<mat-card>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2 mat-dialog-title>Editar Producto</h2>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Precio</mat-label>
+      <input matInput type="number" formControlName="unitPrice" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Descripción</mat-label>
+      <input matInput formControlName="description" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Stock</mat-label>
+      <input matInput type="number" formControlName="stock" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="categoryId">
+        <mat-option value="">Sin categoría</mat-option>
+        <mat-option *ngFor="let cat of dataCategory" [value]="cat.categoryId">
+          {{ cat.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="toggle-container">
+      <mat-slide-toggle formControlName="isActive" color="primary">Activo</mat-slide-toggle>
+    </div>
+
+    <div class="btn-row">
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+        Guardar
+      </button>
+      <button mat-stroked-button color="warn" type="button" (click)="onCancel()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>

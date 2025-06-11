@@ -5,7 +5,7 @@ import { environment } from '@env/environment';
 import { User } from '@core';
 
 export interface Product {
-  productId?: string;
+  productId: string;
   name: string;
   description?: string;
   unitPrice: number;
@@ -56,5 +56,9 @@ export class ProductService {
   // 🔍 Buscar por código de barras
   getByBarCode(barCode: string): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/barcode/${barCode}`);
+  }
+
+  updateProduct(productId: string, updatedProduct: Product): Observable<boolean> {
+    return this.http.put<boolean>(`${this.apiUrl}/${productId}`, updatedProduct); // Hace la solicitud PUT al backend
   }
 }

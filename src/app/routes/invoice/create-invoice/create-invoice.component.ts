@@ -198,6 +198,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
       total: [0],
       stock: [selectedProduct.stock],
+      stockSold: [selectedProduct.stockSold],
     });
 
     // Añadimos el FormGroup al FormArray
@@ -226,6 +227,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
       stock: [selectedProduct.stock, [Validators.required, Validators.min(1)]],
+      stockSold: [selectedProduct.stockSold],
     });
 
     // Agregamos el producto al FormArray

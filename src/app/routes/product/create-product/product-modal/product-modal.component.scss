@@ -1,0 +1,57 @@
+mat-card {
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.field {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+}
+
+.btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+mat-slide-toggle {
+  margin-top: 10px;
+}
+
+mat-form-field {
+  margin-bottom: 10px;
+}
+
+/* Estilos adicionales para la tabla de productos */
+mat-chip {
+  color: white;
+  background-color: lightgray;
+}
+
+.mat-select {
+  margin-bottom: 1rem;
+}
+
+mat-button {
+  margin-right: 1rem;
+}
+
+/* Estilos para la animación del modal (opcional) */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
