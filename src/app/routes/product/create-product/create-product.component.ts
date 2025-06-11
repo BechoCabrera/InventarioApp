@@ -15,6 +15,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { Category, CategoryService } from '../category.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { ProductModalComponent } from './product-modal/product-modal.component';
 
 @Component({
   selector: 'app-create-product',
@@ -57,7 +59,8 @@ export class CreateProductComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private dialog: MatDialog
   ) {}
   dataCategory: Category[] = [];
   ngOnInit(): void {
@@ -108,27 +111,20 @@ export class CreateProductComponent implements OnInit {
       },
     });
   }
-  editProduct(product: Product): void {}
+  editProduct(product: Product): void {
+    const dialogRef = this.dialog.open(ProductModalComponent, {
+      width: '500px',
+      data: { product }, // Pasa el producto al modal
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadProducts();
+      }
+    });
+  }
   deleteProduct(product: Product): void {}
   cancel(): void {
     this.form.reset({ isActive: true });
-  }
-
-  toggleEstado(element: Product): void {
-    const estadoOriginal = element.isActive;
-    const updatedProduct = { ...element, isActive: !element.isActive };
-    this.productService.update(element.productId!, updatedProduct.isActive).subscribe({
-      next: () => {
-        this.toast.success(
-          `Producto ${updatedProduct.isActive ? 'activado' : 'desactivado'} correctamente`
-        );
-        // Actualizar el estado del producto en la lista
-        element.isActive = !element.isActive;
-      },
-      error: err => {
-        console.error('Error al actualizar estado:', err);
-        element.isActive = estadoOriginal;
-      },
-    });
   }
 }
