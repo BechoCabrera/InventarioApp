@@ -1,8 +1,9 @@
 export interface EntitiConfigData {
-  id?: string;
+  id: string;
   code: string;
   entitiName: string;
   entitiNit: string;
-  entitiAddress?: string;
-  description?: string;
+  entitiAddress: string;
+  description: string;
+  entitiPhone: number | null;
 }

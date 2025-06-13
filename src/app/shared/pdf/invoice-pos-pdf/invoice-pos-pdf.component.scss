@@ -41,3 +41,85 @@
     transform: translateY(0);
   }
 }
+
+.pos-ticket {
+  font-family: monospace;
+  font-size: 12px;
+  width: 58mm;
+  padding: 12px 8px; // 👈 aumenta espacio interno
+  background-color: white;
+  box-sizing: border-box;
+
+  hr {
+    border: 0;
+    border-top: 1px solid black;
+    margin: 8px 0;
+  }
+
+  p {
+    margin: 4px 0;
+  }
+
+  table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 2px 0;
+    }
+  }
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: auto;
+  max-width: 90vw;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-footer {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  width: 100%;
+}
+.totals-block {
+  margin-top: -8px;
+  line-height: 1.4;
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+    font-size: 12px;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  span {
+    text-align: right;
+  }
+}

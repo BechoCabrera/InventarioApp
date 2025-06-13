@@ -29,4 +29,8 @@ export class EntitiConfigService {
   delete(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}`);
   }
+
+  getMyEntiti(): Observable<{ data: EntitiConfigData }> {
+    return this.http.get<{ data: EntitiConfigData }>(`${this.apiUrl}/myentiti`);
+  }
 }

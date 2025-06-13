@@ -56,9 +56,6 @@ export class InvoiceHistoryComponent implements OnInit {
   openInvoiceDialog(invoice: Invoice): void {
     this.dialog.open(InvoicePosDialogComponent, {
       data: invoice,
-      width: '380px',
-      maxWidth: '95vw',
-      panelClass: 'custom-dialog-container',
     });
   }
 }

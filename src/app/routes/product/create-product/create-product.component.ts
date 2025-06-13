@@ -17,6 +17,7 @@ import { Category, CategoryService } from '../category.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductModalComponent } from './product-modal/product-modal.component';
+import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
 
 @Component({
   selector: 'app-create-product',
@@ -37,11 +38,13 @@ import { ProductModalComponent } from './product-modal/product-modal.component';
     MatTableModule,
     MatChipsModule,
     MatTooltipModule,
+    LoadingOverlayComponent,
   ],
 })
 export class CreateProductComponent implements OnInit {
   form!: FormGroup;
   products: Product[] = [];
+  isEntitiLoading = true;
   displayedColumns: string[] = [
     'barCode',
     'name',
@@ -76,6 +79,7 @@ export class CreateProductComponent implements OnInit {
 
     this.loadProducts();
     this.setCatedoryData();
+
   }
 
   setCatedoryData(): void {
@@ -85,6 +89,7 @@ export class CreateProductComponent implements OnInit {
     this.productService.getAll().subscribe({
       next: data => {
         this.products = data;
+        this.isEntitiLoading = false;
       },
       error: err => {
         this.toast.error('Error al cargar productos', 'Error');

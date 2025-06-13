@@ -1,5 +1,1 @@
 <app-invoice-pos-pdf #childRef [invoice]="data" (afterDownload)="close()"></app-invoice-pos-pdf>
-  <div class="dialog-footer">
-    <button mat-button (click)="print()" *ngIf="child && !child.isLoading">Imprimir</button>
-  </div>
-

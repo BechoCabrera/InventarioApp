@@ -21,6 +21,11 @@
       <td mat-cell *matCellDef="let item">{{ item.description }}</td>
     </ng-container>
 
+     <ng-container matColumnDef="entitiPhone">
+      <th mat-header-cell *matHeaderCellDef>Telefono</th>
+      <td mat-cell *matCellDef="let item">{{ item.entitiPhone }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="entitiAddress">
       <th mat-header-cell *matHeaderCellDef>Dirección</th>
       <td mat-cell *matCellDef="let item">{{ item.entitiAddress }}</td>
