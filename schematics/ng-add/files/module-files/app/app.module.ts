@@ -31,6 +31,11 @@ import { environment } from '@env/environment';
 import { ThemeModule } from './theme/theme.module';
 import { SharedModule } from './shared/shared.module';
 import { RoutesModule } from './routes/routes.module';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 // Required for AOT compilation
 function TranslateHttpLoaderFactory(http: HttpClient) {
@@ -51,7 +56,7 @@ const interceptors = [
 @NgModule({
   declarations: [AppComponent],
   imports: [
-    BrowserModule,
+
     CoreModule,
     ThemeModule,
     SharedModule,
@@ -59,11 +64,18 @@ const interceptors = [
     FormlyConfigModule.forRoot(),
     NgxPermissionsModule.forRoot(),
     BrowserAnimationsModule,
-    MatDialogModule,  // Importa MatDialogModule
-    MatButtonModule,  // Importa MatButtonModule si usas botones en el diálogo
+    BrowserModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatTableModule,
+    MatIconModule,
   ],
+
   providers: [
     { provide: BASE_URL, useValue: environment.baseUrl },
     provideAppInitializer(() => inject(TranslateLangService).load()),

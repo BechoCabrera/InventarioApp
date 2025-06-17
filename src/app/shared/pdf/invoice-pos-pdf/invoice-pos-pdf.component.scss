@@ -1,9 +1,14 @@
 @media print {
-  .no-print {
-    display: none !important;
+  @page {
+    size: auto; /* Deja que se ajuste al contenido */
+    margin: 0mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
   }
 }
-
 .dialog-wrapper {
   display: flex;
   flex-direction: column;
@@ -44,20 +49,21 @@
 
 .pos-ticket {
   font-family: monospace;
-  font-size: 12px;
+  font-size: 11px;
   width: 58mm;
-  padding: 12px 8px; // 👈 aumenta espacio interno
-  background-color: white;
+  padding: 10px 5px;
+  margin: 0;
   box-sizing: border-box;
 
   hr {
-    border: 0;
-    border-top: 1px solid black;
-    margin: 8px 0;
+    margin: 4px 0;
+    border: none;
+    border-top: 1px dashed black;
   }
 
   p {
-    margin: 4px 0;
+    margin: 2px 0;
+    line-height: 1.2;
   }
 
   table {

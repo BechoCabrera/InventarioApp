@@ -25,4 +25,8 @@ export class ClientService {
   create(client: Client): Observable<any> {
     return this.http.post(this.apiUrl, client);
   }
+
+  updateClient(clientId: string, updatedClient: Client): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/${clientId}`, updatedClient); // El API retorna un mensaje
+  }
 }

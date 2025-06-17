@@ -266,11 +266,11 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     const invoice: Invoice = this.form.value;
 
     this.invoiceService.saveInvoice(invoice).subscribe({
-      next: () => {
+      next: (savedInvoice) => {
         this.toast.success('Factura guardada con éxito');
 
         this.dialog.open(InvoicePosDialogComponent, {
-          data: invoice,
+          data: savedInvoice,
           width: '380px',
           maxWidth: '95vw',
           panelClass: 'custom-dialog-container',

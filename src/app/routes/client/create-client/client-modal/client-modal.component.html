@@ -1,0 +1,32 @@
+<mat-card>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <h2 mat-dialog-title>Editar Cliente</h2>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>NIT</mat-label>
+      <input matInput formControlName="nit" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="field">
+      <mat-label>Teléfono</mat-label>
+      <input matInput formControlName="phone" required />
+    </mat-form-field>
+
+    <div class="btn-row">
+      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
+        Guardar
+      </button>
+      <button mat-stroked-button color="warn" type="button" (click)="onCancel()">Cancelar</button>
+    </div>
+  </form>
+</mat-card>

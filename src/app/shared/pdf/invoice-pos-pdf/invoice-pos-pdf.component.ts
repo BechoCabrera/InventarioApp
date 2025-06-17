@@ -8,7 +8,6 @@ import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay
 import { Optional } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 
-
 @Component({
   selector: 'app-invoice-pos-pdf',
   standalone: true,
@@ -25,11 +24,12 @@ export class InvoicePosPdfComponent {
   isLoading = false;
 
   isEntitiLoading = true;
-  constructor(private entitiService: EntitiConfigService,
-  @Optional() private dialogRef?: MatDialogRef<any>
+  constructor(
+    private entitiService: EntitiConfigService,
+    @Optional() private dialogRef?: MatDialogRef<any>
   ) {}
   ngOnInit(): void {
-    this.getDataEntiti(); // 👈 esto debe estar aquí
+    this.getDataEntiti();
   }
 
   download(): void {
@@ -38,19 +38,20 @@ export class InvoicePosPdfComponent {
   setTimeout(() => {
     const element = this.pdfContent.nativeElement;
 
-    // 👇 Calcula altura dinámica en mm (1px = 0.264583mm)
-    const height = element.scrollHeight * 0.264583;
+    // 🔥 CALCULA ALTO DINÁMICO en milímetros (1px = 0.264583 mm)
+    const pixelHeight = element.scrollHeight;
+    const heightInMm = pixelHeight * 0.264583;
 
     const options = {
-      margin: 0, // ⚠️ esto debe quedarse en 0 para evitar hoja 2
+      margin: 0,
       filename: `factura-pos-${this.invoice?.invoiceNumber || 'N/A'}.pdf`,
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: {
         unit: 'mm',
-        format: [58, height],
+        format: [58, heightInMm], // 📏 altura real en mm
         orientation: 'portrait',
       },
-      pagebreak: { mode: ['avoid'] }
+      pagebreak: { mode: ['avoid'] },
     };
 
     html2pdf()
@@ -64,14 +65,65 @@ export class InvoicePosPdfComponent {
   }, 100);
 }
 
+print(): void {
+  const printWindow = window.open('', '_blank', 'width=600,height=600');
 
-  onClose(): void {
-  if (this.dialogRef) {
-    this.dialogRef.close(); // ✅ cierra el diálogo directamente
-  } else {
-    this.close.emit(); // opcional si alguna vez lo usas en otro contexto
+  if (printWindow) {
+    const style = `
+      <style>
+        body {
+          font-family: monospace;
+          font-size: 11px;
+          width: 58mm;
+          padding: 0;
+          margin: 0;
+        }
+        .pos-ticket {
+          padding: 10px;
+        }
+        hr {
+          border: none;
+          border-top: 1px dashed black;
+          margin: 4px 0;
+        }
+        table {
+          width: 100%;
+          font-size: 11px;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 2px 0;
+        }
+        .row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 11px;
+        }
+      </style>
+    `;
+
+    const content = this.pdfContent.nativeElement.innerHTML;
+
+    printWindow.document.write(`
+      <html>
+        <head><title>Recibo</title>${style}</head>
+        <body onload="window.print(); window.close();">
+          <div class="pos-ticket">${content}</div>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
   }
 }
+
+  onClose(): void {
+    if (this.dialogRef) {
+      this.dialogRef.close(); // ✅ cierra el diálogo directamente
+    } else {
+      this.close.emit(); // opcional si alguna vez lo usas en otro contexto
+    }
+  }
 
   getDataEntiti() {
     this.entitiService.getMyEntiti().subscribe({

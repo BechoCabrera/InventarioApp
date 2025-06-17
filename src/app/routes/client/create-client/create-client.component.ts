@@ -10,6 +10,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
 import { Client, ClientService } from '../client.service';
+import { ClientModalComponent } from './client-modal/client-modal.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-create-client',
@@ -37,7 +39,8 @@ export class CreateClientComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +82,18 @@ export class CreateClientComponent implements OnInit {
   }
 
   editClient(client: Client): void {
-    this.form.patchValue(client);
+    const dialogRef = this.dialog.open(ClientModalComponent, {
+      width: '500px',
+      data: { client: client }, // Pasa el cliente al modal
+    });
+
+    dialogRef.componentInstance.clientUpdated.subscribe((updatedClient: Client) => {
+      // Cuando se recibe el cliente actualizado desde el modal
+      const index = this.clients.findIndex(c => c.clientId === updatedClient.clientId);
+      if (index !== -1) {
+        this.loadClients(); // Recarga la lista de clientes
+      }
+    });
   }
 
   clear(): void {

@@ -3,9 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 // export const environment = {
-//   production: false,
-//   baseUrl: '',
-//   useHash: false,
+//   production: true,
+//   apiUrl: 'http://194.163.187.96:8090/api', // ← tu API externa aquí
+//   baseUrl: '/'                             // ← este es clave para el frontend
 // };
 
 export const environment = {

@@ -38,8 +38,8 @@ export class InvoiceService {
     return this.http.get<Invoice[]>(this.api);
   }
 
-  saveInvoice(invoice: Invoice): Observable<void> {
-    return this.http.post<void>(this.api, invoice);
+  saveInvoice(invoice: Invoice): Observable<Invoice> {
+    return this.http.post<Invoice>(this.api, invoice);
   }
 
   getAllInvoices(): Observable<Invoice[]> {
