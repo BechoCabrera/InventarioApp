@@ -18,6 +18,15 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductModalComponent } from './product-modal/product-modal.component';
 import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '@shared/modal/confirm-dialog/confirm-dialog.component';
+import { MatTableDataSource } from '@angular/material/table';
+
+import { ViewChild } from '@angular/core';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+
 
 @Component({
   selector: 'app-create-product',
@@ -39,11 +48,13 @@ import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay
     MatChipsModule,
     MatTooltipModule,
     LoadingOverlayComponent,
+    MatPaginatorModule
   ],
 })
 export class CreateProductComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   form!: FormGroup;
-  products: Product[] = [];
+  products = new MatTableDataSource<Product>();
   isEntitiLoading = true;
   displayedColumns: string[] = [
     'barCode',
@@ -73,30 +84,31 @@ export class CreateProductComponent implements OnInit {
       description: [null, Validators.maxLength(200)],
       unitPrice: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categoryId: [null],
-      isActive: [true],
+      categoryId: [null,[]],
+      isActive: [true,[]],
     });
 
     this.loadProducts();
     this.setCatedoryData();
-
   }
 
   setCatedoryData(): void {
     this.categoryService.getAll().subscribe(data => (this.dataCategory = data));
   }
+
   loadProducts(): void {
-    this.productService.getAll().subscribe({
-      next: data => {
-        this.products = data;
-        this.isEntitiLoading = false;
-      },
-      error: err => {
-        this.toast.error('Error al cargar productos', 'Error');
-        console.error(err);
-      },
-    });
-  }
+  this.productService.getAll().subscribe({
+    next: data => {
+      this.products.data = data;
+      this.products.paginator = this.paginator;
+      this.isEntitiLoading = false;
+    },
+    error: err => {
+      this.toast.error('Error al cargar productos', 'Error');
+      console.error(err);
+    },
+  });
+}
 
   onSubmit(): void {
     if (this.form.invalid) return;
@@ -116,6 +128,7 @@ export class CreateProductComponent implements OnInit {
       },
     });
   }
+
   editProduct(product: Product): void {
     const dialogRef = this.dialog.open(ProductModalComponent, {
       width: '500px',
@@ -128,7 +141,37 @@ export class CreateProductComponent implements OnInit {
       }
     });
   }
-  deleteProduct(product: Product): void {}
+
+  deleteProduct(product: Product): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Eliminar producto',
+        message: `¿Estás seguro de que deseas eliminar el producto "${product.name}"?`,
+        confirmText: 'Sí, eliminar',
+        cancelText: 'Cancelar',
+      } as ConfirmDialogData,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Solo eliminar si el usuario confirmó
+        this.productService.delete(product.productId).subscribe({
+          next: value => {
+            if (value.message == 'True') {
+              this.toast.success(`Producto ${product.name} eliminado correctamente`);
+              this.loadProducts();
+            }else{
+               this.toast.error('Producto no eliminado, este producto tiene ventas asociadas');
+            }
+          },
+          error: err => {
+            this.toast.error('Producto no eliminado');
+          },
+        });
+      }
+    });
+  }
   cancel(): void {
     this.form.reset({ isActive: true });
   }

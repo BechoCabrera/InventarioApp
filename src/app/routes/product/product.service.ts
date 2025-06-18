@@ -45,8 +45,8 @@ export class ProductService {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, isActive);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string):  Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
   // 🔍 Buscar por nombre (like)
   searchByName(name: string): Observable<Product[]> {

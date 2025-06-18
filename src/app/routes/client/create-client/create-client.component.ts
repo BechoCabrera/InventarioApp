@@ -47,8 +47,8 @@ export class CreateClientComponent implements OnInit {
     this.form = this.fb.group({
       name: [null, Validators.required],
       nit: [null, Validators.required],
-      email: [null, [Validators.required, Validators.email]],
-      phone: [null, Validators.required],
+      email: [null,[]],
+      phone: [null,[]],
     });
     this.clear();
     this.loadClients();
