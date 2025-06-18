@@ -70,7 +70,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   @ViewChild('productSearch') productSearchInput!: ElementRef;
   clients: Client[] = [];
   products: Product[] = [];
-
+  changeAmount: number = 0;
   selectedPaymentMethod = '';
 
   private readonly toast = inject(ToastrService);
@@ -106,7 +106,26 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       totalAmount: [0],
       status: ['Generado'],
       paymentMethod: [null, Validators.required],
+      amountPaid: [null, [Validators.required, Validators.min(0)]],
     });
+
+    this.form.get('amountPaid')?.valueChanges.subscribe(() => {
+      const paid = this.form.get('amountPaid')?.value || 0;
+      const total = this.form.get('totalAmount')?.value || 0;
+
+      if (paid < total) {
+        this.form.get('amountPaid')?.setErrors({ insufficient: true });
+      } else {
+        this.form.get('amountPaid')?.setErrors(null);
+      }
+
+      this.calculateChangeAmount();
+    });
+
+    this.form.get('totalAmount')?.valueChanges.subscribe(() => {
+      this.calculateChangeAmount();
+    });
+
     this.details.valueChanges.subscribe(() => {
       this.updateTotals();
     });
@@ -115,13 +134,21 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     this.searchControl.valueChanges
       .pipe(
-        debounceTime(1000), // Espera 1 segundo después de la última tecla
+        debounceTime(300), // Espera 1 segundo después de la última tecla
         distinctUntilChanged(), // Solo realiza la consulta si el valor cambia
         switchMap(value => this.searchProducts(value || '')) // Llama a la función de búsqueda
       )
       .subscribe(products => {
         this.filteredProducts = products;
       });
+  }
+  calculateChangeAmount(): void {
+    const paid = this.form.get('amountPaid')?.value || 0;
+    const total = this.form.get('totalAmount')?.value || 0;
+
+    const result = paid - total;
+
+    this.changeAmount = result > 0 ? result : 0;
   }
   trackByProductId(index: number, product: Product): number {
     if (!product || !product.productId) {
@@ -137,7 +164,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
             // Si el producto se encuentra, agregamos el producto a la lista de detalles
             if (product) {
               this.filteredProducts = [product];
-              this.onProductSelected(product.name);
+              this.onProductSelected(product.barCode);
               return [];
             } else {
               // Si el producto no es encontrado, retornamos un arreglo vacío o el valor que prefieras
@@ -164,7 +191,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     return this.details.controls.map((detail: any) => detail.value);
   }
 
-  onProductSelected(barCode: string): void {
+  onProductSelected(barCode?: string): void {
     // Verificar si el producto ya está en la lista
     const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
 
@@ -181,6 +208,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     if (isProductAlreadyAdded) {
       this.toast.warning('Este producto ya está en la lista.');
+      this.clearProductSearchInput();
       return;
     }
 
@@ -257,16 +285,65 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.details.removeAt(index);
   }
 
+  // saveInvoice(): void {
+  //   if (this.form.invalid) return;
+  //   if (this.details.length === 0) {
+  //     this.toast.warning('Debe agregar al menos un producto a la factura');
+  //     return;
+  //   }
+
+  //   const total = this.form.get('totalAmount')?.value || 0;
+  //   const amountPaid = this.form.get('amountPaid')?.value || 0;
+  //   const cambio = amountPaid - total;
+
+  //   if (cambio < 0) {
+  //     this.toast.error('El monto pagado es menor al total. No se puede continuar.');
+  //     return;
+  //   }
+
+  //   console.log('💵 Cambio a entregar:', cambio);
+
+  //   const invoice: Invoice = this.form.value;
+
+  //   this.invoiceService.saveInvoice(invoice).subscribe({
+  //     next: savedInvoice => {
+  //       this.toast.success('Factura guardada con éxito');
+
+  //       this.dialog.open(InvoicePosDialogComponent, {
+  //         data: savedInvoice,
+  //         width: '380px',
+  //         maxWidth: '95vw',
+  //         panelClass: 'custom-dialog-container',
+  //       });
+
+  //       this.form.reset();
+  //       this.details.clear();
+  //       this.form.patchValue({
+  //         subtotalAmount: 0,
+  //         taxAmount: 0,
+  //         totalAmount: 0,
+  //         status: 'Emitida',
+  //         issueDate: new Date(),
+  //         dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+  //       });
+  //     },
+  //     error: err => {
+  //       this.toast.error('Error al guardar factura');
+  //       console.error(err);
+  //     },
+  //   });
+  // }
+
   saveInvoice(): void {
     if (this.form.invalid) return;
     if (this.details.length === 0) {
       this.toast.warning('Debe agregar al menos un producto a la factura');
       return;
     }
-    const invoice: Invoice = this.form.value;
 
+    const invoice: Invoice = this.form.value;
     this.invoiceService.saveInvoice(invoice).subscribe({
-      next: (savedInvoice) => {
+      next: savedInvoice => {
         this.toast.success('Factura guardada con éxito');
 
         this.dialog.open(InvoicePosDialogComponent, {
@@ -293,6 +370,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       },
     });
   }
+
   loadClients(): void {
     this.clientService.getAll().subscribe({
       next: data => (this.clients = data),

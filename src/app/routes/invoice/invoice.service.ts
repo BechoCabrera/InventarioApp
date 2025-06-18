@@ -22,6 +22,7 @@ export interface Invoice {
   subtotalAmount: number;
   taxAmount: number;
   totalAmount: number;
+  amountPaid: number;
   status: string;
   entitiName: string;
   paymentMethod?: string;

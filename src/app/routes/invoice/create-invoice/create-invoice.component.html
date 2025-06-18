@@ -54,11 +54,15 @@
             La fecha de vencimiento no puede ser anterior a la fecha de emisión.
           </mat-error>
         </div>
-        <div formArrayName="details" class="p-x-16 p-y-8">
-          <mat-form-field appearance="fill" class="field">
-           <mat-icon matPrefix>search</mat-icon>
-
+        <div
+          class="row p-x-16 p-y-8"
+          style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap"
+        >
+          <!-- Buscar producto -->
+          <mat-form-field appearance="fill" style="flex: 1; min-width: 240px">
+            <mat-icon matPrefix>search</mat-icon>
             <input
+              #productSearch
               matInput
               type="text"
               [formControl]="searchControl"
@@ -77,6 +81,12 @@
                 No se encontraron productos
               </mat-option>
             </mat-autocomplete>
+          </mat-form-field>
+
+          <!-- Monto pagado -->
+          <mat-form-field appearance="fill" style="width: 380px">
+            <mat-label>Monto pagado</mat-label>
+            <input matInput type="number" formControlName="amountPaid" />
           </mat-form-field>
 
           <div class="product-list">
@@ -130,7 +140,8 @@
             >
               💵 Efectivo
             </button>
-            <button style="font-size: 12px;"
+            <button
+              style="font-size: 12px"
               mat-raised-button
               [color]="selectedPaymentMethod === 'Tranferencia' ? 'primary' : 'accent'"
               [ngClass]="{ 'selected-method': selectedPaymentMethod === 'Tranferencia' }"
@@ -155,6 +166,19 @@
               ${{ form.get('totalAmount')?.value | number: '1.0-0' }}
             </div>
           </mat-card>
+
+           <div style="margin-top: 0.5rem">
+            <mat-card
+              class="total-display-card"
+              style="background-color: #fffde7; border-left-color: #8b6b18"
+            >
+              <div class="total-label">Vueltos</div>
+              <div class="total-value">
+                <mat-icon class="amount-icon"></mat-icon>
+                ${{ changeAmount | number: '1.0-0' }}
+              </div>
+            </mat-card>
+          </div>
         </div>
       </div>
     </div>
