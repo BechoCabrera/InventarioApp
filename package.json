@@ -80,7 +80,7 @@
     "rimraf": "^5.0.0",
     "stylelint": "^16.16.0",
     "stylelint-config-recess-order": "^6.0.0",
-    "stylelint-config-recommended-scss": "^14.1.0",
+    "stylelint-config-recommended-scss": "^15.0.1",
     "stylelint-config-standard": "^37.0.0",
     "ts-node": "^10.9.2",
     "typescript": "~5.7.2",
