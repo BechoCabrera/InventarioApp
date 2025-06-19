@@ -52,10 +52,46 @@
     <mat-divider></mat-divider>
   </form>
 
+  <div class="dashboard-cards-row">
+    <mat-card class="dashboard-card blue-card">
+      <div class="card-icon">
+        <mat-icon>receipt_long</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Productos</div>
+        <div class="card-value">{{ totalProductos }}</div>
+      </div>
+    </mat-card>
+
+    <mat-card class="dashboard-card green-card">
+      <div class="card-icon">
+        <mat-icon>category</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Stock total</div>
+        <div class="card-value">{{ totalStock }}</div>
+      </div>
+    </mat-card>
+    <mat-card class="dashboard-card gold-card">
+      <div class="card-icon">
+        <mat-icon>inventory_2</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Valor inventario</div>
+        <div class="card-value">${{ totalValorInventario | number: '1.0-0' }}</div>
+      </div>
+    </mat-card>
+  </div>
+  <!-- <div class="row p-x-16 p-y-8">
+  <button mat-raised-button color="accent" (click)="openSummaryModal()">
+    📊 Ver resumen de inventario
+  </button>
+</div> -->
   <h2 class="title p-x-16 p-y-8">📋 Productos Registrados</h2>
   <mat-divider class="m-y-16"></mat-divider>
   <div class="responsive-table-wrapper">
-    <table mat-table [dataSource]="products" class="mat-elevation-z1 full-width-table p-x-16 p-y-8">
+   <table mat-table [dataSource]="products" matSort class="mat-elevation-z1 full-width-table p-x-16 p-y-8">
+
       <!-- CodBarra -->
       <ng-container matColumnDef="barCode">
         <th mat-header-cell *matHeaderCellDef>Código de Barra</th>
@@ -63,7 +99,7 @@
       </ng-container>
       <!-- Nombre -->
       <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre</th>
         <td mat-cell *matCellDef="let element">{{ element.name }}</td>
       </ng-container>
       <!-- Descripción -->
@@ -150,5 +186,6 @@
     </table>
   </div>
 </mat-card>
+
 <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
 <app-loading-overlay [isLoading]="isEntitiLoading"></app-loading-overlay>

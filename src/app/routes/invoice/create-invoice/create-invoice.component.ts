@@ -383,6 +383,12 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   selectPaymentMethod(method: string): void {
     this.selectedPaymentMethod = method;
     this.form.patchValue({ paymentMethod: method });
+
+    const total = this.form.get('totalAmount')?.value || 0;
+
+    if (method === 'Crédito' || method === 'Tranferencia' || method === 'Tarjeta') {
+      this.form.patchValue({ amountPaid: total });
+    }
   }
 
   updateTotals(): void {

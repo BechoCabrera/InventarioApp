@@ -1,0 +1,48 @@
+.dashboard-cards-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin: 1rem 0;
+
+  .dashboard-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    flex: 1 1 260px;
+    border-radius: 16px;
+    color: white;
+
+    .card-icon {
+      font-size: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-content {
+      .card-title {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .card-value {
+        font-size: 24px;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .blue-card {
+    background: linear-gradient(to right, #2196f3, #1e88e5);
+  }
+
+  .green-card {
+    background: linear-gradient(to right, #4caf50, #388e3c);
+  }
+
+  .gold-card {
+    background: linear-gradient(to right, #ffb300, #f57c00);
+  }
+}

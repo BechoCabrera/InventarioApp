@@ -26,8 +26,8 @@ import { MatTableDataSource } from '@angular/material/table';
 
 import { ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-
-
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 @Component({
   selector: 'app-create-product',
   standalone: true,
@@ -48,10 +48,15 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     MatChipsModule,
     MatTooltipModule,
     LoadingOverlayComponent,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatSortModule,
   ],
 })
 export class CreateProductComponent implements OnInit {
+  totalProductos = 0;
+  totalStock = 0;
+  totalValorInventario = 0;
+  @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   form!: FormGroup;
   products = new MatTableDataSource<Product>();
@@ -69,6 +74,15 @@ export class CreateProductComponent implements OnInit {
     'isActive',
     'actions',
   ];
+  private calcularTotales(): void {
+    this.totalProductos = this.products.data.length;
+    this.totalStock = this.products.data.reduce((acc, p) => acc + (p.stock - p.stockSold), 0);
+    this.totalValorInventario = this.products.data.reduce(
+      (acc, p) => acc + (p.stock - p.stockSold) * p.unitPrice,
+      0
+    );
+  }
+
   private readonly toast = inject(ToastrService);
   constructor(
     private fb: FormBuilder,
@@ -84,12 +98,27 @@ export class CreateProductComponent implements OnInit {
       description: [null, Validators.maxLength(200)],
       unitPrice: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
-      categoryId: [null,[]],
-      isActive: [true,[]],
+      categoryId: [null, []],
+      isActive: [true, []],
     });
 
     this.loadProducts();
     this.setCatedoryData();
+  }
+
+  openSummaryModal(): void {
+    this.dialog.open(ProductSummaryComponent, {
+      width: '700px',
+      data: {
+        totalProductos: this.totalProductos,
+        totalStock: this.totalStock,
+        totalValorInventario: this.totalValorInventario,
+        products: this.products.data.map(p => ({
+          name: p.name,
+          stock: p.stock - p.stockSold,
+        })),
+      },
+    });
   }
 
   setCatedoryData(): void {
@@ -97,18 +126,26 @@ export class CreateProductComponent implements OnInit {
   }
 
   loadProducts(): void {
-  this.productService.getAll().subscribe({
-    next: data => {
-      this.products.data = data;
-      this.products.paginator = this.paginator;
-      this.isEntitiLoading = false;
-    },
-    error: err => {
-      this.toast.error('Error al cargar productos', 'Error');
-      console.error(err);
-    },
-  });
-}
+    this.productService.getAll().subscribe({
+      next: data => {
+        this.products.data = data;
+        this.products.sort = this.sort;
+        this.products.paginator = this.paginator;
+
+        // 🔽 Ordenar por defecto alfabéticamente por nombre (ascendente)
+        this.sort.active = 'name';
+        this.sort.direction = 'asc';
+        this.sort.sortChange.emit({ active: 'name', direction: 'asc' });
+
+        this.isEntitiLoading = false;
+        this.calcularTotales();
+      },
+      error: err => {
+        this.toast.error('Error al cargar productos', 'Error');
+        console.error(err);
+      },
+    });
+  }
 
   onSubmit(): void {
     if (this.form.invalid) return;
@@ -161,8 +198,8 @@ export class CreateProductComponent implements OnInit {
             if (value.message == 'True') {
               this.toast.success(`Producto ${product.name} eliminado correctamente`);
               this.loadProducts();
-            }else{
-               this.toast.error('Producto no eliminado, este producto tiene ventas asociadas');
+            } else {
+              this.toast.error('Producto no eliminado, este producto tiene ventas asociadas');
             }
           },
           error: err => {

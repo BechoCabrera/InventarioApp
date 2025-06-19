@@ -26,7 +26,6 @@ import { InvoicePosDialogComponent } from '../../../shared/pdf/invoice-pos-dialo
     CommonModule,
     InvoicePosPdfComponent,
     MatDialogModule,
-    InvoicePosDialogComponent,
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
