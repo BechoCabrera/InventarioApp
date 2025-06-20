@@ -129,3 +129,10 @@
     text-align: right;
   }
 }
+
+.pos-ticket {
+  max-height: 50vh; /* Altura máxima para la factura */
+  overflow-y: auto; /* Agrega el scroll vertical */
+  padding-right: 0px; /* Para no ocultar el contenido por el scrollbar */
+
+}

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, inject, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Invoice, InvoiceService } from '../../invoice.service';
+import { CashClosing, CashClosingService } from './CashClosingService.service';
+import { Toast, ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-cash-closing-modal',
@@ -35,11 +37,13 @@ export class CashClosingModalComponent implements OnInit {
   totalCard: number = 0;
   totalTransfer: number = 0;
   invoices: Invoice[] = [];
+  private readonly toast = inject(ToastrService);
   constructor(
     public dialogRef: MatDialogRef<CashClosingModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, // Recibe la información de la factura
     private fb: FormBuilder, // Necesario para crear el formulario reactivo
-    private invoiceService: InvoiceService // Inyectamos el servicio de facturación
+    private invoiceService: InvoiceService, // Inyectamos el servicio de facturación
+    private cashClosingService: CashClosingService // Inyectamos el servicio de facturación
   ) {
     // Crea el formulario reactivo
     this.cashClosingForm = this.fb.group({
@@ -57,17 +61,39 @@ export class CashClosingModalComponent implements OnInit {
 
   // Función que obtiene las facturas del día y calcula los totales
   loadDailySalesData(): void {
-    const currentDate = new Date().toISOString().split('T')[0]; // Obtener la fecha de hoy en formato YYYY-MM-DD
+    // Obtener la fecha de hoy en formato YYYY-MM-DD
+    const currentDate = new Date();
+    const formattedDate =
+      currentDate.getFullYear() +
+      '-' +
+      ('0' + (currentDate.getMonth() + 1)).slice(-2) +
+      '-' +
+      ('0' + currentDate.getDate()).slice(-2);
 
-    this.invoiceService.getInvoicesByDate(currentDate).subscribe(
+    // Llamar al servicio para obtener las facturas del día
+    this.invoiceService.getInvoicesByDate(formattedDate).subscribe(
       invoices => {
-        // Sumamos los totales de cada tipo de pago
-        this.totalCash = invoices.reduce((total, invoice:any) => total + invoice.totalCash, 0);
-        this.totalCredit = invoices.reduce((total, invoice:any) => total + invoice.totalCredit, 0);
-        this.totalCard = invoices.reduce((total, invoice:any) => total + invoice.totalCard, 0);
-        this.totalTransfer = invoices.reduce((total, invoice:any) => total + invoice.totalTransfer, 0);
+        // Inicializamos las variables totales
+        this.totalCash = 0;
+        this.totalCredit = 0;
+        this.totalCard = 0;
+        this.totalTransfer = 0;
 
-        // Calcular el total general (suma de todos los tipos de pago)
+        // Sumamos los totales de cada tipo de pago para las facturas del día
+        invoices.forEach((invoice: any) => {
+          // Sumar el total por cada tipo de pago
+          if (invoice.paymentMethod === 'Efectivo') {
+            this.totalCash += invoice.totalAmount;
+          } else if (invoice.paymentMethod === 'Crédito') {
+            this.totalCredit += invoice.totalAmount;
+          } else if (invoice.paymentMethod === 'Tarjeta') {
+            this.totalCard += invoice.totalAmount;
+          } else if (invoice.paymentMethod === 'Tranferencia') {
+            this.totalTransfer += invoice.totalAmount;
+          }
+        });
+
+        // Calcular el total general
         this.totalAmount = this.totalCash + this.totalCredit + this.totalCard + this.totalTransfer;
 
         // Actualizamos el formulario reactivo con los totales calculados
@@ -79,6 +105,7 @@ export class CashClosingModalComponent implements OnInit {
         });
       },
       error => {
+        // Manejo de errores
         console.error('Error al cargar las facturas:', error);
       }
     );
@@ -99,9 +126,26 @@ export class CashClosingModalComponent implements OnInit {
       return;
     }
 
-    // Aquí puedes llamar a tu servicio para guardar el cierre de caja
+    // Crear el objeto del cierre de caja
+    const cashClosing = {
+      totalCash: this.totalCash,
+      totalCredit: this.totalCredit,
+      totalCard: this.totalCard,
+      totalTransfer: this.totalTransfer,
+      totalAmount: this.totalAmount,
+      changeAmount: this.changeAmount,
+    };
 
-    this.dialogRef.close(); // Cierra el modal después de guardar
+    // Llamar al servicio para guardar el cierre de caja
+    this.cashClosingService.saveCashClosing(cashClosing).subscribe(
+      response => {
+        this.dialogRef.close();
+        this.toast.success('Cierre de caja guardado con éxito');
+      },
+      error => {
+        this.toast.warning('No se puedo generar el cierre de caja.' + error);
+      }
+    );
   }
 
   closeModal(): void {

@@ -13,17 +13,25 @@
               (click)="saveInvoice()"
               [disabled]="form.invalid"
             >
+              <mat-icon>check_circle</mat-icon>
+              <!-- Icono de "check" -->
               Pagar y Guardar
             </button>
+
             <button
               mat-stroked-button
               color="warn"
               type="button"
               (click)="form.reset(); details.clear()"
             >
+              <mat-icon>cancel</mat-icon>
+              <!-- Icono de "cancel" -->
               Cancelar
             </button>
+
             <button mat-raised-button color="accent" type="button" (click)="openCashClosingModal()">
+              <mat-icon>attach_money</mat-icon>
+              <!-- Icono de "dinero" -->
               Cerrar Caja
             </button>
           </div>
@@ -177,8 +185,8 @@
             >
               <div class="total-label">Vueltos</div>
               <div class="total-value">
-                <mat-icon class="amount-icon"></mat-icon>
-                ${{ changeAmount | number: '1.0-0' }}
+                <span class="amount-icon">💸</span>
+                 $ {{ changeAmount | number: '1.0-0' }}
               </div>
             </mat-card>
           </div>

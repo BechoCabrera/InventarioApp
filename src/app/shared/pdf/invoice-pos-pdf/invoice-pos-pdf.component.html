@@ -1,9 +1,7 @@
-<!-- Plantilla POS para impresión térmica 58mm o 80mm -->
-
 <app-loading-overlay [isLoading]="isEntitiLoading"></app-loading-overlay>
 <div class="modal-overlay">
   <div class="modal-content">
- <div #pdfContent class="pos-ticket">
+    <div #pdfContent class="pos-ticket">
 
       <div style="text-align: center">
         <div style="text-align: center">
@@ -81,7 +79,6 @@
       <button mat-raised-button color="primary" (click)="download()">📥 Descargar</button>
       <button mat-stroked-button color="warn" (click)="onClose()">❌ Cerrar</button>
       <button mat-raised-button color="primary" (click)="print()">🖨️ Imprimir</button>
-
     </div>
   </div>
 </div>

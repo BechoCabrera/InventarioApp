@@ -100,8 +100,8 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.form = this.fb.group({
       details: this.fb.array([]),
       clientId: [null, Validators.required],
-      issueDate: [new Date(), Validators.required],
-      dueDate: [new Date(), Validators.required],
+      issueDate: [{ value: new Date(), disabled: true }, Validators.required],
+      dueDate:  [{ value: new Date(), disabled: true }, Validators.required],
       subtotalAmount: [0],
       taxAmount: [0],
       totalAmount: [0],
