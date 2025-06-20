@@ -81,6 +81,15 @@
         <div class="card-value">${{ totalValorInventario | number: '1.0-0' }}</div>
       </div>
     </mat-card>
+    <mat-card class="dashboard-card gold-card">
+      <div class="card-icon">
+        <mat-icon>monetization_on</mat-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-title">Ventas Totales</div>
+        <div class="card-value">${{ totalVentas | number: '1.0-0' }}</div>
+      </div>
+    </mat-card>
   </div>
   <!-- <div class="row p-x-16 p-y-8">
   <button mat-raised-button color="accent" (click)="openSummaryModal()">
@@ -90,8 +99,16 @@
   <h2 class="title p-x-16 p-y-8">📋 Productos Registrados</h2>
   <mat-divider class="m-y-16"></mat-divider>
   <div class="responsive-table-wrapper">
-   <table mat-table [dataSource]="products" matSort class="mat-elevation-z1 full-width-table p-x-16 p-y-8">
-
+    <mat-form-field appearance="fill" class="field" style="width: 300px">
+      <mat-label>Buscar Producto</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por nombre" />
+    </mat-form-field>
+    <table
+      mat-table
+      [dataSource]="products"
+      matSort
+      class="mat-elevation-z1 full-width-table p-x-16 p-y-8"
+    >
       <!-- CodBarra -->
       <ng-container matColumnDef="barCode">
         <th mat-header-cell *matHeaderCellDef>Código de Barra</th>
@@ -170,11 +187,21 @@
             </button>
             <button
               mat-icon-button
-              color="warn"
-              (click)="deleteProduct(element)"
-              matTooltip="Eliminar"
+              color="primary"
+              (click)="openStockAdjustmentModal(element, 'increase')"
+              matTooltip="Aumentar stock"
             >
-              <mat-icon>delete</mat-icon>
+              <mat-icon>add</mat-icon>
+            </button>
+
+            <!-- Botón para disminuir stock -->
+            <button
+              mat-icon-button
+              color="warn"
+              (click)="openStockAdjustmentModal(element, 'decrease')"
+              matTooltip="Disminuir stock"
+            >
+              <mat-icon>remove</mat-icon>
             </button>
           </div>
         </td>

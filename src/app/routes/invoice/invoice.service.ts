@@ -26,6 +26,8 @@ export interface Invoice {
   status: string;
   entitiName: string;
   paymentMethod?: string;
+  nameClientDraft?: string;
+  nitClientDraft?: string;
   details?: InvoiceDetail[];
 }
 @Injectable({

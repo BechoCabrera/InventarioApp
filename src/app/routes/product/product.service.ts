@@ -45,7 +45,7 @@ export class ProductService {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, isActive);
   }
 
-  delete(id: string):  Observable<any> {
+  delete(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
   // 🔍 Buscar por nombre (like)
@@ -61,4 +61,12 @@ export class ProductService {
   updateProduct(productId: string, updatedProduct: Product): Observable<boolean> {
     return this.http.put<boolean>(`${this.apiUrl}/${productId}`, updatedProduct); // Hace la solicitud PUT al backend
   }
+
+increaseStock(productId: string, quantity: number): Observable<Product> {
+  return this.http.put<Product>(`${this.apiUrl}/${productId}/increaseStock`, quantity);
+}
+
+  decreaseStock(productId: string, quantity: number): Observable<Product> {
+  return this.http.put<Product>(`${this.apiUrl}/${productId}/decreasestock`, quantity);
+}
 }

@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>{{ action === 'increase' ? 'Aumentar Stock' : 'Disminuir Stock' }}</h2>
+
+<!-- Asegúrate de que el formulario esté correctamente vinculado -->
+<form [formGroup]="form" (ngSubmit)="confirmAdjustment()">
+  <mat-dialog-content>
+    <div>
+      <h3>{{ productName }}</h3>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Cantidad</mat-label>
+        <input matInput formControlName="quantity" type="number" />
+        <mat-error *ngIf="form.get('quantity')?.hasError('required')">
+          La cantidad es requerida.
+        </mat-error>
+        <mat-error *ngIf="form.get('quantity')?.hasError('min')">
+          La cantidad debe ser al menos 1.
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions>
+    <button mat-button (click)="closeModal()">Cancelar</button>
+    <button mat-raised-button color="primary" type="submit">Confirmar</button>
+  </mat-dialog-actions>
+</form>

@@ -39,14 +39,36 @@
 
         <div class="row p-x-16 p-y-8">
           <mat-form-field appearance="fill" class="field">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nameClientDraft" />
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="field">
+            <mat-label>Cedula</mat-label>
+            <input matInput formControlName="nitClientDraft" />
+          </mat-form-field>
+        </div>
+
+        <div class="row p-x-16 p-y-8">
+          <mat-form-field appearance="fill" class="field">
             <mat-label>Cliente</mat-label>
-            <mat-select formControlName="clientId" required>
+            <mat-select formControlName="clientId" [(value)]="selectedClientId"  (selectionChange)="onClientSelected($event.value)">
               <mat-option *ngFor="let client of clients" [value]="client.clientId">
                 {{ client.name }}
               </mat-option>
             </mat-select>
-          </mat-form-field>
 
+            <!-- Botón X para limpiar el cliente -->
+            <button
+              *ngIf="selectedClientId"
+              mat-icon-button
+              color="warn"
+              (click)="clearClient()"
+              class="clear-btn"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
           <mat-form-field appearance="fill" class="field">
             <mat-label>Fecha de emisión</mat-label>
             <input matInput [matDatepicker]="pickerIssue" formControlName="issueDate" required />
@@ -108,7 +130,7 @@
             >
               <div class="product-info">
                 <strong>{{ item.value.name }}</strong>
-                <small>Precio: ${{ item.value.unitPrice | number: '1.0-0' }}</small>
+                <small>Precio: $ {{ item.value.unitPrice | number: '1.0-0' }}</small>
               </div>
 
               <div class="product-actions">
@@ -174,7 +196,7 @@
             <div class="total-label">Total</div>
             <div class="total-value">
               <span class="amount-icon">💰</span>
-              ${{ form.get('totalAmount')?.value | number: '1.0-0' }}
+              $ {{ form.get('totalAmount')?.value | number: '1.0-0' }}
             </div>
           </mat-card>
 
@@ -183,10 +205,10 @@
               class="total-display-card"
               style="background-color: #fffde7; border-left-color: #8b6b18"
             >
-              <div class="total-label">Vueltos</div>
+              <div class="total-label">Cambio</div>
               <div class="total-value">
                 <span class="amount-icon">💸</span>
-                 $ {{ changeAmount | number: '1.0-0' }}
+                $ {{ changeAmount | number: '1.0-0' }}
               </div>
             </mat-card>
           </div>

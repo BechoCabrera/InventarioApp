@@ -12,6 +12,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { InvoicePosDialogComponent } from '../../../shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
+import { InvoiceDetailsModalComponent } from './invoice-details-modal/invoice-details-modal.component';
 
 @Component({
   standalone: true,
@@ -77,6 +78,20 @@ export class InvoiceHistoryComponent implements OnInit {
   openInvoiceDialog(invoice: Invoice): void {
     this.dialog.open(InvoicePosDialogComponent, {
       data: invoice,
+    });
+  }
+
+  openInvoiceDetailDialog(invoice: Invoice): void {
+    const dialogRef = this.dialog.open(InvoiceDetailsModalComponent, {
+      width: '500px', // Ancho del modal
+      data: { invoice } // Pasamos la factura seleccionada al modal
+    });
+
+    // Opcionalmente, puedes manejar lo que pasa después de que se cierra el modal
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Modal cerrado');
+      }
     });
   }
 }

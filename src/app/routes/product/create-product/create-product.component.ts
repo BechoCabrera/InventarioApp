@@ -23,6 +23,7 @@ import {
   ConfirmDialogData,
 } from '@shared/modal/confirm-dialog/confirm-dialog.component';
 import { MatTableDataSource } from '@angular/material/table';
+import { StockAdjustmentModalComponent } from './stock-adjustment-modal/stock-adjustment-modal.component';
 
 import { ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -56,6 +57,7 @@ export class CreateProductComponent implements OnInit {
   totalProductos = 0;
   totalStock = 0;
   totalValorInventario = 0;
+  totalVentas = 0;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   form!: FormGroup;
@@ -75,12 +77,20 @@ export class CreateProductComponent implements OnInit {
     'actions',
   ];
   private calcularTotales(): void {
-    this.totalProductos = this.products.data.length;
-    this.totalStock = this.products.data.reduce((acc, p) => acc + (p.stock - p.stockSold), 0);
-    this.totalValorInventario = this.products.data.reduce(
+    const totalValorInventario = this.products.data.reduce(
       (acc, p) => acc + (p.stock - p.stockSold) * p.unitPrice,
       0
     );
+
+    this.totalProductos = this.products.data.length;
+    this.totalStock = this.products.data.reduce((acc, p) => acc + (p.stock - p.stockSold), 0);
+
+
+    this.totalVentas = this.products.data.reduce(
+      (acc, p) => acc + p.unitPrice * p.stockSold, 0
+    );
+
+    this.totalValorInventario = totalValorInventario - this.totalVentas;
   }
 
   private readonly toast = inject(ToastrService);
@@ -132,7 +142,6 @@ export class CreateProductComponent implements OnInit {
         this.products.sort = this.sort;
         this.products.paginator = this.paginator;
 
-        // 🔽 Ordenar por defecto alfabéticamente por nombre (ascendente)
         this.sort.active = 'name';
         this.sort.direction = 'asc';
         this.sort.sortChange.emit({ active: 'name', direction: 'asc' });
@@ -192,7 +201,6 @@ export class CreateProductComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Solo eliminar si el usuario confirmó
         this.productService.delete(product.productId).subscribe({
           next: value => {
             if (value.message == 'True') {
@@ -211,5 +219,60 @@ export class CreateProductComponent implements OnInit {
   }
   cancel(): void {
     this.form.reset({ isActive: true });
+  }
+
+  openStockAdjustmentModal(product: any, action: 'increase' | 'decrease'): void {
+    const dialogRef = this.dialog.open(StockAdjustmentModalComponent, {
+      width: '300px',
+      data: { action, product },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const quantity = result.quantity;
+        if (result.action === 'increase') {
+          this.increaseStock(product.productId, quantity);
+        } else {
+          this.decreaseStock(product.productId, quantity);
+        }
+      }
+    });
+  }
+
+  increaseStock(productId: string, quantity: number): void {
+    this.productService.increaseStock(productId, quantity).subscribe(
+      updatedProduct => {
+        this.toast.success('Stock aumentado correctamente.');
+        this.loadProducts();
+        this.calcularTotales();
+      },
+      error => {
+        this.toast.error('Error al aumentar el stock.');
+        console.error(error);
+      }
+    );
+  }
+
+  decreaseStock(productId: string, quantity: number): void {
+    this.productService.decreaseStock(productId, quantity).subscribe(
+      updatedProduct => {
+        this.toast.success('Stock reducido correctamente.');
+        this.loadProducts();
+        this.calcularTotales();
+      },
+      error => {
+        this.toast.error('Error al reducir el stock.' + error.error);
+      }
+    );
+  }
+
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.products.filter = filterValue;
+    if (this.products.filter.trim().length > 0) {
+      this.products.filterPredicate = (data: Product, filter: string) => {
+        return data.name.toLowerCase().includes(filter); // Filtra por nombre
+      };
+    }
   }
 }

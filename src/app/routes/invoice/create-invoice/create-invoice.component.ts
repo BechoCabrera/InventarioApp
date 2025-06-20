@@ -39,6 +39,10 @@ import localeCo from '@angular/common/locales/es-CO';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoicePosDialogComponent } from '@shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
 import { CashClosingModalComponent } from './cash-closing-modal/cash-closing-modal.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '@shared/modal/confirm-dialog/confirm-dialog.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -81,6 +85,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   filteredProducts: Product[] = [];
   productSearchTimeouts: Record<number, number | ReturnType<typeof setTimeout>> = {};
   searchControl = new FormControl('');
+  selectedClientId: string | null = null;
   constructor(
     private clientService: ClientService,
     private productService: ProductService,
@@ -99,15 +104,17 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     this.form = this.fb.group({
       details: this.fb.array([]),
-      clientId: [null, Validators.required],
+      clientId: [null, []],
       issueDate: [{ value: new Date(), disabled: true }, Validators.required],
-      dueDate:  [{ value: new Date(), disabled: true }, Validators.required],
+      dueDate: [{ value: new Date(), disabled: true }, Validators.required],
       subtotalAmount: [0],
       taxAmount: [0],
       totalAmount: [0],
       status: ['Generado'],
       paymentMethod: [null, Validators.required],
       amountPaid: [null, [Validators.required, Validators.min(0)]],
+      nameClientDraft: [{ value: null, disabled: false }, []],
+      nitClientDraft: [{ value: null, disabled: false }, []],
     });
 
     this.form.get('amountPaid')?.valueChanges.subscribe(() => {
@@ -156,6 +163,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       return index; // Si el producto no tiene productId, usamos el índice como fallback
     } else return 0;
   }
+
   searchProducts(value: string): Observable<Product[]> {
     // Si es un código de barras, devolvemos el producto dentro de un arreglo
     if (value != '') {
@@ -195,7 +203,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   openCashClosingModal(): void {
     const dialogRef = this.dialog.open(CashClosingModalComponent, {
       width: '400px',
-      data: { totalAmount: this.form.get('totalAmount')?.value }
+      data: { totalAmount: this.form.get('totalAmount')?.value },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -203,8 +211,32 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     });
   }
 
+  // onProductSelected(barCode?: string): void {
+  //   // Verificar si el producto ya está en la lista
+  //   const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
+
+  //   if (!selectedProduct) {
+  //     this.clearProductSearchInput();
+  //     return;
+  //   }
+
+  //   // Verificar si el producto ya está en la lista de detalles
+  //   const isProductAlreadyAdded =
+  //     (this.details.controls as FormGroup[]).filter(
+  //       (detail: FormGroup) => detail.get('productId')?.value === selectedProduct.productId
+  //     ).length > 0;
+
+  //   if (isProductAlreadyAdded) {
+  //     this.toast.warning('Este producto ya está en la lista.');
+  //     this.clearProductSearchInput();
+  //     return;
+  //   }
+
+  //   this.addProductToDetails(selectedProduct);
+  // }
+
   onProductSelected(barCode?: string): void {
-    // Verificar si el producto ya está en la lista
+    // Verificar si el producto ya está en los productos filtrados
     const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
 
     if (!selectedProduct) {
@@ -213,18 +245,21 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     }
 
     // Verificar si el producto ya está en la lista de detalles
-    const isProductAlreadyAdded =
-      (this.details.controls as FormGroup[]).filter(
-        (detail: FormGroup) => detail.get('productId')?.value === selectedProduct.productId
-      ).length > 0;
+    const productControl = (this.details.controls as FormGroup[]).find(
+      (detail: FormGroup) => detail.get('productId')?.value === selectedProduct.productId
+    );
 
-    if (isProductAlreadyAdded) {
-      this.toast.warning('Este producto ya está en la lista.');
-      this.clearProductSearchInput();
-      return;
+    if (productControl) {
+      // Si el producto ya está en la lista, sumamos 1 a la cantidad
+      const currentQuantity = productControl.get('quantity')?.value || 0;
+      productControl.get('quantity')?.setValue(currentQuantity + 1);
+      this.toast.info('Cantidad actualizada para este producto.');
+    } else {
+      // Si el producto no está en la lista, lo agregamos con cantidad 1
+      this.addProductToDetails(selectedProduct);
     }
 
-    this.addProductToDetails(selectedProduct);
+    this.clearProductSearchInput();
   }
 
   addProductToDetails(selectedProduct: Product): void {
@@ -234,9 +269,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       name: [selectedProduct.name],
       productSearch: [selectedProduct.name],
       productId: [selectedProduct.productId, Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]],
+      quantity: [1, [Validators.required, Validators.min(1)]], // Establecemos la cantidad inicial a 1
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
-      total: [0],
+      total: [selectedProduct.unitPrice], // Asumiendo que total es unitPrice * quantity
       stock: [selectedProduct.stock],
       stockSold: [selectedProduct.stockSold],
     });
@@ -244,7 +279,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     // Añadimos el FormGroup al FormArray
     this.details.push(productGroup);
     this.toast.success('Producto agregado:', selectedProduct.name);
-    this.clearProductSearchInput();
   }
 
   dueDateAfterIssueDateValidator() {
@@ -348,39 +382,155 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   saveInvoice(): void {
     if (this.form.invalid) return;
+
+    const client: any = this.form.value;
+    const invoice: Invoice = this.form.value;
+
     if (this.details.length === 0) {
       this.toast.warning('Debe agregar al menos un producto a la factura');
       return;
     }
+    if (
+      invoice.clientId == null &&
+      (client.nameClientDraft == '' ||
+        client.nitClientDraft == '' ||
+        client.nameClientDraft == null ||
+        client.nitClientDraft == null)
+    ) {
+      this.toast.warning('Debe seleccionar un cliente o ingresar los datos del cliente');
+      return;
+    }
 
-    const invoice: Invoice = this.form.value;
-    this.invoiceService.saveInvoice(invoice).subscribe({
-      next: savedInvoice => {
-        this.toast.success('Factura guardada con éxito');
+    if (
+      client.nameClientDraft != '' &&
+      client.nitClientDraft != '' &&
+      client.nameClientDraft != null &&
+      client.nitClientDraft != null
+    ) {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '400px',
+        data: {
+          title: 'Guardar Cliente',
+          message: '¿Desea guardar este cliente?',
+        } as ConfirmDialogData,
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          const clientData: Client = {
+            name: client.nameClientDraft,
+            nit: client.nitClientDraft,
+            email: client.email,
+            phone: client.phone,
+            clientId: client.clientId || null,
+            entitiName: client.entitiName,
+          };
+          this.clientService.create(clientData).subscribe({
+            next: () => {
+              this.toast.success('Cliente guardado con éxito');
+              this.invoiceService.saveInvoice(invoice).subscribe({
+                next: savedInvoice => {
+                  this.toast.success('Factura guardada');
 
-        this.dialog.open(InvoicePosDialogComponent, {
-          data: savedInvoice,
-          width: '380px',
-          maxWidth: '95vw',
-          panelClass: 'custom-dialog-container',
-        });
+                  this.dialog.open(InvoicePosDialogComponent, {
+                    data: savedInvoice,
+                    width: '380px',
+                    maxWidth: '95vw',
+                    panelClass: 'custom-dialog-container',
+                  });
 
-        this.form.reset();
-        this.details.clear();
-        this.form.patchValue({
-          subtotalAmount: 0,
-          taxAmount: 0,
-          totalAmount: 0,
-          status: 'Emitida',
-          issueDate: new Date(),
-          dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-        });
-      },
-      error: err => {
-        this.toast.error('Error al guardar factura');
-        console.error(err);
-      },
-    });
+                  this.form.reset();
+                  this.details.clear();
+                  this.form.patchValue({
+                    subtotalAmount: 0,
+                    taxAmount: 0,
+                    totalAmount: 0,
+                    status: 'Emitida',
+                    issueDate: new Date(),
+                    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+                  });
+                },
+                error: err => {
+                  this.toast.error('Error al guardar factura');
+                  console.error(err);
+                },
+              });
+            },
+            error: err => {
+              console.error(err);
+              this.toast.error('Error al guardar cliente');
+            },
+          });
+        } else {
+          this.invoiceService.saveInvoice(invoice).subscribe({
+            next: savedInvoice => {
+              this.toast.success('Factura guardada');
+              this.dialog.open(InvoicePosDialogComponent, {
+                data: savedInvoice,
+                width: '380px',
+                maxWidth: '95vw',
+                panelClass: 'custom-dialog-container',
+              });
+
+              this.form.reset();
+              this.details.clear();
+              this.form.patchValue({
+                subtotalAmount: 0,
+                taxAmount: 0,
+                totalAmount: 0,
+                status: 'Emitida',
+                issueDate: new Date(),
+                dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+              });
+            },
+            error: err => {
+              this.toast.error('Error al guardar factura');
+              console.error(err);
+            },
+          });
+        }
+      });
+    } else {
+      this.invoiceService.saveInvoice(invoice).subscribe({
+        next: savedInvoice => {
+          this.toast.success('Factura guardada');
+          this.dialog.open(InvoicePosDialogComponent, {
+            data: savedInvoice,
+            width: '380px',
+            maxWidth: '95vw',
+            panelClass: 'custom-dialog-container',
+          });
+
+          this.form.reset();
+          this.details.clear();
+          this.form.patchValue({
+            subtotalAmount: 0,
+            taxAmount: 0,
+            totalAmount: 0,
+            status: 'Emitida',
+            issueDate: new Date(),
+            dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+          });
+        },
+        error: err => {
+          this.toast.error('Error al guardar factura');
+          console.error(err);
+        },
+      });
+    }
+
+    return;
+  }
+
+  onClientSelected(clientId: string): void {
+    const client = this.clients.find(client => client.clientId === clientId);
+    if (client) {
+      this.form.patchValue({
+        nameClientDraft: client.name,
+        nitClientDraft: client.nit,
+      });
+      this.form.get('nameClientDraft')?.disable();
+      this.form.get('nitClientDraft')?.disable();
+    }
   }
 
   loadClients(): void {
@@ -453,5 +603,15 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       item.patchValue({ quantity: item.value.quantity - 1 });
       this.updateTotals();
     }
+  }
+
+  clearClient(): void {
+    this.form.get('clientId')?.setValue(null);
+    this.form.patchValue({
+      nameClientDraft: null,
+      nitClientDraft: null,
+    });
+    this.form.get('nameClientDraft')?.enable();
+    this.form.get('nitClientDraft')?.enable();
   }
 }

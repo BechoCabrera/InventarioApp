@@ -324,3 +324,13 @@ mat-form-field.field .mat-form-field-infix {
   background-color: #fffde7;
   border-left-color: #fbc02d;
 }
+.field {
+  position: relative;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
