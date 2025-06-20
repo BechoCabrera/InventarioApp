@@ -3,7 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { NgApexchartsModule } from 'ng-apexcharts';
+
 import { MtxProgressModule } from '@ng-matero/extensions/progress';
 import { ApexOptions } from 'apexcharts';
 
@@ -17,7 +17,6 @@ import { ApexOptions } from 'apexcharts';
     MatCardModule,
     MatIconModule,
     MatDialogModule,
-    NgApexchartsModule,
     MtxProgressModule,
   ],
 })

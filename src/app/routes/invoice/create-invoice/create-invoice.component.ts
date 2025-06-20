@@ -38,6 +38,7 @@ import { registerLocaleData } from '@angular/common';
 import localeCo from '@angular/common/locales/es-CO';
 import { MatDialog } from '@angular/material/dialog';
 import { InvoicePosDialogComponent } from '@shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
+import { CashClosingModalComponent } from './cash-closing-modal/cash-closing-modal.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -189,6 +190,17 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   get filteredDetails(): any[] {
     return this.details.controls.map((detail: any) => detail.value);
+  }
+
+  openCashClosingModal(): void {
+    const dialogRef = this.dialog.open(CashClosingModalComponent, {
+      width: '400px',
+      data: { totalAmount: this.form.get('totalAmount')?.value }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('El modal se cerró', result);
+    });
   }
 
   onProductSelected(barCode?: string): void {

@@ -1,0 +1,47 @@
+<mat-card class="cash-closing-card mat-elevation-z4">
+  <form [formGroup]="cashClosingForm" (ngSubmit)="saveCashClosing()" class="form-container">
+    <div class="form-header">
+      <h2 class="title">💰 Cierre de Caja</h2>
+    </div>
+    <div class="form-header">
+      <div class="btn-row">
+        <button mat-raised-button color="primary" type="submit" [disabled]="cashClosingForm.invalid">
+          Guardar Cierre
+        </button>
+        <button mat-stroked-button color="warn" type="button" (click)="closeModal()">Volver</button>
+      </div>
+    </div>
+
+    <div class="form-body">
+
+        <mat-card class="summary-card">
+          <div class="summary-header">
+            <span class="summary-title">Resumen del Cierre</span>
+          </div>
+          <div class="summary-body">
+            <div class="summary-row">
+              <span class="label">Total en Efectivo:</span>
+              <span class="value">{{ totalCash | currency }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Total en Crédito:</span>
+              <span class="value">{{ totalCredit | currency }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Total en Tarjetas:</span>
+              <span class="value">{{ totalCard | currency }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="label">Total en Transferencias:</span>
+              <span class="value">{{ totalTransfer | currency }}</span>
+            </div>
+            <div class="summary-row total">
+              <span class="label">Total General:</span>
+              <span class="value">{{ totalAmount | currency }}</span>
+            </div>
+          </div>
+        </mat-card>
+
+    </div>
+  </form>
+</mat-card>

@@ -49,4 +49,11 @@ export class InvoiceService {
   getById(id: string): Observable<Invoice> {
     return this.http.get<Invoice>(`${this.api}/${id}`);
   }
+
+ getInvoicesByDate(date: String): Observable<Invoice[]> {
+  // Suponiendo que 'api' es la URL de tu endpoint
+  const url = `${this.api}?date=${date}`;  // Aquí convertimos la fecha a formato ISO
+  return this.http.get<Invoice[]>(url);  // Llamamos al endpoint con la fecha como parámetro
+}
+
 }
