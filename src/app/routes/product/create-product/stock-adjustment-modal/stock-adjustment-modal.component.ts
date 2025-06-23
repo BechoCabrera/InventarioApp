@@ -41,20 +41,26 @@ export class StockAdjustmentModalComponent {
     });
   }
 
-
+  // Método para confirmar el ajuste
   confirmAdjustment(): void {
     if (this.form.invalid) {
       return;
     }
     const quantity = this.form.get('quantity')?.value;
 
+    // Se envía la cantidad y la acción confirmada
     this.dialogRef.close({
       quantity,
       action: this.action,
+      confirm: true,  // Indica que la acción fue confirmada
     });
   }
 
+  // Método para cancelar el ajuste
   closeModal(): void {
-    this.dialogRef.close();
+    // Se cierra el modal con el valor confirm: false, indicando que fue cancelado
+    this.dialogRef.close({
+      confirm: false,  // Indica que la acción fue cancelada
+    });
   }
 }

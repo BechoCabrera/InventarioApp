@@ -85,10 +85,7 @@ export class CreateProductComponent implements OnInit {
     this.totalProductos = this.products.data.length;
     this.totalStock = this.products.data.reduce((acc, p) => acc + (p.stock - p.stockSold), 0);
 
-
-    this.totalVentas = this.products.data.reduce(
-      (acc, p) => acc + p.unitPrice * p.stockSold, 0
-    );
+    this.totalVentas = this.products.data.reduce((acc, p) => acc + p.unitPrice * p.stockSold, 0);
 
     this.totalValorInventario = totalValorInventario - this.totalVentas;
   }
@@ -229,11 +226,15 @@ export class CreateProductComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const quantity = result.quantity;
-        if (result.action === 'increase') {
-          this.increaseStock(product.productId, quantity);
+        if (result.confirm) {
+          const quantity = result.quantity;
+          if (result.action === 'increase') {
+            this.increaseStock(product.productId, quantity);
+          } else {
+            this.decreaseStock(product.productId, quantity);
+          }
         } else {
-          this.decreaseStock(product.productId, quantity);
+          this.toast.info('Acción cancelada');
         }
       }
     });
