@@ -1,0 +1,76 @@
+<div class="cancellation-form-container">
+  <h2>Cancelar Factura</h2>
+
+  <form [formGroup]="cancellationForm" (ngSubmit)="onCancel()">
+    <!-- Buscador de número de factura -->
+    <mat-form-field appearance="fill" style="flex: 1; min-width: 240px">
+      <mat-icon matPrefix>search</mat-icon>
+      <input
+        #invoiceSearch
+        matInput
+        type="text"
+        [formControl]="searchControl"
+        [matAutocomplete]="auto"
+        autocomplete="off"
+        placeholder="Buscar factura..."
+      />
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        (optionSelected)="onInvoiceSelected($event.option.value)"
+      >
+        <mat-option *ngFor="let invoice of filteredInvoices" [value]="invoice.invoiceNumber">
+          {{ invoice.invoiceNumber }}
+        </mat-option>
+        <mat-option *ngIf="filteredInvoices.length === 0" disabled>
+          No se encontraron facturas
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <!-- Motivo de anulación -->
+    <mat-form-field appearance="fill">
+      <mat-label>Motivo de anulación</mat-label>
+      <textarea
+        matInput
+        formControlName="reason"
+        rows="4"
+        placeholder="Indique el motivo de la anulación"
+      ></textarea>
+      <mat-error *ngIf="cancellationForm.controls['reason'].hasError('required')">
+        El motivo es obligatorio
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Tabla de detalles de la factura -->
+    <mat-table [dataSource]="invoiceSelectedDetail" class="mat-elevation-z8">
+      <ng-container matColumnDef="productName">
+        <mat-header-cell *matHeaderCellDef> Producto </mat-header-cell>
+        <mat-cell *matCellDef="let detail">{{ detail.productName }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="quantity">
+        <mat-header-cell *matHeaderCellDef> Cantidad </mat-header-cell>
+        <mat-cell *matCellDef="let detail">{{ detail.quantity }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="unitPrice">
+        <mat-header-cell *matHeaderCellDef> Precio Unitario </mat-header-cell>
+        <mat-cell *matCellDef="let detail">{{ detail.unitPrice | currency }}</mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="totalPrice">
+        <mat-header-cell *matHeaderCellDef> Precio Total </mat-header-cell>
+        <mat-cell *matCellDef="let detail">{{ detail.totalPrice | currency }}</mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+
+    <div class="button-container">
+      <button mat-raised-button color="primary" type="button" (click)="onCancel()" [disabled]="cancellationForm.invalid">
+        Anular Factura
+      </button>
+    </div>
+  </form>
+</div>
