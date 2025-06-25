@@ -167,7 +167,7 @@ export class CreateProductComponent implements OnInit {
       },
       error: err => {
         console.error('Error creating product', err);
-        this.toast.error('Producto no guardado');
+        this.toast.error(err.error);
       },
     });
   }
@@ -248,8 +248,7 @@ export class CreateProductComponent implements OnInit {
         this.calcularTotales();
       },
       error => {
-        this.toast.error('Error al aumentar el stock.');
-        console.error(error);
+        this.toast.error('Error al aumentar el stock. ' + error.error);
       }
     );
   }

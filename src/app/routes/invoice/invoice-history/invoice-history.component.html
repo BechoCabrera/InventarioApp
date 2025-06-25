@@ -54,3 +54,5 @@
 <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
 
 <app-invoice-pos-pdf *ngIf="selectedInvoice" [invoice]="selectedInvoice"></app-invoice-pos-pdf>
+<app-loading-overlay [isLoading]="isEntitiLoading"></app-loading-overlay>
+

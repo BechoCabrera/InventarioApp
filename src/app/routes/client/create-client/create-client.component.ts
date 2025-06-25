@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Client, ClientService } from '../client.service';
 import { ClientModalComponent } from './client-modal/client-modal.component';
 import { MatDialog } from '@angular/material/dialog';
-
+import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
 @Component({
   selector: 'app-create-client',
   standalone: true,
@@ -28,13 +28,14 @@ import { MatDialog } from '@angular/material/dialog';
     MatDividerModule,
     MatTableModule,
     MatIconModule,
+    LoadingOverlayComponent,
   ],
 })
 export class CreateClientComponent implements OnInit {
   form!: FormGroup;
   clients: Client[] = [];
   displayedColumns: string[] = ['name', 'nit', 'email', 'phone', 'entitiName', 'actions'];
-
+  isEntitiLoading = true;
   private readonly toast = inject(ToastrService);
 
   constructor(
@@ -47,8 +48,8 @@ export class CreateClientComponent implements OnInit {
     this.form = this.fb.group({
       name: [null, Validators.required],
       nit: [null, Validators.required],
-      email: [null,[]],
-      phone: [null,[]],
+      email: [null, []],
+      phone: [null, []],
     });
     this.clear();
     this.loadClients();
@@ -56,10 +57,14 @@ export class CreateClientComponent implements OnInit {
 
   loadClients(): void {
     this.clientService.getAll().subscribe({
-      next: data => (this.clients = data),
+      next: data => {
+        this.clients = data;
+        this.isEntitiLoading = false;
+      },
       error: err => {
         console.error(err);
         this.toast.error('Error al cargar clientes', 'Error');
+        this.isEntitiLoading = false;
       },
     });
   }

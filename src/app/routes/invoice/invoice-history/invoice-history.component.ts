@@ -13,7 +13,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { InvoicePosDialogComponent } from '../../../shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
 import { InvoiceDetailsModalComponent } from './invoice-details-modal/invoice-details-modal.component';
-
+import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
 @Component({
   standalone: true,
   selector: 'app-invoice-history',
@@ -30,12 +30,13 @@ import { InvoiceDetailsModalComponent } from './invoice-details-modal/invoice-de
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
+    LoadingOverlayComponent,
   ],
 })
 export class InvoiceHistoryComponent implements OnInit {
   @ViewChild('pdfContent', { static: false }) pdfContent!: ElementRef;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
-
+  isEntitiLoading = true;
   selectedInvoice: Invoice | null = null;
   dataSource = new MatTableDataSource<Invoice>();
   displayedColumns = [
@@ -61,8 +62,12 @@ export class InvoiceHistoryComponent implements OnInit {
           data.clientName.toLowerCase().includes(filter) ||
           data.invoiceNumber.toLowerCase().includes(filter) ||
           data.status.toLowerCase().includes(filter);
+        this.isEntitiLoading = false;
       },
-      error: () => console.error('Error cargando facturas'),
+      error: () => {
+        console.error('Error cargando facturas');
+        this.isEntitiLoading = false;
+      },
     });
   }
 
@@ -84,7 +89,7 @@ export class InvoiceHistoryComponent implements OnInit {
   openInvoiceDetailDialog(invoice: Invoice): void {
     const dialogRef = this.dialog.open(InvoiceDetailsModalComponent, {
       width: '500px', // Ancho del modal
-      data: { invoice } // Pasamos la factura seleccionada al modal
+      data: { invoice }, // Pasamos la factura seleccionada al modal
     });
 
     // Opcionalmente, puedes manejar lo que pasa después de que se cierra el modal

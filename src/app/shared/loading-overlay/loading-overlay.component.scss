@@ -5,31 +5,64 @@
   z-index: 9999;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6); /* Fondo oscuro pero ligeramente transparente */
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Centra el contenido horizontalmente */
+  align-items: center; /* Centra el contenido verticalmente */
+  animation: fadeIn 0.3s ease; /* Animación para suavizar la aparición */
 }
 
 .loader-container {
   text-align: center;
-  color: white;
+  color: #ffffff; /* Color de texto blanco */
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro detrás del spinner */
+  padding: 20px;
+  border-radius: 12px; /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombra para darle profundidad */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* Centra el contenido dentro del contenedor */
+  align-items: center; /* Asegura que todo el contenido dentro del contenedor esté centrado */
 }
 
 .loading-text {
   margin-top: 12px;
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 18px; /* Texto un poco más grande */
+  font-weight: 600; /* Peso de texto más pesado */
+  color: #ffffff;
+  letter-spacing: 1px; /* Espaciado entre letras para mayor claridad */
+  word-wrap: break-word; /* Asegura que el texto largo se ajuste correctamente */
 }
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255, 255, 255, 0.7);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+/* Animación para suavizar la aparición del overlay */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Media Queries para móviles */
+@media (max-width: 768px) {
+  .loader-container {
+    width: 90%; /* Aseguramos que ocupe más espacio en pantallas pequeñas */
+    padding: 15px; /* Menos espacio de padding en pantallas pequeñas */
+  }
+
+  .loading-text {
+    font-size: 16px; /* Reducimos el tamaño de la fuente para pantallas pequeñas */
+  }
+}
+
+@media (max-width: 480px) {
+  .loader-container {
+    width: 95%; /* Ocupa casi todo el ancho de la pantalla en dispositivos móviles */
+    max-width: none; /* Elimina el límite de ancho máximo en pantallas muy pequeñas */
+  }
+
+  .loading-text {
+    font-size: 14px; /* Texto aún más pequeño para pantallas muy pequeñas */
+  }
 }
