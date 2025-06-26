@@ -58,10 +58,6 @@ export class InvoiceService {
     const url = `${this.api}/byDate?date=${formattedDate}`; // Utilizamos el formato correcto para la fecha
     return this.http.get<Invoice[]>(url); // Realizamos la llamada HTTP
   }
-
-  cancelInvoice(cancellationData: { invoiceId: string; reason: string }): Observable<any> {
-    return this.http.post<any>(`${this.api}/cancel`, cancellationData);
-  }
   // Método para buscar facturas por número
   searchInvoiceByNumber(invoiceNumber: string): Observable<Invoice[]> {
     return this.http.get<Invoice[]>(`${this.api}/search?number=${invoiceNumber}`);

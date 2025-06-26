@@ -8,6 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar 
 import { MaterialModule } from '../../../../../schematics/ng-add/files/module-files/app/material.module';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { InvoicesCancelled } from './invoice-cancellation.service';
 
 @Component({
   selector: 'app-invoice-cancellation',
@@ -27,6 +28,7 @@ export class InvoiceCancellationComponent implements OnInit {
   filteredInvoices: Invoice[] = []; // Lista de facturas filtradas
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
+  private readonly invoicesCancelled = inject(InvoicesCancelled);
   searchControl = new FormControl('');
   constructor(
     private fb: FormBuilder,
@@ -53,31 +55,30 @@ export class InvoiceCancellationComponent implements OnInit {
   }
 
   onInvoiceSelected(invoiceNumber: any): void {
-  // Asegúrate de que invoiceNumber no sea null
-  if (!invoiceNumber) {
-    this.toast.warning('No se ha seleccionado un número de factura.');
-    return;
+    // Asegúrate de que invoiceNumber no sea null
+    if (!invoiceNumber) {
+      this.toast.warning('No se ha seleccionado un número de factura.');
+      return;
+    }
+
+    // Cuando se selecciona una factura del autocompletado
+    const selectedInvoice = this.filteredInvoices.find(
+      invoice => invoice.invoiceNumber === invoiceNumber
+    );
+
+    if (selectedInvoice) {
+      // this.cancellationForm.patchValue({
+      //   invoiceNumber: selectedInvoice.invoiceNumber,
+      //   clientId: selectedInvoice.clientId,
+      //   totalAmount: selectedInvoice.totalAmount,
+      // });
+
+      this.invoiceSelectedDetail = selectedInvoice.details ? selectedInvoice.details : []; // Asigna la factura seleccionada
+      this.invoiceId = selectedInvoice.invoiceId;
+    } else {
+      this.toast.warning('Factura no encontrada.');
+    }
   }
-
-  // Cuando se selecciona una factura del autocompletado
-  const selectedInvoice = this.filteredInvoices.find(
-    invoice => invoice.invoiceNumber === invoiceNumber
-  );
-
-  if (selectedInvoice) {
-    // this.cancellationForm.patchValue({
-    //   invoiceNumber: selectedInvoice.invoiceNumber,
-    //   clientId: selectedInvoice.clientId,
-    //   totalAmount: selectedInvoice.totalAmount,
-    // });
-
-    this.invoiceSelectedDetail = selectedInvoice.details ? selectedInvoice.details : []; // Asigna la factura seleccionada
-    this.invoiceId = selectedInvoice.invoiceId;
-  } else {
-    this.toast.warning('Factura no encontrada.');
-  }
-}
-
 
   onCancel(): void {
     if (this.cancellationForm.valid) {
@@ -86,7 +87,7 @@ export class InvoiceCancellationComponent implements OnInit {
         reason: this.cancellationForm.value.reason,
       };
 
-      this.invoiceService.cancelInvoice(cancellationData).subscribe(
+      this.invoicesCancelled.cancelInvoice(cancellationData).subscribe(
         response => {
           this.toast.success('Factura anulada correctamente.');
         },
