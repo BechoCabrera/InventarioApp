@@ -87,7 +87,7 @@ export class CreateProductComponent implements OnInit {
 
     this.totalVentas = this.products.data.reduce((acc, p) => acc + p.unitPrice * p.stockSold, 0);
 
-    this.totalValorInventario = totalValorInventario - this.totalVentas;
+    this.totalValorInventario = totalValorInventario;
   }
 
   private readonly toast = inject(ToastrService);

@@ -181,3 +181,37 @@ mat-form-field.field .mat-form-field-infix {
   padding: 0 !important;
   border-radius: 8px;
 }
+.status-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 5px;
+  font-weight: 400;
+  text-align: center;
+  color: white;
+  font-size: 12px;
+  text-transform: capitalize;
+  cursor: default;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
+
+  &.active {
+    background-color: #388e3c; // Color verde para estado "Activa"
+    transform: scale(1.05); // Efecto de escala para resaltar
+  }
+
+  &.cancelled {
+    background-color: #d32f2f; // Color rojo para estado "Cancelada"
+    transform: scale(1.05); // Efecto de escala para resaltar
+  }
+
+  &:hover {
+    transform: scale(1.1); // Efecto hover para resaltar al pasar el mouse
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px; // Reducir el tamaño en pantallas pequeñas
+    padding: 6px 12px;
+  }
+}
+

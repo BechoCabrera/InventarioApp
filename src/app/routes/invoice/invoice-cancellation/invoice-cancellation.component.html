@@ -74,3 +74,32 @@
     </div>
   </form>
 </div>
+  <div class="invoice-cancellation-table">
+  <h3>Listado de Anulaciones de Factura</h3>
+
+ <mat-table [dataSource]="invoiceCancellations" class="mat-elevation-z8">
+    <ng-container matColumnDef="invoiceNumber">
+      <mat-header-cell *matHeaderCellDef> Número de Factura </mat-header-cell>
+      <mat-cell *matCellDef="let cancellation">{{ cancellation.invoiceNumber }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="reason">
+      <mat-header-cell *matHeaderCellDef> Motivo </mat-header-cell>
+      <mat-cell *matCellDef="let cancellation">{{ cancellation.reason }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="cancellationDate">
+      <mat-header-cell *matHeaderCellDef> Fecha de Anulación </mat-header-cell>
+      <mat-cell *matCellDef="let cancellation">{{ cancellation.cancellationDate | date }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="cancelledByUser">
+      <mat-header-cell *matHeaderCellDef> Cancelado por </mat-header-cell>
+      <mat-cell *matCellDef="let cancellation">{{ cancellation.cancelledByUser }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="cancellationdisplayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: cancellationdisplayedColumns;"></mat-row>
+  </mat-table>
+</div>
+

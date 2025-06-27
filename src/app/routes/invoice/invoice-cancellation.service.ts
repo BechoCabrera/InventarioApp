@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { Invoice } from '../invoice.service';
+import { Invoice } from './invoice.service';
 
-export interface InvoicesCancelled {
+export interface InvoicesCancelledDto {
   invoiceCancelledId: string; // En TypeScript usamos string para representar GUIDs
   invoiceId: string;
   reason: string;
@@ -26,6 +26,10 @@ export class InvoicesCancelled {
 
   cancelInvoice(cancellationData: { invoiceId: string; reason: string }): Observable<any> {
     return this.http.post<any>(`${this.api}`, cancellationData);
+  }
+
+  getAllInvoiceCancellations(): Observable<InvoicesCancelledDto[]> {
+    return this.http.get<InvoicesCancelledDto[]>(`${this.api}`);
   }
 
 }

@@ -8,7 +8,7 @@ import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar 
 import { MaterialModule } from '../../../../../schematics/ng-add/files/module-files/app/material.module';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
-import { InvoicesCancelled } from './invoice-cancellation.service';
+import { InvoicesCancelled, InvoicesCancelledDto } from '../invoice-cancellation.service';
 
 @Component({
   selector: 'app-invoice-cancellation',
@@ -22,6 +22,13 @@ import { InvoicesCancelled } from './invoice-cancellation.service';
 })
 export class InvoiceCancellationComponent implements OnInit {
   displayedColumns: string[] = ['productName', 'quantity', 'unitPrice', 'totalPrice'];
+  cancellationdisplayedColumns: string[] = [
+    'invoiceNumber',
+    'reason',
+    'cancellationDate',
+    'cancelledByUser',
+  ];
+  invoiceCancellations: InvoicesCancelledDto[] = [];
   invoiceSelectedDetail: InvoiceDetail[] = []; // Factura seleccionada
   cancellationForm!: FormGroup;
   invoiceId!: string; // ID de la factura a anular
@@ -36,6 +43,7 @@ export class InvoiceCancellationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadInvoiceCancellations();
     this.searchControl.valueChanges
       .pipe(
         debounceTime(300), // Espera 300ms después de la última tecla
@@ -52,6 +60,17 @@ export class InvoiceCancellationComponent implements OnInit {
 
     // Obtener el ID de la factura si se pasa como parámetro en la URL
     this.invoiceId = this.route.snapshot.paramMap.get('invoiceId') || '';
+  }
+
+  loadInvoiceCancellations(): void {
+    this.invoicesCancelled.getAllInvoiceCancellations().subscribe(
+      data => {
+        this.invoiceCancellations = data;
+      },
+      error => {
+        console.error('Error loading invoice cancellations', error);
+      }
+    );
   }
 
   onInvoiceSelected(invoiceNumber: any): void {
@@ -92,7 +111,7 @@ export class InvoiceCancellationComponent implements OnInit {
           this.toast.success('Factura anulada correctamente.');
         },
         error => {
-          this.toast.error('Error al anular la factura.');
+          // this.toast.error('Error al anular la factura.');
         }
       );
     }
