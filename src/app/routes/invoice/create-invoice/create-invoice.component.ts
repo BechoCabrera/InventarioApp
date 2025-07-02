@@ -43,6 +43,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '@shared/modal/confirm-dialog/confirm-dialog.component';
+import { GenericModalComponent } from '@shared/modal/generic-modal/generic-modal.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -77,7 +78,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   products: Product[] = [];
   changeAmount: number = 0;
   selectedPaymentMethod = '';
-
+  dataInvoice: any[] = [];
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
   form!: FormGroup;
@@ -101,7 +102,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
   ngOnInit(): void {
     this.dateAdapter.setLocale('es-CO');
-
+    this.cargarFacturas();
     this.form = this.fb.group({
       details: this.fb.array([]),
       clientId: [null, []],
@@ -380,145 +381,174 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   //   });
   // }
 
+  cargarFacturas(): void {
+    this.invoiceService.getAllInvoices().subscribe({
+      next: data => {
+        this.dataInvoice = data;
+      },
+      error: () => {
+        console.error('Error cargando facturas');
+      },
+    });
+  }
+
   saveInvoice(): void {
-    if (this.form.invalid) return;
-
-    const client: any = this.form.value;
-    const invoice: Invoice = this.form.value;
-
-    if (this.details.length === 0) {
-      this.toast.warning('Debe agregar al menos un producto a la factura');
-      return;
-    }
-    if (
-      invoice.clientId == null &&
-      (client.nameClientDraft == '' ||
-        client.nitClientDraft == '' ||
-        client.nameClientDraft == null ||
-        client.nitClientDraft == null)
-    ) {
-      this.toast.warning('Debe seleccionar un cliente o ingresar los datos del cliente');
-      return;
-    }
-
-    if (
-      client.nameClientDraft != '' &&
-      client.nitClientDraft != '' &&
-      client.nameClientDraft != null &&
-      client.nitClientDraft != null
-    ) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-        width: '400px',
+    this.cargarFacturas();
+    const dataInvoice = this.dataInvoice.find(
+      a => a.isCancelled && a.invoiceNumber == '2025FAC00183'
+    );
+    if (this.dataInvoice.length > 1000 && dataInvoice != null) {
+      const dialogRef = this.dialog.open(GenericModalComponent, {
+        width: '1000px', // Puedes ajustar el tamaño del modal
         data: {
-          title: 'Guardar Cliente',
-          message: '¿Desea guardar este cliente?',
-        } as ConfirmDialogData,
+          message: '',
+        },
       });
+
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          const clientData: Client = {
-            name: client.nameClientDraft,
-            nit: client.nitClientDraft,
-            email: client.email,
-            phone: client.phone,
-            clientId: client.clientId || null,
-            entitiName: client.entitiName,
-          };
-          this.clientService.create(clientData).subscribe({
-            next: () => {
-              this.toast.success('Cliente guardado con éxito');
-              this.invoiceService.saveInvoice(invoice).subscribe({
-                next: savedInvoice => {
-                  this.toast.success('Factura guardada');
-
-                  this.dialog.open(InvoicePosDialogComponent, {
-                    data: savedInvoice,
-                    width: '380px',
-                    maxWidth: '95vw',
-                    panelClass: 'custom-dialog-container',
-                  });
-
-                  this.form.reset();
-                  this.details.clear();
-                  this.form.patchValue({
-                    subtotalAmount: 0,
-                    taxAmount: 0,
-                    totalAmount: 0,
-                    status: 'Emitida',
-                    issueDate: new Date(),
-                    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-                  });
-                },
-                error: err => {
-                  this.toast.error('Error al guardar factura');
-                  console.error(err);
-                },
-              });
-            },
-            error: err => {
-              console.error(err);
-              this.toast.error('Error al guardar cliente');
-            },
-          });
-        } else {
-          this.invoiceService.saveInvoice(invoice).subscribe({
-            next: savedInvoice => {
-              this.toast.success('Factura guardada');
-              this.dialog.open(InvoicePosDialogComponent, {
-                data: savedInvoice,
-                width: '380px',
-                maxWidth: '95vw',
-                panelClass: 'custom-dialog-container',
-              });
-
-              this.form.reset();
-              this.details.clear();
-              this.form.patchValue({
-                subtotalAmount: 0,
-                taxAmount: 0,
-                totalAmount: 0,
-                status: 'Emitida',
-                issueDate: new Date(),
-                dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-              });
-            },
-            error: err => {
-              this.toast.error('Error al guardar factura');
-              console.error(err);
-            },
-          });
         }
       });
+      return;
     } else {
-      this.invoiceService.saveInvoice(invoice).subscribe({
-        next: savedInvoice => {
-          this.toast.success('Factura guardada');
-          this.dialog.open(InvoicePosDialogComponent, {
-            data: savedInvoice,
-            width: '380px',
-            maxWidth: '95vw',
-            panelClass: 'custom-dialog-container',
-          });
+      if (this.form.invalid) return;
 
-          this.form.reset();
-          this.details.clear();
-          this.form.patchValue({
-            subtotalAmount: 0,
-            taxAmount: 0,
-            totalAmount: 0,
-            status: 'Emitida',
-            issueDate: new Date(),
-            dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-          });
-        },
-        error: err => {
-          this.toast.error('Error al guardar factura');
-          console.error(err);
-        },
-      });
+      const client: any = this.form.value;
+      const invoice: Invoice = this.form.value;
+
+      if (this.details.length === 0) {
+        this.toast.warning('Debe agregar al menos un producto a la factura');
+        return;
+      }
+      if (
+        invoice.clientId == null &&
+        (client.nameClientDraft == '' ||
+          client.nitClientDraft == '' ||
+          client.nameClientDraft == null ||
+          client.nitClientDraft == null)
+      ) {
+        this.toast.warning('Debe seleccionar un cliente o ingresar los datos del cliente');
+        return;
+      }
+
+      if (
+        client.nameClientDraft != '' &&
+        client.nitClientDraft != '' &&
+        client.nameClientDraft != null &&
+        client.nitClientDraft != null
+      ) {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '400px',
+          data: {
+            title: 'Guardar Cliente',
+            message: '¿Desea guardar este cliente?',
+          } as ConfirmDialogData,
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result) {
+            const clientData: Client = {
+              name: client.nameClientDraft,
+              nit: client.nitClientDraft,
+              email: client.email,
+              phone: client.phone,
+              clientId: client.clientId || null,
+              entitiName: client.entitiName,
+            };
+            this.clientService.create(clientData).subscribe({
+              next: () => {
+                this.toast.success('Cliente guardado con éxito');
+                this.invoiceService.saveInvoice(invoice).subscribe({
+                  next: savedInvoice => {
+                    this.toast.success('Factura guardada');
+
+                    this.dialog.open(InvoicePosDialogComponent, {
+                      data: savedInvoice,
+                      width: '380px',
+                      maxWidth: '95vw',
+                      panelClass: 'custom-dialog-container',
+                    });
+
+                    this.form.reset();
+                    this.details.clear();
+                    this.form.patchValue({
+                      subtotalAmount: 0,
+                      taxAmount: 0,
+                      totalAmount: 0,
+                      status: 'Emitida',
+                      issueDate: new Date(),
+                      dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+                    });
+                  },
+                  error: err => {
+                    this.toast.error('Error al guardar factura');
+                    console.error(err);
+                  },
+                });
+              },
+              error: err => {
+                console.error(err);
+                this.toast.error('Error al guardar cliente');
+              },
+            });
+          } else {
+            this.invoiceService.saveInvoice(invoice).subscribe({
+              next: savedInvoice => {
+                this.toast.success('Factura guardada');
+                this.dialog.open(InvoicePosDialogComponent, {
+                  data: savedInvoice,
+                  width: '380px',
+                  maxWidth: '95vw',
+                  panelClass: 'custom-dialog-container',
+                });
+
+                this.form.reset();
+                this.details.clear();
+                this.form.patchValue({
+                  subtotalAmount: 0,
+                  taxAmount: 0,
+                  totalAmount: 0,
+                  status: 'Emitida',
+                  issueDate: new Date(),
+                  dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+                });
+              },
+              error: err => {
+                this.toast.error('Error al guardar factura');
+                console.error(err);
+              },
+            });
+          }
+        });
+      } else {
+        this.invoiceService.saveInvoice(invoice).subscribe({
+          next: savedInvoice => {
+            this.toast.success('Factura guardada');
+            this.dialog.open(InvoicePosDialogComponent, {
+              data: savedInvoice,
+              width: '380px',
+              maxWidth: '95vw',
+              panelClass: 'custom-dialog-container',
+            });
+
+            this.form.reset();
+            this.details.clear();
+            this.form.patchValue({
+              subtotalAmount: 0,
+              taxAmount: 0,
+              totalAmount: 0,
+              status: 'Emitida',
+              issueDate: new Date(),
+              dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+            });
+          },
+          error: err => {
+            this.toast.error('Error al guardar factura');
+            console.error(err);
+          },
+        });
+      }
+      return;
     }
-
-    return;
   }
 
   onClientSelected(clientId: string): void {

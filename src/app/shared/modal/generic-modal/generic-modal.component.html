@@ -1,7 +1,42 @@
 <mat-dialog-content>
   <p>{{ data.message }}</p>
+
+  <div class="message-container">
+    <h2>¡Has llegado al tope de facturas!</h2>
+    <p>Elige uno de los siguientes planes para continuar.</p>
+  </div>
+
+  <div class="plans-container">
+    <div class="plan-card" (click)="selectPlan('basic')">
+      <img src="images/plan-basico.png" alt="Plan Básico" class="plan-image" />
+      <h3>Plan Básico</h3>
+      <p class="plan-description">Un plan básico para empezar. Ideal para pequeñas empresas.</p>
+    </div>
+
+    <div class="plan-card" (click)="selectPlan('premium')">
+      <img src="images/plan-premium.png" alt="Plan Premium" class="plan-image" />
+      <h3>Plan Premium</h3>
+      <p class="plan-description">
+        El plan ideal para empresas en crecimiento con más características.
+      </p>
+    </div>
+
+    <div class="plan-card" (click)="selectPlan('pro')">
+      <img src="images/plan-pro.png" alt="Plan Pro" class="plan-image" />
+      <h3>Plan Pro</h3>
+      <p class="plan-description">
+        El plan más completo para empresas grandes con todas las características premium.
+      </p>
+    </div>
+  </div>
+
+  <div class="plan-details" *ngIf="selectedPlan">
+    <h3>Características del Plan: {{ selectedPlan.name }}</h3>
+    <ul>
+      <li *ngFor="let feature of selectedPlan.features">{{ feature }}</li>
+    </ul>
+  </div>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No</button>
-  <button mat-button (click)="onYesClick()">Sí</button>
+  <button mat-button (click)="onNoClick()">Aceptar</button>
 </mat-dialog-actions>

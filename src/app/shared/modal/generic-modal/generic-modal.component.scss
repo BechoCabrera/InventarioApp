@@ -1,0 +1,66 @@
+.message-container {
+  text-align: center;
+  margin: 20px;
+}
+
+.message-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.message-container p {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.plans-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+}
+
+.plan-card {
+  width: 30%;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.plan-card:hover {
+  // transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.plan-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.plan-description {
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.plan-details {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.plan-details h3 {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.plan-details ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.plan-details li {
+  font-size: 16px;
+  margin: 5px 0;
+}
