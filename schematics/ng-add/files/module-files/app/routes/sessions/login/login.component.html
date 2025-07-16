@@ -26,7 +26,7 @@
         <mat-form-field appearance="outline">
           <mat-label>{{'password' | translate}}</mat-label>
           <input matInput placeholder="ng-matero" type="password"
-            formControlName="password" required>
+            formControlName="password">
           @if (password.invalid) {
             <mat-error>
               @if (password.errors?.required) {
