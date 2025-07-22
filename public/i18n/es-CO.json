@@ -87,10 +87,13 @@
     "clientes.actualizar-cliente": "Actualizar Cliente",
     "facturacion": "Facturación",
     "facturacion.crear-factura": "Crear factura",
+    "facturacion.cancelacion-factura": "Anular factura",
     "facturacion.historial-facturas": "Historial de facturas",
     "entiti-config": "Configuración de Entidad",
     "entiti-config.entiti-config.crear": "Crear entidad",
-    "entiti-config.entiti-config.editar": "Editar entidad"
+    "entiti-config.entiti-config.editar": "Editar entidad",
+    "caja": "Caja",
+    "caja.cierre-caja": "Cierre de caja"
   },
     "validation": {
         "required": "Este campo es obligatorio",
