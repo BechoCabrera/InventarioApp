@@ -29,6 +29,7 @@ import { ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
 @Component({
   selector: 'app-create-product',
   standalone: true,
@@ -51,6 +52,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
     LoadingOverlayComponent,
     MatPaginatorModule,
     MatSortModule,
+     MatMenuModule,
   ],
 })
 export class CreateProductComponent implements OnInit {

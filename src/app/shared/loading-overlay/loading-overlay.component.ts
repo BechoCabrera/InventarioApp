@@ -11,4 +11,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 })
 export class LoadingOverlayComponent {
   @Input() isLoading = true;
+
+  ShowLoading(){
+    this.isLoading = true;
+  }
+  CloseLoading(){
+    this.isLoading = false;
+  }
 }

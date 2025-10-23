@@ -1,0 +1,21 @@
+.warning-modal {
+  text-align: center;
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+
+  h2 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+  }
+}

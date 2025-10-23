@@ -200,3 +200,71 @@ mat-cell, mat-header-cell {
   font-size: 0.9rem;
 }
 
+.invoice-cancellation-table {
+  width: 100%;
+  max-width: 100%;
+  padding: 16px 24px;
+  background: transparent;
+
+  .title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 1rem;
+  }
+
+  .search-field {
+    width: 300px;
+    margin-bottom: 1rem;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+  }
+
+  th {
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    padding: 12px 8px;
+  }
+
+  td {
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding: 12px 8px;
+    font-size: 0.95rem;
+  }
+
+  tr.mat-row:hover {
+    background-color: #f9f9f9;
+  }
+
+  mat-icon {
+    font-size: 20px;
+  }
+
+  mat-paginator {
+    margin-top: 8px;
+    border-top: 1px solid #eee;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .invoice-cancellation-table {
+    padding: 8px;
+  }
+
+  .search-field {
+    width: 100%;
+  }
+
+  th,
+  td {
+    font-size: 0.85rem;
+  }
+}

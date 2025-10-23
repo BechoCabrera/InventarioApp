@@ -1,14 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewChild, inject, AfterViewInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Invoice, InvoiceDetail, InvoiceService } from '../invoice.service';
-import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms'; // Asegúrate de importar ReactiveFormsModule
-import { MaterialModule } from '../../../../../schematics/ng-add/files/module-files/app/material.module';
-import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
+
+import { Invoice, InvoiceDetail, InvoiceService } from '../invoice.service';
 import { InvoicesCancelled, InvoicesCancelledDto } from '../invoice-cancellation.service';
+
+import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
+import { MaterialModule } from '../../../../../schematics/ng-add/files/module-files/app/material.module';
+
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-invoice-cancellation',
@@ -16,11 +21,15 @@ import { InvoicesCancelled, InvoicesCancelledDto } from '../invoice-cancellation
   styleUrls: ['./invoice-cancellation.component.scss'],
   imports: [
     CommonModule,
-    ReactiveFormsModule, // Asegúrate de agregarlo aquí
+    ReactiveFormsModule,
     MaterialModule,
+    LoadingOverlayComponent,
   ],
 })
-export class InvoiceCancellationComponent implements OnInit {
+export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
   displayedColumns: string[] = ['productName', 'quantity', 'unitPrice', 'totalPrice'];
   cancellationdisplayedColumns: string[] = [
     'invoiceNumber',
@@ -28,75 +37,85 @@ export class InvoiceCancellationComponent implements OnInit {
     'cancellationDate',
     'cancelledByUser',
   ];
-  invoiceCancellations: InvoicesCancelledDto[] = [];
-  invoiceSelectedDetail: InvoiceDetail[] = []; // Factura seleccionada
+
+  invoiceCancellations = new MatTableDataSource<InvoicesCancelledDto>(); // ✅ datasource real
+  invoiceSelectedDetail: InvoiceDetail[] = [];
+
   cancellationForm!: FormGroup;
-  invoiceId!: string; // ID de la factura a anular
-  filteredInvoices: Invoice[] = []; // Lista de facturas filtradas
+  invoiceId!: string;
+  filteredInvoices: Invoice[] = [];
+  searchControl = new FormControl('');
+  isEntitiLoading = false;
+
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
   private readonly invoicesCancelled = inject(InvoicesCancelled);
-  searchControl = new FormControl('');
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute
-  ) {}
+
+  constructor(private fb: FormBuilder, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.loadInvoiceCancellations();
+
     this.searchControl.valueChanges
       .pipe(
-        debounceTime(300), // Espera 300ms después de la última tecla
-        distinctUntilChanged(), // Solo ejecuta si el valor cambió
-        switchMap((value: any) => this.invoiceService.searchInvoiceByNumber(value)) // Llama al servicio de facturas
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((value: any) => this.invoiceService.searchInvoiceByNumber(value))
       )
       .subscribe(invoices => {
-        this.filteredInvoices = invoices; // Almacena las facturas filtradas
+        this.filteredInvoices = invoices;
       });
 
     this.cancellationForm = this.fb.group({
-      reason: [null, Validators.required], // Campo para el motivo de anulación
+      reason: [null, Validators.required],
     });
 
-    // Obtener el ID de la factura si se pasa como parámetro en la URL
     this.invoiceId = this.route.snapshot.paramMap.get('invoiceId') || '';
   }
 
+  ngAfterViewInit() {
+    // ⏳ se enlazan después de que la vista carga
+    this.invoiceCancellations.paginator = this.paginator;
+    this.invoiceCancellations.sort = this.sort;
+  }
+
+  // ✅ Carga las anulaciones
   loadInvoiceCancellations(): void {
-    this.invoicesCancelled.getAllInvoiceCancellations().subscribe(
-      data => {
-        this.invoiceCancellations = data;
+    this.isEntitiLoading = true;
+    this.invoicesCancelled.getAllInvoiceCancellations().subscribe({
+      next: data => {
+        this.invoiceCancellations.data = data; // ✅ asignación correcta
+        this.isEntitiLoading = false;
       },
-      error => {
-        console.error('Error loading invoice cancellations', error);
-      }
-    );
+      error: err => {
+        console.error('Error loading invoice cancellations', err);
+        this.isEntitiLoading = false;
+      },
+    });
   }
 
   onInvoiceSelected(invoiceNumber: any): void {
-    // Asegúrate de que invoiceNumber no sea null
     if (!invoiceNumber) {
       this.toast.warning('No se ha seleccionado un número de factura.');
       return;
     }
 
-    // Cuando se selecciona una factura del autocompletado
     const selectedInvoice = this.filteredInvoices.find(
       invoice => invoice.invoiceNumber === invoiceNumber
     );
 
     if (selectedInvoice) {
-      // this.cancellationForm.patchValue({
-      //   invoiceNumber: selectedInvoice.invoiceNumber,
-      //   clientId: selectedInvoice.clientId,
-      //   totalAmount: selectedInvoice.totalAmount,
-      // });
-
-      this.invoiceSelectedDetail = selectedInvoice.details ? selectedInvoice.details : []; // Asigna la factura seleccionada
+      this.invoiceSelectedDetail = selectedInvoice.details ?? [];
       this.invoiceId = selectedInvoice.invoiceId;
     } else {
       this.toast.warning('Factura no encontrada.');
     }
+  }
+
+  // ✅ búsqueda en la tabla inferior
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.invoiceCancellations.filter = filterValue.trim().toLowerCase();
   }
 
   onCancel(): void {
@@ -106,14 +125,24 @@ export class InvoiceCancellationComponent implements OnInit {
         reason: this.cancellationForm.value.reason,
       };
 
-      this.invoicesCancelled.cancelInvoice(cancellationData).subscribe(
-        response => {
+      this.invoicesCancelled.cancelInvoice(cancellationData).subscribe({
+        next: () => {
           this.toast.success('Factura anulada correctamente.');
+          this.loadInvoiceCancellations(); // 🔄 refrescar tabla
         },
-        error => {
-          // this.toast.error('Error al anular la factura.');
-        }
-      );
+        error: () => {
+          this.toast.error('Error al anular la factura.');
+        },
+      });
     }
+  }
+
+  // Opciones del menú (opcional)
+  viewDetails(cancellation: InvoicesCancelledDto) {
+    this.toast.info(`Detalles de ${cancellation.invoice}`);
+  }
+
+  downloadPdf(cancellation: InvoicesCancelledDto) {
+    this.toast.info(`Descargando PDF de ${cancellation.invoice}`);
   }
 }

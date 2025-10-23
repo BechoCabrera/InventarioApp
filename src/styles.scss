@@ -19,3 +19,17 @@
   --item-bg: #f9f9f9;
   --item-text: #000;
 }
+.success-snackbar {
+  background: #4caf50;
+  color: white;
+}
+
+.error-snackbar {
+  background: #f44336;
+  color: white;
+}
+
+.warning-snackbar {
+  background: #ff9800;
+  color: black;
+}

@@ -44,6 +44,7 @@ import {
   ConfirmDialogData,
 } from '@shared/modal/confirm-dialog/confirm-dialog.component';
 import { GenericModalComponent } from '@shared/modal/generic-modal/generic-modal.component';
+import { PaymentWarningModalComponent } from '@shared/modal/payment-warning-modal/payment-warning-modal.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -102,6 +103,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
   ngOnInit(): void {
     this.dateAdapter.setLocale('es-CO');
+    this.checkPaymentDeadline();
     this.cargarFacturas();
     this.form = this.fb.group({
       details: this.fb.array([]),
@@ -151,6 +153,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
         this.filteredProducts = products;
       });
   }
+
   calculateChangeAmount(): void {
     const paid = this.form.get('amountPaid')?.value || 0;
     const total = this.form.get('totalAmount')?.value || 0;
@@ -159,6 +162,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     this.changeAmount = result > 0 ? result : 0;
   }
+
   trackByProductId(index: number, product: Product): number {
     if (!product || !product.productId) {
       return index; // Si el producto no tiene productId, usamos el índice como fallback
@@ -166,6 +170,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   searchProducts(value: string): Observable<Product[]> {
+    this.checkPaymentDeadline();
     // Si es un código de barras, devolvemos el producto dentro de un arreglo
     if (value != '') {
       if (/^\d+$/.test(value)) {
@@ -212,30 +217,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // onProductSelected(barCode?: string): void {
-  //   // Verificar si el producto ya está en la lista
-  //   const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
-
-  //   if (!selectedProduct) {
-  //     this.clearProductSearchInput();
-  //     return;
-  //   }
-
-  //   // Verificar si el producto ya está en la lista de detalles
-  //   const isProductAlreadyAdded =
-  //     (this.details.controls as FormGroup[]).filter(
-  //       (detail: FormGroup) => detail.get('productId')?.value === selectedProduct.productId
-  //     ).length > 0;
-
-  //   if (isProductAlreadyAdded) {
-  //     this.toast.warning('Este producto ya está en la lista.');
-  //     this.clearProductSearchInput();
-  //     return;
-  //   }
-
-  //   this.addProductToDetails(selectedProduct);
-  // }
-
   onProductSelected(barCode?: string): void {
     // Verificar si el producto ya está en los productos filtrados
     const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
@@ -265,6 +246,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   addProductToDetails(selectedProduct: Product): void {
     // Asegúrate de que cada detalle es un FormGroup
+    this.checkPaymentDeadline();
     const productGroup = this.fb.group({
       barCode: [selectedProduct.barCode],
       name: [selectedProduct.name],
@@ -312,6 +294,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   removeDetail(index: number): void {
+    this.checkPaymentDeadline();
     if (index >= 0) {
       this.details.removeAt(index); // Elimina el control en la posición 'index'
       this.toast.success('Producto eliminado correctamente');
@@ -332,55 +315,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.details.removeAt(index);
   }
 
-  // saveInvoice(): void {
-  //   if (this.form.invalid) return;
-  //   if (this.details.length === 0) {
-  //     this.toast.warning('Debe agregar al menos un producto a la factura');
-  //     return;
-  //   }
-
-  //   const total = this.form.get('totalAmount')?.value || 0;
-  //   const amountPaid = this.form.get('amountPaid')?.value || 0;
-  //   const cambio = amountPaid - total;
-
-  //   if (cambio < 0) {
-  //     this.toast.error('El monto pagado es menor al total. No se puede continuar.');
-  //     return;
-  //   }
-
-  //   console.log('💵 Cambio a entregar:', cambio);
-
-  //   const invoice: Invoice = this.form.value;
-
-  //   this.invoiceService.saveInvoice(invoice).subscribe({
-  //     next: savedInvoice => {
-  //       this.toast.success('Factura guardada con éxito');
-
-  //       this.dialog.open(InvoicePosDialogComponent, {
-  //         data: savedInvoice,
-  //         width: '380px',
-  //         maxWidth: '95vw',
-  //         panelClass: 'custom-dialog-container',
-  //       });
-
-  //       this.form.reset();
-  //       this.details.clear();
-  //       this.form.patchValue({
-  //         subtotalAmount: 0,
-  //         taxAmount: 0,
-  //         totalAmount: 0,
-  //         status: 'Emitida',
-  //         issueDate: new Date(),
-  //         dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-  //       });
-  //     },
-  //     error: err => {
-  //       this.toast.error('Error al guardar factura');
-  //       console.error(err);
-  //     },
-  //   });
-  // }
-
   cargarFacturas(): void {
     this.invoiceService.getAllInvoices().subscribe({
       next: data => {
@@ -392,7 +326,51 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     });
   }
 
-  saveInvoice(): void {
+  async checkPaymentDeadlineResult(): Promise<boolean> {
+    const dueDate = new Date('2026-06-26');
+    const today = new Date();
+    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Si faltan 5 días o menos para vencimiento
+    if (diffDays <= 5 && diffDays > 0) {
+      const dialogRef = this.dialog.open(PaymentWarningModalComponent, {
+        width: '420px',
+        disableClose: true,
+        data: {
+          message: `⚠️ Faltan ${diffDays} días para que se venza el servicio. Por favor realizar el pago.`,
+          allowClose: true,
+        },
+      });
+
+      await dialogRef.afterClosed().toPromise();
+      return true; // ⚠️ detener flujo
+    }
+
+    // Si ya está vencido
+    if (diffDays <= 0) {
+      const dialogRef = this.dialog.open(PaymentWarningModalComponent, {
+        width: '420px',
+        disableClose: true,
+        data: {
+          message: `🚫 El servicio ha vencido. No se pueden registrar nuevas facturas.`,
+          allowClose: false,
+        },
+      });
+
+      await dialogRef.afterClosed().toPromise();
+      return true; // ⚠️ detener flujo
+    }
+
+    // ✅ Si todo está normal
+    return false;
+  }
+
+  async saveInvoice(): Promise<void> {
+    const resultValid = await this.checkPaymentDeadlineResult();
+    if (!resultValid) {
+      console.warn('⛔ Guardado detenido por alerta de vencimiento');
+      return;
+    }
     this.cargarFacturas();
     const dataInvoice = this.dataInvoice.find(
       a => a.isCancelled && a.invoiceNumber == '2025FAC00183'
@@ -643,5 +621,38 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     });
     this.form.get('nameClientDraft')?.enable();
     this.form.get('nitClientDraft')?.enable();
+  }
+
+  checkPaymentDeadline(): void {
+    // 🔹 Fecha límite del servicio
+    // const dueDate = new Date('2025-06-26');
+    const dueDate = new Date('2026-06-26');
+    const today = new Date();
+
+    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Si faltan 5 días o menos → mostrar alerta
+    if (diffDays <= 5) {
+      this.dialog.open(PaymentWarningModalComponent, {
+        width: '420px',
+        disableClose: true,
+        data: {
+          message: `Faltan ${diffDays} día${diffDays === 1 ? '' : 's'} para que se venza el servicio. Por favor pagar.`,
+          allowClose: true,
+        },
+      });
+    }
+
+    // Si la fecha ya pasó → mostrar alerta permanente sin cerrar
+    if (diffDays <= 0) {
+      this.dialog.open(PaymentWarningModalComponent, {
+        width: '420px',
+        disableClose: true,
+        data: {
+          message: `El servicio ha vencido. No puede cerrarse hasta renovar.`,
+          allowClose: false,
+        },
+      });
+    }
   }
 }

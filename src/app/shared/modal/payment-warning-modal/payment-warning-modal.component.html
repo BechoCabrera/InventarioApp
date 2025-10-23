@@ -1,0 +1,13 @@
+<div class="warning-modal">
+  <h1 color="warn" style="font-size: 48px;">⚠️</h1>
+  <h2>Atención</h2>
+  <p>{{ data.message }}</p>
+
+  <div *ngIf="data.allowClose" class="actions">
+    <button mat-raised-button color="primary" (click)="close()">Aceptar</button>
+  </div>
+
+  <div *ngIf="!data.allowClose" class="actions">
+    <button mat-raised-button color="warn" disabled>No se puede cerrar</button>
+  </div>
+</div>

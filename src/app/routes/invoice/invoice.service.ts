@@ -29,6 +29,7 @@ export interface Invoice {
   nameClientDraft?: string;
   nitClientDraft?: string;
   details?: InvoiceDetail[];
+  isCancelled:boolean
 }
 @Injectable({
   providedIn: 'root',
@@ -62,4 +63,9 @@ export class InvoiceService {
   searchInvoiceByNumber(invoiceNumber: string): Observable<Invoice[]> {
     return this.http.get<Invoice[]>(`${this.api}/search?number=${invoiceNumber}`);
   }
+
+  getInvoicesByFilter(filters: any) {
+    console.log('🔍 Enviando filtros:', filters);
+  return this.http.post<Invoice[]>(`${this.api}/filter`, filters);
+}
 }

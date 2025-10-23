@@ -173,39 +173,38 @@
       </ng-container>
 
       <!-- Dentro de la tabla -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Acciones</th>
-        <td mat-cell *matCellDef="let element">
-          <div class="action-buttons">
-            <button
-              mat-icon-button
-              color="primary"
-              (click)="editProduct(element)"
-              matTooltip="Editar"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="primary"
-              (click)="openStockAdjustmentModal(element, 'increase')"
-              matTooltip="Aumentar stock"
-            >
-              <mat-icon>add</mat-icon>
-            </button>
+    <ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef>Acciones</th>
+  <td mat-cell *matCellDef="let element">
+    <div class="action-buttons">
+      <!-- Ícono de hamburguesa -->
+      <button mat-icon-button [matMenuTriggerFor]="menu" color="primary" matTooltip="Opciones">
+        <mat-icon>more_vert</mat-icon> <!-- Este es el ícono de tres líneas (hamburguesa) -->
+      </button>
 
-            <!-- Botón para disminuir stock -->
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="openStockAdjustmentModal(element, 'decrease')"
-              matTooltip="Disminuir stock"
-            >
-              <mat-icon>remove</mat-icon>
-            </button>
-          </div>
-        </td>
-      </ng-container>
+      <!-- Menú desplegable -->
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="editProduct(element)">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-menu-item (click)="deleteProduct(element)">
+          <mat-icon>delete</mat-icon>
+          Eliminar
+        </button>
+        <button mat-menu-item (click)="openStockAdjustmentModal(element, 'increase')">
+          <mat-icon>add</mat-icon>
+          Aumentar stock
+        </button>
+        <button mat-menu-item (click)="openStockAdjustmentModal(element, 'decrease')">
+          <mat-icon>remove</mat-icon>
+          Disminuir stock
+        </button>
+      </mat-menu>
+    </div>
+  </td>
+</ng-container>
+
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>

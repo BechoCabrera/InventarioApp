@@ -15,7 +15,6 @@ import { filterObject, isEmptyObject } from './helpers';
 import { Token, User } from './interface';
 import { LoginService } from './login.service';
 import { TokenService } from './token.service';
-import { environment } from '@env/environment';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({

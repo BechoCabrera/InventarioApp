@@ -1,11 +1,77 @@
 <mat-card>
   <h2>Historial de Facturas</h2>
   <mat-divider></mat-divider>
-  <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 1rem">
-    <mat-label>Buscar factura</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por cliente o número..." />
-  </mat-form-field>
+
+  <!-- FILTROS -->
+  <div class="filter-container">
+    <mat-form-field appearance="fill">
+      <mat-label>Fecha inicial</mat-label>
+      <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" />
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Fecha final</mat-label>
+      <input
+        matInput
+        [matDatepicker]="endPicker"
+        [(ngModel)]="endDate"
+        (dateChange)="applyAdvancedFilter()"
+      />
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Método de pago</mat-label>
+      <mat-select [(ngModel)]="selectedPaymentMethod" (selectionChange)="applyAdvancedFilter()">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="Transferencia">Transferencia</mat-option>
+        <mat-option value="Efectivo">Efectivo</mat-option>
+        <mat-option value="Crédito">Crédito</mat-option>
+        <mat-option value="Tarjeta">Tarjeta</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Estado</mat-label>
+      <mat-select [(ngModel)]="selectedStatus" (selectionChange)="applyAdvancedFilter()">
+        <mat-option value="">Todos</mat-option>
+        <mat-option value="activa">Activa</mat-option>
+        <mat-option value="anulada">Anulada</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+     <mat-form-field appearance="fill">
+      <mat-label>Numero Factura</mat-label>
+       <input
+        matInput
+        [(ngModel)]="invoiceNumber"
+        (dateChange)="applyAdvancedFilter()"
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="row p-x-16 p-y-8">
+    <div class="btn-row d-flex justify-end gap-16 p-x-16 p-y-8">
+      <button mat-raised-button type="button" (click)="searhInvoice()">
+        <mat-icon>check_circle</mat-icon>
+        Buscar
+      </button>
+
+      <button mat-raised-button type="button" (click)="clear()">
+        <mat-icon>cancel</mat-icon>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
   <div class="table-container">
+    <mat-form-field appearance="fill" style="width: 20%; margin-bottom: 1rem">
+      <mat-label>Buscar factura</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Buscar por cliente o número..." />
+    </mat-form-field>
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z2 full-width-table">
       <ng-container matColumnDef="invoiceNumber">
         <th mat-header-cell *matHeaderCellDef>Factura</th>

@@ -1,5 +1,10 @@
 @use '../../../../styles/helpers/api' as *;
 
+mat-card {
+  padding: 1rem;
+  margin: 2rem;
+}
+
 .title {
   display: flex;
   gap: 0.5rem;
@@ -9,30 +14,22 @@
   font-weight: 600;
 }
 
-mat-card {
-  padding: 1rem;
-  margin: 2rem;
-}
-
-mat-table {
-  width: 100%;
-}
-
-.form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.row {
+.filter-container {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  margin: 1rem 0;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 220px;
+  }
 }
 
-.field {
-  flex: 1;
-  min-width: 250px;
+.form-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .btn-row {
@@ -40,147 +37,31 @@ mat-table {
   gap: 1rem;
   justify-content: flex-end;
   margin-left: auto;
+
+  button[mat-raised-button] {
+    font-weight: 500;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    text-transform: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  button[mat-stroked-button] {
+    border-width: 1.5px;
+  }
 }
 
-.full-width-table {
+mat-form-field {
+  width: 100%;
+}
+
+mat-table {
   width: 100%;
   margin-top: 24px;
 }
 
-mat-chip.chip-disabled {
-  color: #333;
-  background-color: #ccc;
-}
-
-.chip-activo {
-  color: white;
-  background-color: #4caf50;
-}
-
-.payment-panel {
-  position: absolute;
-  top: 80px;
-  right: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-end;
-}
-
-.payment-panel .total-amount {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  font-size: 24px;
-  color: white;
-  text-align: center;
-  background-color: #4caf50;
-  border-radius: 8px;
-}
-
-.payment-panel .total-amount .amount-icon {
-  margin-right: 8px;
-}
-
-.payment-methods-wrapper {
-  display: inline-block;
-  max-width: 350px;
-  padding: 20px;
-  margin: 1rem 0;
-  background-color: #f1f3f6;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.payment-methods {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.payment-methods button.selected-method {
-  box-shadow: 0 0 6px 2px rgba(25, 118, 210, 0.8);
-  transform: scale(1.03);
-}
-
-.payment-methods button {
-  width: 120px;
-  height: 40px;
-  padding: 6px 14px;
-  font-size: 15px;
-  border-radius: 10px;
-}
-
-.total-amount {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 12px 24px;
-  font-size: 24px;
-  color: white;
-  background-color: #4caf50;
-  border-radius: 8px;
-}
-
-.amount-icon {
-  font-size: 32px;
-}
-
-mat-form-field.field {
-  margin-bottom: 0.5rem;
-  font-size: 13px;
-}
-
-mat-form-field.field .mat-form-field-wrapper {
-  padding-bottom: 0;
-}
-
-mat-form-field.field .mat-form-field-infix {
-  min-height: 32px;
-  padding: 4px 0 !important;
-}
-
-.total-display-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%; // ocupa todo el contenedor
-  max-width: 300px; // ajusta según tu diseño
-  min-height: 60px; // menos alto
-  padding: 0.5rem 1.5rem; // más angosto (menos padding vertical)
-  font-weight: bold;
-  color: #2e7d32;
-  background-color: #e8f5e9;
-  border-left: 6px solid #4caf50;
-  border-radius: 5px;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
-
-  .total-label {
-    font-size: 13px;
-    color: #555;
-  }
-
-  .total-value {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    font-size: 22px;
-  }
-}
-
-.mat-calendar-body-cell-content {
-  color: rgba(0, 0, 0, 0.87); // o el color que desees ver
-}
-
-.mat-calendar-body-disabled > .mat-calendar-body-cell-content {
-  color: rgba(0, 0, 0, 0.38);
-}
-
-::ng-deep .custom-dialog-container .mat-dialog-container {
-  padding: 0 !important;
-  border-radius: 8px;
-}
 .status-badge {
   display: inline-block;
   padding: 6px 16px;
@@ -190,28 +71,88 @@ mat-form-field.field .mat-form-field-infix {
   color: white;
   font-size: 12px;
   text-transform: capitalize;
-  cursor: default;
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
 
   &.active {
-    background-color: #388e3c; // Color verde para estado "Activa"
-    transform: scale(1.05); // Efecto de escala para resaltar
+    background-color: #388e3c;
   }
 
   &.cancelled {
-    background-color: #d32f2f; // Color rojo para estado "Cancelada"
-    transform: scale(1.05); // Efecto de escala para resaltar
-  }
-
-  &:hover {
-    transform: scale(1.1); // Efecto hover para resaltar al pasar el mouse
-  }
-
-  @media (max-width: 768px) {
-    font-size: 12px; // Reducir el tamaño en pantallas pequeñas
-    padding: 6px 12px;
+    background-color: #d32f2f;
   }
 }
 
+@media (max-width: 768px) {
+  .filter-container {
+    flex-direction: column;
+  }
+
+  .btn-row {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}
+/* --- Botones iguales a los de Nueva Factura --- */
+.btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.ui-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  padding: 0.6rem 1.5rem;
+  border-radius: 10px;
+  text-transform: none;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+.ui-btn-primary {
+  background-color: var(--primary-color, #1976d2);
+  color: white !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    background-color: #1565c0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+
+  mat-icon {
+    font-size: 18px;
+  }
+}
+
+.ui-btn-outline {
+  border: 1.8px solid #f44336;
+  color: #f44336 !important;
+  background: transparent;
+  box-shadow: none;
+
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.08);
+  }
+
+  mat-icon {
+    font-size: 18px;
+  }
+}
+
+/* --- Ajustes responsivos --- */
+@media (max-width: 768px) {
+  .btn-row {
+    flex-direction: column;
+    align-items: stretch;
+    button {
+      width: 100%;
+    }
+  }
+}
