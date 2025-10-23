@@ -88,6 +88,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   productSearchTimeouts: Record<number, number | ReturnType<typeof setTimeout>> = {};
   searchControl = new FormControl('');
   selectedClientId: string | null = null;
+  dueDate = new Date('2026-06-26');
   constructor(
     private clientService: ClientService,
     private productService: ProductService,
@@ -327,9 +328,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   async checkPaymentDeadlineResult(): Promise<boolean> {
-    const dueDate = new Date('2026-06-26');
+    // const dueDate = new Date('2026-06-26');
+
     const today = new Date();
-    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil((this.dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     // Si faltan 5 días o menos para vencimiento
     if (diffDays <= 5 && diffDays > 0) {
@@ -624,12 +626,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   checkPaymentDeadline(): void {
-    // 🔹 Fecha límite del servicio
-    // const dueDate = new Date('2025-06-26');
-    const dueDate = new Date('2026-06-26');
+
     const today = new Date();
 
-    const diffDays = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const diffDays = Math.ceil((this.dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     // Si faltan 5 días o menos → mostrar alerta
     if (diffDays <= 5) {
