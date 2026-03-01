@@ -9,8 +9,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Invoice, InvoiceService } from '../../invoice.service';
-import { CashClosing, CashClosingService } from './CashClosingService.service';
-import { Toast, ToastrService } from 'ngx-toastr';
+import { CashClosingService } from '../../../cash-closing/cash-closing.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-cash-closing-modal',
@@ -88,7 +88,7 @@ export class CashClosingModalComponent implements OnInit {
             this.totalCredit += invoice.totalAmount;
           } else if (invoice.paymentMethod === 'Tarjeta') {
             this.totalCard += invoice.totalAmount;
-          } else if (invoice.paymentMethod === 'Tranferencia') {
+          } else if (invoice.paymentMethod === 'Transferencia') {
             this.totalTransfer += invoice.totalAmount;
           }
         });
@@ -137,8 +137,8 @@ export class CashClosingModalComponent implements OnInit {
     };
 
     // Llamar al servicio para guardar el cierre de caja
-    this.cashClosingService.saveCashClosing(cashClosing).subscribe(
-      response => {
+    this.cashClosingService.create(cashClosing).subscribe(
+      () => {
         this.dialogRef.close();
         this.toast.success('Cierre de caja guardado con éxito');
       },

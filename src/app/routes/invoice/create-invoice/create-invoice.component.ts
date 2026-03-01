@@ -345,7 +345,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       });
 
       await dialogRef.afterClosed().toPromise();
-      return true; // ⚠️ detener flujo
+      return true;
     }
 
     // Si ya está vencido
@@ -360,17 +360,16 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       });
 
       await dialogRef.afterClosed().toPromise();
-      return true; // ⚠️ detener flujo
+      return false;
     }
 
-    // ✅ Si todo está normal
-    return false;
+    return true;
   }
 
   async saveInvoice(): Promise<void> {
     const resultValid = await this.checkPaymentDeadlineResult();
     if (!resultValid) {
-      console.warn('⛔ Guardado detenido por alerta de vencimiento');
+      console.warn('⛔ Guardado detenido por vencimiento del servicio');
       return;
     }
     this.cargarFacturas();
@@ -558,7 +557,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     const total = this.form.get('totalAmount')?.value || 0;
 
-    if (method === 'Crédito' || method === 'Tranferencia' || method === 'Tarjeta') {
+    if (method === 'Crédito' || method === 'Transferencia' || method === 'Tarjeta') {
       this.form.patchValue({ amountPaid: total });
     }
   }
@@ -626,22 +625,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   checkPaymentDeadline(): void {
-
     const today = new Date();
 
     const diffDays = Math.ceil((this.dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    // Si faltan 5 días o menos → mostrar alerta
-    if (diffDays <= 5) {
-      this.dialog.open(PaymentWarningModalComponent, {
-        width: '420px',
-        disableClose: true,
-        data: {
-          message: `Faltan ${diffDays} día${diffDays === 1 ? '' : 's'} para que se venza el servicio. Por favor pagar.`,
-          allowClose: true,
-        },
-      });
-    }
 
     // Si la fecha ya pasó → mostrar alerta permanente sin cerrar
     if (diffDays <= 0) {
@@ -651,6 +637,15 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
         data: {
           message: `El servicio ha vencido. No puede cerrarse hasta renovar.`,
           allowClose: false,
+        },
+      });
+    } else if (diffDays <= 5) {
+      this.dialog.open(PaymentWarningModalComponent, {
+        width: '420px',
+        disableClose: true,
+        data: {
+          message: `Faltan ${diffDays} día${diffDays === 1 ? '' : 's'} para que se venza el servicio. Por favor pagar.`,
+          allowClose: true,
         },
       });
     }

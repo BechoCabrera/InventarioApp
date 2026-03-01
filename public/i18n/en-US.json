@@ -77,7 +77,11 @@
     "permissions": "Permissions",
     "permissions.role-switching": "Role Switching",
     "permissions.route-guard": "Route Guard",
-    "permissions.test": "Permission Test"
+    "permissions.test": "Permission Test",
+    "productos": "Products",
+    "productos.categorias": "Categories",
+    "productos.crear-producto": "Create Product",
+    "productos.descuentos": "Discounts"
   },
   "validation": {
     "required": "This field is required",
