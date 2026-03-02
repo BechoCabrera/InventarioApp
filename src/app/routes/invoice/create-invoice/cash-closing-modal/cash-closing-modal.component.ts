@@ -8,7 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { Invoice, InvoiceService } from '../../invoice.service';
+import { InvoiceDto } from '../../create-invoice/models';
+import { InvoiceService } from '../../invoice.service';
 import { CashClosingService } from '../../../cash-closing/cash-closing.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -36,7 +37,7 @@ export class CashClosingModalComponent implements OnInit {
   totalCredit: number = 0;
   totalCard: number = 0;
   totalTransfer: number = 0;
-  invoices: Invoice[] = [];
+  invoices: InvoiceDto[] = [];
   private readonly toast = inject(ToastrService);
   constructor(
     public dialogRef: MatDialogRef<CashClosingModalComponent>,

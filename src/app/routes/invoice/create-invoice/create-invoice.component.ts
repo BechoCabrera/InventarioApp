@@ -26,7 +26,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
 import { ToastrService } from 'ngx-toastr';
-import { Invoice, InvoiceService } from '../invoice.service';
+import { InvoiceService } from '../invoice.service';
+import {
+  InvoiceCreateDto,
+  InvoiceDto,
+  PromotionCalculationRequest,
+  PromotionCalculationResponse,
+} from './models';
+import { ProductDiscountsService } from 'app/routes/product/product-discounts/product-discounts.service';
 import { Client, ClientService } from 'app/routes/client/client.service';
 import { Product, ProductService } from 'app/routes/product/product.service';
 import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
@@ -73,7 +80,7 @@ registerLocaleData(localeCo, 'es-CO');
   ],
 })
 export class CreateInvoiceComponent implements OnInit, AfterViewInit {
-  invoices: Invoice[] = [];
+  // invoices: InvoiceDto[] = [];
   @ViewChild('productSearch') productSearchInput!: ElementRef;
   clients: Client[] = [];
   products: Product[] = [];
@@ -82,6 +89,14 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   dataInvoice: any[] = [];
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
+  private readonly promotionService = inject(ProductDiscountsService);
+  // Resumen estimado
+  estimatedSubtotal: number = 0;
+  estimatedTax: number = 0;
+  estimatedTotal: number = 0;
+  estimatedDiscount: number = 0;
+  estimatedPromotion: string = '';
+  loadingPromotion: boolean = false;
   form!: FormGroup;
   displayedColumns: string[] = ['barCode', 'name', 'stock', 'quantity', 'unitPrice', 'actions'];
   filteredProducts: Product[] = [];
@@ -139,7 +154,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     });
 
     this.details.valueChanges.subscribe(() => {
-      this.updateTotals();
+      this.updateEstimatedSummary();
     });
 
     this.loadClients();
@@ -246,23 +261,57 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   addProductToDetails(selectedProduct: Product): void {
-    // Asegúrate de que cada detalle es un FormGroup
     this.checkPaymentDeadline();
     const productGroup = this.fb.group({
       barCode: [selectedProduct.barCode],
       name: [selectedProduct.name],
       productSearch: [selectedProduct.name],
       productId: [selectedProduct.productId, Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]], // Establecemos la cantidad inicial a 1
+      quantity: [1, [Validators.required, Validators.min(1)]],
       unitPrice: [selectedProduct.unitPrice, [Validators.required, Validators.min(0)]],
-      total: [selectedProduct.unitPrice], // Asumiendo que total es unitPrice * quantity
+      total: [selectedProduct.unitPrice],
       stock: [selectedProduct.stock],
       stockSold: [selectedProduct.stockSold],
+      estimatedDiscount: [0],
+      promotionApplied: [''],
+      discountPercent: [0],
+      addedFromSearch: [true],
     });
 
-    // Añadimos el FormGroup al FormArray
-    this.details.push(productGroup);
-    this.toast.success('Producto agregado:', selectedProduct.name);
+    // Consultar promoción para el producto
+    const promoRequest = [
+      {
+        productId: selectedProduct.productId,
+        quantity: 1,
+        unitPrice: selectedProduct.unitPrice,
+      },
+    ];
+    this.promotionService.calculatePromotion(promoRequest).subscribe({
+      next: (promoRes: any) => {
+        if (promoRes && promoRes.discountAmount > 0) {
+          productGroup.patchValue({
+            estimatedDiscount: promoRes.discountAmount,
+            promotionApplied: promoRes.promotionName || '',
+            discountPercent: promoRes.percentage || 0,
+          });
+        }
+        this.details.push(productGroup);
+        this.toast.success('Producto agregado:', selectedProduct.name);
+      },
+      error: () => {
+        if (selectedProduct.discounts && selectedProduct.discounts.length > 0) {
+          productGroup.patchValue({
+            estimatedDiscount:
+              selectedProduct.discounts[0].percentage ||
+              selectedProduct.discounts[0].discountAmount ||
+              0,
+            promotionApplied: selectedProduct.discounts[0].promotionName || '',
+          });
+        }
+        this.details.push(productGroup);
+        this.toast.success('Producto agregado:', selectedProduct.name);
+      },
+    });
   }
 
   dueDateAfterIssueDateValidator() {
@@ -393,7 +442,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       if (this.form.invalid) return;
 
       const client: any = this.form.value;
-      const invoice: Invoice = this.form.value;
+      const invoice: InvoiceCreateDto = this.form.value;
 
       if (this.details.length === 0) {
         this.toast.warning('Debe agregar al menos un producto a la factura');
@@ -562,21 +611,19 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     }
   }
 
-  updateTotals(): void {
+  updateEstimatedSummary(): void {
+    // Calcular subtotal visual
     let subtotal = 0;
-
+    let totalDiscount = 0;
     this.details.controls.forEach((control: any) => {
       const value = control.value;
       subtotal += (value.unitPrice || 0) * (value.quantity || 0);
+      totalDiscount += value.estimatedDiscount || 0;
     });
-
-    const total = subtotal;
-
-    this.form.patchValue({
-      subtotalAmount: subtotal,
-      taxAmount: 0,
-      totalAmount: total,
-    });
+    this.estimatedSubtotal = subtotal;
+    this.estimatedDiscount = totalDiscount;
+    this.estimatedTax = 0;
+    this.estimatedTotal = +(subtotal + this.estimatedTax - this.estimatedDiscount).toFixed(2);
   }
   updateQuantity(event: any, data: Product): void {
     const quantity = event.target.value * 1;
@@ -589,28 +636,35 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       this.toast.error('La cantidad no es permitida.');
       event.target.value = valueResulto.stock;
     }
-    this.updateTotals();
+    this.updateEstimatedSummary();
   }
 
   incrementQuantity(index: number, data: any) {
     const item = this.details.at(index);
     const cant = item.value.quantity + 1;
     const stockTotal = item.value.stock - item.value.stockSold;
-    if (stockTotal >= cant) {
-      data.quantity = cant;
-    } else {
+    let newQuantity = cant;
+    if (stockTotal < cant) {
       this.toast.error('La cantidad no es permitida. stock maximo: ' + stockTotal);
-      data.quantity = stockTotal;
+      newQuantity = stockTotal;
     }
-
-    this.updateTotals();
+    // Calcular descuento estimado
+    const percent = item.value.discountPercent || 0;
+    const unitPrice = item.value.unitPrice || 0;
+    const estimatedDiscount = Math.round(unitPrice * newQuantity * percent / 100);
+    item.patchValue({ quantity: newQuantity, estimatedDiscount });
+    this.updateEstimatedSummary();
   }
 
   decrementQuantity(index: number) {
     const item = this.details.at(index);
     if (item.value.quantity > 1) {
-      item.patchValue({ quantity: item.value.quantity - 1 });
-      this.updateTotals();
+      const newQuantity = item.value.quantity - 1;
+      const percent = item.value.discountPercent || 0;
+      const unitPrice = item.value.unitPrice || 0;
+      const estimatedDiscount = Math.round(unitPrice * newQuantity * percent / 100);
+      item.patchValue({ quantity: newQuantity, estimatedDiscount });
+      this.updateEstimatedSummary();
     }
   }
 
@@ -637,15 +691,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
         data: {
           message: `El servicio ha vencido. No puede cerrarse hasta renovar.`,
           allowClose: false,
-        },
-      });
-    } else if (diffDays <= 5) {
-      this.dialog.open(PaymentWarningModalComponent, {
-        width: '420px',
-        disableClose: true,
-        data: {
-          message: `Faltan ${diffDays} día${diffDays === 1 ? '' : 's'} para que se venza el servicio. Por favor pagar.`,
-          allowClose: true,
         },
       });
     }

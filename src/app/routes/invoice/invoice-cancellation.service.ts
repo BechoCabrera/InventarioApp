@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
-import { Invoice } from './invoice.service';
+import { InvoiceDto } from './create-invoice/models';
+
 
 export interface InvoicesCancelledDto {
-  invoiceCancelledId: string; // En TypeScript usamos string para representar GUIDs
+  invoiceCancelledId: string;
   invoiceId: string;
   reason: string;
-  cancellationDate: string; // Puedes usar Date si prefieres trabajar con objetos de fecha
+  cancellationDate: string;
   cancelledByUserId: string;
-  invoice: Invoice;
+  invoice: InvoiceDto;
 }
 
 @Injectable({

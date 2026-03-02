@@ -99,36 +99,36 @@ export const appConfig: ApplicationConfig = {
         appearance: 'outlined',
       },
     },
-    provideDateFnsAdapter({
-      parse: {
-        dateInput: 'yyyy-MM-dd',
-      },
-      display: {
-        dateInput: 'yyyy-MM-dd',
-        monthYearLabel: 'yyyy MMM',
-        dateA11yLabel: 'LL',
-        monthYearA11yLabel: 'yyyy MMM',
-      },
-    }),
-    provideDateFnsDatetimeAdapter({
-      parse: {
-        dateInput: 'yyyy-MM-dd',
-        yearInput: 'yyyy',
-        monthInput: 'MMMM',
-        datetimeInput: 'yyyy-MM-dd HH:mm',
-        timeInput: 'HH:mm',
-      },
-      display: {
-        dateInput: 'yyyy-MM-dd',
-        yearInput: 'yyyy',
-        monthInput: 'MMMM',
-        datetimeInput: 'yyyy-MM-dd HH:mm',
-        timeInput: 'HH:mm',
-        monthYearLabel: 'yyyy MMMM',
-        dateA11yLabel: 'LL',
-        monthYearA11yLabel: 'MMMM yyyy',
-        popupHeaderDateLabel: 'MMM dd, E',
-      },
-    }),
+    // provideDateFnsAdapter({
+    //   parse: {
+    //     dateInput: 'yyyy-MM-dd',
+    //   },
+    //   display: {
+    //     dateInput: 'yyyy-MM-dd',
+    //     monthYearLabel: 'yyyy MMM',
+    //     dateA11yLabel: 'LL',
+    //     monthYearA11yLabel: 'yyyy MMM',
+    //   },
+    // }),
+    // provideDateFnsDatetimeAdapter({
+    //   parse: {
+    //     dateInput: 'yyyy-MM-dd',
+    //     yearInput: 'yyyy',
+    //     monthInput: 'MMMM',
+    //     datetimeInput: 'yyyy-MM-dd HH:mm',
+    //     timeInput: 'HH:mm',
+    //   },
+    //   display: {
+    //     dateInput: 'yyyy-MM-dd',
+    //     yearInput: 'yyyy',
+    //     monthInput: 'MMMM',
+    //     datetimeInput: 'yyyy-MM-dd HH:mm',
+    //     timeInput: 'HH:mm',
+    //     monthYearLabel: 'yyyy MMMM',
+    //     dateA11yLabel: 'LL',
+    //     monthYearA11yLabel: 'MMMM yyyy',
+    //     popupHeaderDateLabel: 'MMM dd, E',
+    //   },
+    // }),
   ],
 };

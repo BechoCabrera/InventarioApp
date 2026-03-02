@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 
-import { Invoice, InvoiceDetail, InvoiceService } from '../invoice.service';
+import { InvoiceDto, InvoiceDetailDto } from '../create-invoice/models';
+import { InvoiceService } from '../invoice.service';
 import { InvoicesCancelled, InvoicesCancelledDto } from '../invoice-cancellation.service';
 
 import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
@@ -39,11 +40,11 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
   ];
 
   invoiceCancellations = new MatTableDataSource<InvoicesCancelledDto>(); // ✅ datasource real
-  invoiceSelectedDetail: InvoiceDetail[] = [];
+  invoiceSelectedDetail: InvoiceDetailDto[] = [];
 
   cancellationForm!: FormGroup;
   invoiceId!: string;
-  filteredInvoices: Invoice[] = [];
+  filteredInvoices: InvoiceDto[] = [];
   searchControl = new FormControl('');
   isEntitiLoading = false;
 

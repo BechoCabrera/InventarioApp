@@ -1,6 +1,88 @@
-.content {
+.promotion-form {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+h2 {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.field {
+  flex: 1 1 220px;
+  min-width: 220px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+mat-card {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-radius: 12px;
+}
+
+mat-progress-spinner {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+mat-slide-toggle {
+  margin-top: 16px;
+}
+
+mat-checkbox {
+  margin-right: 8px;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 16px;
+  position: relative;
+}
+
+.loading-overlay {
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 12px;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  z-index: 10;
+}
+
+.mat-chip {
+  font-weight: bold;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.mat-icon-button {
+  margin-right: 4px;
+}
+
+.text-muted {
+  color: #888;
+}
+
+.chip-activo {
+  background-color: #43a047 !important; /* Verde */
+  color: #fff !important;
+}
+.chip-inactivo {
+  background-color: #e53935 !important; /* Rojo */
+  color: #fff !important;
 }

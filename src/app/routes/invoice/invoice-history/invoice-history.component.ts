@@ -27,7 +27,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatSelectModule } from '@angular/material/select';
-import { Invoice, InvoiceService } from '../invoice.service';
+import { InvoiceService } from '../invoice.service';
+import { InvoiceDto } from '../create-invoice/models';
 import { MatNativeDateModule } from '@angular/material/core';
 import { DateAdapter } from '@angular/material/core';
 
@@ -81,8 +82,8 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
   @ViewChild('pdfContent', { static: false }) pdfContent!: ElementRef;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   isEntitiLoading = false;
-  selectedInvoice: Invoice | null = null;
-  dataSource = new MatTableDataSource<Invoice>();
+  selectedInvoice: InvoiceDto | null = null;
+  dataSource = new MatTableDataSource<InvoiceDto>();
   displayedColumns = [
     'invoiceNumber',
     'client',
@@ -101,7 +102,7 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
   invoiceNumber: string = '';
   searchText: string = '';
   // Backup para aplicar filtros sobre el dataset completo
-  private allInvoices: Invoice[] = [];
+  private allInvoices: InvoiceDto[] = [];
 
   constructor(
     private invoiceService: InvoiceService,
@@ -171,13 +172,13 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
     });
   }
 
-  openInvoiceDialog(invoice: Invoice): void {
+  openInvoiceDialog(invoice: InvoiceDto): void {
     this.dialog.open(InvoicePosDialogComponent, {
       data: invoice,
     });
   }
 
-  openInvoiceDetailDialog(invoice: Invoice): void {
+  openInvoiceDetailDialog(invoice: InvoiceDto): void {
     const dialogRef = this.dialog.open(InvoiceDetailsModalComponent, {
       width: '500px', // Ancho del modal
       data: { invoice }, // Pasamos la factura seleccionada al modal

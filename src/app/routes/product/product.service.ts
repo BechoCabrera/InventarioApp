@@ -20,6 +20,7 @@ export interface Product {
   categoryName: string;
   entitiName: string;
   quantity: number;
+  discounts?: any; // Aquí puedes definir un tipo específico para los descuentos si lo deseas
 }
 
 @Injectable({

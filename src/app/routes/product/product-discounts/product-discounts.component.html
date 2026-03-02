@@ -1,9 +1,195 @@
 <mat-card>
-  <h2>Descuentos de productos</h2>
-  <mat-divider></mat-divider>
+  <form [formGroup]="form" class="promotion-form">
+    <h2>Crear Promoción</h2>
 
-  <div class="content">
-    <mat-icon>local_offer</mat-icon>
-    <p>Este módulo está listo para implementar la creación y gestión de descuentos.</p>
+    <!-- FILA 1 -->
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Nombre promoción</mat-label>
+        <input matInput formControlName="name" />
+        <mat-error *ngIf="form.get('name')?.hasError('required')">Campo obligatorio</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Tipo de descuento</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="1">Porcentaje (%)</mat-option>
+          <mat-option value="2">Valor fijo ($)</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+        <!-- Input condicional para porcentaje -->
+          <!-- Solo porcentaje -->
+          <mat-form-field *ngIf="form.get('type')?.value == '1'" appearance="fill" class="field">
+            <mat-label>% de descuento</mat-label>
+            <input matInput type="number" formControlName="percentage" min="1" max="100" />
+            <mat-error *ngIf="form.get('percentage')?.hasError('required')">Campo obligatorio</mat-error>
+            <mat-error *ngIf="form.get('percentage')?.hasError('min')">Debe ser mayor a 0</mat-error>
+            <mat-error *ngIf="form.get('percentage')?.hasError('max')">No puede ser mayor a 100</mat-error>
+          </mat-form-field>
+
+          <!-- Valor fijo: mostrar % de descuento y cantidad mínima -->
+          <mat-form-field *ngIf="form.get('type')?.value == '2'" appearance="fill" class="field">
+            <mat-label>% de descuento para aplicar</mat-label>
+            <input matInput type="number" formControlName="percentage" min="1" max="100" />
+            <mat-error *ngIf="form.get('percentage')?.hasError('required')">Campo obligatorio</mat-error>
+            <mat-error *ngIf="form.get('percentage')?.hasError('min')">Debe ser mayor a 0</mat-error>
+            <mat-error *ngIf="form.get('percentage')?.hasError('max')">No puede ser mayor a 100</mat-error>
+          </mat-form-field>
+          <mat-form-field *ngIf="form.get('type')?.value == '2'" appearance="fill" class="field">
+            <mat-label>Cantidad mínima para aplicar el %</mat-label>
+            <input matInput type="number" formControlName="minQuantity" min="1" />
+            <mat-error *ngIf="form.get('minQuantity')?.hasError('required')">Campo obligatorio</mat-error>
+            <mat-error *ngIf="form.get('minQuantity')?.hasError('min')">Debe ser mayor a 0</mat-error>
+          </mat-form-field>
+    </div>
+
+    <!-- FILA 2 -->
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Fecha inicio</mat-label>
+        <input matInput [matDatepicker]="pickerStart" formControlName="startDate" />
+        <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+        <mat-datepicker #pickerStart></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Fecha fin</mat-label>
+        <input matInput [matDatepicker]="pickerEnd" formControlName="endDate" />
+        <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd></mat-datepicker>
+      </mat-form-field>
+
+      <mat-slide-toggle formControlName="isActive">Activa</mat-slide-toggle>
+    </div>
+
+    <!-- FILA 3 -->
+    <div class="form-row">
+      <mat-form-field appearance="fill" class="field">
+        <mat-label>Productos incluidos</mat-label>
+        <mat-select formControlName="productIds" multiple>
+          <mat-option *ngFor="let product of products" [value]="product.productId">
+            {{ product.name }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('productIds')?.hasError('required')">
+          Selecciona al menos un producto
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- BOTÓN -->
+    <div class="form-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="button"
+          (click)="savePromotion()"
+          [disabled]="form.invalid || loading"
+        >
+          {{ editingPromotion ? 'Actualizar promoción' : 'Guardar promoción' }}
+        </button>
+        <button
+          *ngIf="editingPromotion"
+          mat-stroked-button
+          color="warn"
+          type="button"
+          (click)="cancelEdit()"
+          [disabled]="loading"
+          style="margin-left: 8px;"
+        >
+          Cancelar edición
+        </button>
+    </div>
+  </form>
+</mat-card>
+<!-- ...otros elementos del formulario... -->
+
+<mat-card class="p-3">
+  <mat-card-title>Promociones guardadas</mat-card-title>
+  <div class="table-container ">
+      <app-loading-overlay [isLoading]="loading"></app-loading-overlay>
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z2">
+      <!-- Nombre -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre <mat-icon style="font-size: 14px;vertical-align:middle;"></mat-icon></th>
+        <td mat-cell *matCellDef="let promo">{{ promo.name }}</td>
+      </ng-container>
+
+      <!-- Tipo -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo <mat-icon style="font-size: 14px;vertical-align:middle;"></mat-icon></th>
+          <td mat-cell *matCellDef="let promo">
+            {{ promo.type == '1' ? 'Porcentaje (%)' : 'Valor fijo ($)' }}
+          </td>
+      </ng-container>
+
+      <!-- Valor -->
+        <ng-container matColumnDef="percentage">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>% Descuento</th>
+          <td mat-cell *matCellDef="let promo">{{ promo.percentage }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="minQuantity">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Cant. mínima</th>
+          <td mat-cell *matCellDef="let promo">{{ promo.minQuantity || '-' }}</td>
+        </ng-container>
+
+      <!-- Inicio -->
+      <ng-container matColumnDef="startDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Inicio <mat-icon style="font-size: 14px;vertical-align:middle;"></mat-icon></th>
+        <td mat-cell *matCellDef="let promo">{{ promo.startDate | date:'d/MM/yy' }}</td>
+      </ng-container>
+
+      <!-- Fin -->
+      <ng-container matColumnDef="endDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Fin <mat-icon style="font-size: 14px;vertical-align:middle;"></mat-icon></th>
+        <td mat-cell *matCellDef="let promo">{{ promo.endDate | date:'d/MM/yy' }}</td>
+      </ng-container>
+
+      <!-- Activa -->
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado <mat-icon style="font-size: 14px;vertical-align:middle;"></mat-icon></th>
+            <td mat-cell *matCellDef="let promo">
+              <mat-chip [ngClass]="promo.isActive ? 'chip-activo' : 'chip-inactivo'" selected
+                (dblclick)="togglePromotionStatus(promo)"
+                style="cursor:pointer"
+                matTooltip="Doble click para cambiar el estado">
+                {{ promo.isActive ? 'Activa' : 'Inactiva' }}
+              </mat-chip>
+            </td>
+      </ng-container>
+
+      <!-- Productos -->
+      <ng-container matColumnDef="productIds">
+        <th mat-header-cell *matHeaderCellDef style="width: 180px;">Productos Registrados</th>
+          <td mat-cell *matCellDef="let promo" style="width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <span *ngIf="promo.productIds?.length; else noProducts">
+              {{ getProductNames(promo.productIds) }}
+            </span>
+            <ng-template #noProducts>
+              <span class="text-muted">-</span>
+            </ng-template>
+          </td>
+      </ng-container>
+
+      <!-- Opciones -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef style="width: 80px;">Opciones</th>
+        <td mat-cell *matCellDef="let promo" style="width: 80px;">
+          <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+            <button mat-icon-button color="accent" (click)="editPromotion(promo)" matTooltip="Editar" style="font-size: 18px; width: 28px; height: 28px;">
+              <mat-icon style="font-size: 18px;">edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deletePromotion(promo)" matTooltip="Eliminar" style="font-size: 18px; width: 28px; height: 28px;">
+              <mat-icon style="font-size: 18px;">delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
   </div>
 </mat-card>
