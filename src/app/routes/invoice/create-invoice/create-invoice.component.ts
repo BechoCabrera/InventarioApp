@@ -138,7 +138,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     this.form.get('amountPaid')?.valueChanges.subscribe(() => {
       const paid = this.form.get('amountPaid')?.value || 0;
-      const total = this.form.get('totalAmount')?.value || 0;
+      const total =  this.estimatedTotal;
 
       if (paid < total) {
         this.form.get('amountPaid')?.setErrors({ insufficient: true });
@@ -172,11 +172,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   calculateChangeAmount(): void {
     const paid = this.form.get('amountPaid')?.value || 0;
-    const total = this.form.get('totalAmount')?.value || 0;
+    const total = this.estimatedTotal || 0;
 
-    const result = paid - total;
-
-    this.changeAmount = result > 0 ? result : 0;
+    this.changeAmount = Math.max(0, paid - total);
   }
 
   trackByProductId(index: number, product: Product): number {
@@ -604,7 +602,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.selectedPaymentMethod = method;
     this.form.patchValue({ paymentMethod: method });
 
-    const total = this.form.get('totalAmount')?.value || 0;
+    const total = this.estimatedTotal || 0;
 
     if (method === 'Crédito' || method === 'Transferencia' || method === 'Tarjeta') {
       this.form.patchValue({ amountPaid: total });
@@ -624,6 +622,14 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.estimatedDiscount = totalDiscount;
     this.estimatedTax = 0;
     this.estimatedTotal = +(subtotal + this.estimatedTax - this.estimatedDiscount).toFixed(2);
+
+    this.form.patchValue({
+      subtotalAmount: this.estimatedSubtotal,
+      taxAmount: this.estimatedTax,
+      totalAmount: this.estimatedTotal,
+    });
+
+    this.calculateChangeAmount();
   }
   updateQuantity(event: any, data: Product): void {
     const quantity = event.target.value * 1;
