@@ -142,8 +142,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
         this.products = products;
         this.loading = false;
       },
-      error: () => {
-        this.toast.error('Error cargando productos');
+      error: err => {
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error cargando productos', err);
         this.loading = false;
       },
     });
@@ -181,8 +182,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
             this.loadPromotions();
             this.loading = false;
           },
-          error: () => {
-            this.toast.error('Error al actualizar la promoción');
+          error: err => {
+            // El interceptor global mostrará el mensaje de error del backend
+            console.error('Error al actualizar la promoción', err);
             this.loading = false;
           },
         });
@@ -201,8 +203,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
           this.loadPromotions();
           this.loading = false;
         },
-        error: () => {
-          this.toast.error('Error al guardar la promoción');
+        error: err => {
+          // El interceptor global mostrará el mensaje de error del backend
+          console.error('Error al guardar la promoción', err);
           this.loading = false;
         },
       });
@@ -217,8 +220,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
         this.dataSource.data = promos;
         this.loading = false;
       },
-      error: () => {
-        this.toast.error('Error cargando promociones');
+      error: err => {
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error cargando promociones', err);
         this.loading = false;
       },
     });
@@ -252,8 +256,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
         this.form.get('minQuantity')?.updateValueAndValidity();
         this.loading = false;
       },
-      error: () => {
-        this.toast.error('Error cargando la promoción');
+      error: err => {
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error cargando la promoción', err);
         this.loading = false;
       },
     });
@@ -270,8 +275,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
           this.loadPromotions();
           this.loading = false;
         },
-        error: () => {
-          this.toast.error('No se pudo cambiar el estado');
+        error: err => {
+          // El interceptor global mostrará el mensaje de error del backend
+          console.error('No se pudo cambiar el estado', err);
           this.loading = false;
         },
       });
@@ -286,8 +292,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
         this.loadPromotions();
         this.loading = false;
       },
-      error: () => {
-        this.toast.error('Error al eliminar la promoción');
+      error: err => {
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al eliminar la promoción', err);
         this.loading = false;
       },
     });

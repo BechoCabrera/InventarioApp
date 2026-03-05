@@ -55,8 +55,8 @@ export class CreateCategoryComponent implements OnInit {
     this.categoryService.getAll().subscribe({
       next: (data: Category[]) => (this.categories = data),
       error: (err: any) => {
-        this.toast.error('Error al cargar categorías', 'Error');
-        console.error(err);
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al cargar categorías', err);
       },
     });
   }
@@ -72,8 +72,8 @@ export class CreateCategoryComponent implements OnInit {
         this.loadCategories();
       },
       error: (err: any) => {
+        // El interceptor global mostrará el mensaje de error del backend
         console.error('Error creando categoría', err);
-        this.toast.error('Categoría no guardada');
       },
     });
   }

@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, AfterViewInit } from '@angular/core';
 import { Product, ProductService } from '../product.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ToastrService } from 'ngx-toastr';
@@ -115,6 +115,12 @@ export class CreateProductComponent implements OnInit {
     this.setCatedoryData();
   }
 
+  ngAfterViewInit(): void {
+    // Conectar tabla con paginador y ordenamiento una vez que las vistas están listas
+    this.products.paginator = this.paginator;
+    this.products.sort = this.sort;
+  }
+
   openSummaryModal(): void {
     this.dialog.open(ProductSummaryComponent, {
       width: '700px',
@@ -135,6 +141,7 @@ export class CreateProductComponent implements OnInit {
   }
 
   loadProducts(): void {
+    this.isEntitiLoading = true;
     this.productService.getAll().subscribe({
       next: data => {
         this.products.data = data;
@@ -149,8 +156,9 @@ export class CreateProductComponent implements OnInit {
         this.calcularTotales();
       },
       error: err => {
-        this.toast.error('Error al cargar productos', 'Error');
-        console.error(err);
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al cargar productos', err);
+        this.isEntitiLoading = false;
       },
     });
   }
@@ -168,8 +176,8 @@ export class CreateProductComponent implements OnInit {
         this.loadProducts();
       },
       error: err => {
-        console.error('Error creating product', err);
-        this.toast.error(err.error);
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error creando producto', err);
       },
     });
   }
@@ -210,7 +218,8 @@ export class CreateProductComponent implements OnInit {
             }
           },
           error: err => {
-            this.toast.error('Producto no eliminado');
+            // El interceptor global mostrará el mensaje de error del backend
+            console.error('Error al eliminar producto', err);
           },
         });
       }
@@ -250,7 +259,8 @@ export class CreateProductComponent implements OnInit {
         this.calcularTotales();
       },
       error => {
-        this.toast.error('Error al aumentar el stock. ' + error.error);
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al aumentar el stock', error);
       }
     );
   }
@@ -263,7 +273,8 @@ export class CreateProductComponent implements OnInit {
         this.calcularTotales();
       },
       error => {
-        this.toast.error('Error al reducir el stock.' + error.error);
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al reducir el stock', error);
       }
     );
   }

@@ -11,7 +11,7 @@
               color="primary"
               type="button"
               (click)="saveInvoice()"
-              [disabled]="form.invalid"
+              [disabled]="form.invalid || isSavingInvoice"
             >
               <mat-icon>check_circle</mat-icon>
               <!-- Icono de "check" -->
@@ -254,3 +254,5 @@
     </div>
   </form>
 </mat-card>
+
+<app-loading-overlay [isLoading]="isSavingInvoice"></app-loading-overlay>

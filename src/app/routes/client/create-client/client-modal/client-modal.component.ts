@@ -62,8 +62,9 @@ export class ClientModalComponent {
           this.toast.error('No se pudo actualizar el cliente');
         }
       },
-      error: () => {
-        this.toast.error('No se pudo actualizar el cliente');
+      error: err => {
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al actualizar el cliente', err);
         this.dialogRef.close();
       },
     });

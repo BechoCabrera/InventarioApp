@@ -54,6 +54,7 @@ export class ProductModalComponent implements OnInit {
       name: [this.product.name, Validators.required],
       unitPrice: [this.product.unitPrice, [Validators.required, Validators.min(0)]],
       description: [this.product.description, Validators.required],
+      barCode: [this.product.barCode || ''],
       stock: [
         this.product.stock - this.product.stockSold,
         [Validators.required, Validators.min(0)],
@@ -84,8 +85,8 @@ export class ProductModalComponent implements OnInit {
           }
         },
         error: (error: any) => {
+          // El interceptor global mostrará el mensaje de error del backend
           console.error('Error al actualizar el producto:', error);
-          this.toast.error('Error al actualizar el producto');
         },
       });
     } else {

@@ -35,6 +35,10 @@
               <span class="label">Total en Transferencias:</span>
               <span class="value">{{ totalTransfer | currency }}</span>
             </div>
+            <div class="summary-row">
+              <span class="label">Total en Descuentos:</span>
+              <span class="value discount">-{{ totalDiscount | currency }}</span>
+            </div>
             <div class="summary-row total">
               <span class="label">Total General:</span>
               <span class="value">{{ totalAmount | currency }}</span>

@@ -37,6 +37,7 @@ import { ProductDiscountsService } from 'app/routes/product/product-discounts/pr
 import { Client, ClientService } from 'app/routes/client/client.service';
 import { Product, ProductService } from 'app/routes/product/product.service';
 import { MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DateAdapter } from '@angular/material/core';
 import { debounceTime, distinctUntilChanged, map, Observable, switchMap } from 'rxjs';
@@ -52,6 +53,7 @@ import {
 } from '@shared/modal/confirm-dialog/confirm-dialog.component';
 import { GenericModalComponent } from '@shared/modal/generic-modal/generic-modal.component';
 import { PaymentWarningModalComponent } from '@shared/modal/payment-warning-modal/payment-warning-modal.component';
+import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -73,6 +75,8 @@ registerLocaleData(localeCo, 'es-CO');
     MatNativeDateModule,
     MatDatepickerModule,
     MatAutocompleteModule,
+    MatProgressSpinnerModule,
+    LoadingOverlayComponent,
   ],
   providers: [
     { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
@@ -104,6 +108,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   searchControl = new FormControl('');
   selectedClientId: string | null = null;
   dueDate = new Date('2026-06-26');
+  isSavingInvoice = false;
   constructor(
     private clientService: ClientService,
     private productService: ProductService,
@@ -235,9 +240,15 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     // Verificar si el producto ya está en los productos filtrados
     const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
 
-    if (!selectedProduct) {
-      this.clearProductSearchInput();
-      return;
+    if (!selectedProduct ) {
+        this.clearProductSearchInput();
+        return;
+    }
+
+    if (selectedProduct.stock - selectedProduct.stockSold <= 0) {
+        this.toast.error('No hay stock disponible para este producto.');
+        this.clearProductSearchInput();
+        return;
     }
 
     // Verificar si el producto ya está en la lista de detalles
@@ -483,17 +494,17 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
             this.clientService.create(clientData).subscribe({
               next: () => {
                 this.toast.success('Cliente guardado con éxito');
+                this.isSavingInvoice = true;
                 this.invoiceService.saveInvoice(invoice).subscribe({
                   next: savedInvoice => {
+                    this.isSavingInvoice = false;
                     this.toast.success('Factura guardada');
-
                     this.dialog.open(InvoicePosDialogComponent, {
                       data: savedInvoice,
                       width: '380px',
                       maxWidth: '95vw',
                       panelClass: 'custom-dialog-container',
                     });
-
                     this.form.reset();
                     this.details.clear();
                     this.form.patchValue({
@@ -506,19 +517,22 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                     });
                   },
                   error: err => {
-                    this.toast.error('Error al guardar factura');
-                    console.error(err);
+                    this.isSavingInvoice = false;
+                    // El interceptor global mostrará el mensaje de error del backend
+                    console.error('Error al guardar factura', err);
                   },
                 });
               },
               error: err => {
-                console.error(err);
-                this.toast.error('Error al guardar cliente');
+                // El interceptor global mostrará el mensaje de error del backend
+                console.error('Error al guardar cliente', err);
               },
             });
           } else {
+            this.isSavingInvoice = true;
             this.invoiceService.saveInvoice(invoice).subscribe({
               next: savedInvoice => {
+                this.isSavingInvoice = false;
                 this.toast.success('Factura guardada');
                 this.dialog.open(InvoicePosDialogComponent, {
                   data: savedInvoice,
@@ -526,7 +540,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                   maxWidth: '95vw',
                   panelClass: 'custom-dialog-container',
                 });
-
                 this.form.reset();
                 this.details.clear();
                 this.form.patchValue({
@@ -539,15 +552,18 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                 });
               },
               error: err => {
-                this.toast.error('Error al guardar factura');
-                console.error(err);
+                this.isSavingInvoice = false;
+                // El interceptor global mostrará el mensaje de error del backend
+                console.error('Error al guardar factura', err);
               },
             });
           }
         });
       } else {
+        this.isSavingInvoice = true;
         this.invoiceService.saveInvoice(invoice).subscribe({
           next: savedInvoice => {
+            this.isSavingInvoice = false;
             this.toast.success('Factura guardada');
             this.dialog.open(InvoicePosDialogComponent, {
               data: savedInvoice,
@@ -555,7 +571,6 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
               maxWidth: '95vw',
               panelClass: 'custom-dialog-container',
             });
-
             this.form.reset();
             this.details.clear();
             this.form.patchValue({
@@ -568,8 +583,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
             });
           },
           error: err => {
-            this.toast.error('Error al guardar factura');
-            console.error(err);
+            this.isSavingInvoice = false;
+            // El interceptor global mostrará el mensaje de error del backend
+            console.error('Error al guardar factura', err);
           },
         });
       }
@@ -592,7 +608,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   loadClients(): void {
     this.clientService.getAll().subscribe({
       next: data => (this.clients = data),
-      error: () => this.toast.error('Error cargando clientes'),
+      error: err => {
+        // El interceptor global ya muestra el mensaje de error
+        console.error('Error cargando clientes', err);
+      },
     });
   }
 

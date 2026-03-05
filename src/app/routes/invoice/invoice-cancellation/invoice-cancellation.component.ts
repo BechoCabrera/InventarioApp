@@ -126,13 +126,16 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
         reason: this.cancellationForm.value.reason,
       };
 
+      this.isEntitiLoading = true;
       this.invoicesCancelled.cancelInvoice(cancellationData).subscribe({
         next: () => {
           this.toast.success('Factura anulada correctamente.');
           this.loadInvoiceCancellations(); // 🔄 refrescar tabla
+          this.isEntitiLoading = false;
         },
         error: () => {
-          this.toast.error('Error al anular la factura.');
+          // El interceptor global mostrará el mensaje de error del backend
+          this.isEntitiLoading = false;
         },
       });
     }

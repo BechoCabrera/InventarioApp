@@ -27,11 +27,12 @@
       </p>
 
       <hr />
-      <table style="width: 100%; font-size: 11px">
+      <table style="width: 100%; font-size: 10px">
         <thead>
           <tr>
             <th style="text-align: left">Prod</th>
             <th style="text-align: center">Cant</th>
+            <th style="text-align: right">Desc.</th>
             <th style="text-align: right">Total</th>
           </tr>
         </thead>
@@ -40,7 +41,12 @@
             <td>{{ item.productName }}</td>
             <td style="text-align: center">{{ item.quantity }}</td>
             <td style="text-align: right">
-              {{ item.unitPrice * item.quantity | currency: '' : 'symbol' : '1.0-0' }}
+              <span *ngIf="item.discountAmount && item.discountAmount > 0">
+                -{{ item.discountAmount | currency: '' : 'symbol' : '1.0-0' }}
+              </span>
+            </td>
+            <td style="text-align: right">
+              {{ getLineTotal(item) | currency: '' : 'symbol' : '1.0-0' }}
             </td>
           </tr>
         </tbody>
@@ -49,15 +55,22 @@
       <div class="totals-block">
         <div class="row p-2">
           <strong>Subtotal:</strong>
-          <span>{{ invoice?.subtotalAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
+          <span>{{ subtotalAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
         </div>
         <div class="row">
-          <strong>Impuesto:</strong>
-          <span>{{ invoice?.taxAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
+          <strong>Descuento total:</strong>
+          <span *ngIf="invoice?.discountAmount && invoice?.discountAmount > 0; else noTotalDiscount">
+            -{{ invoice?.discountAmount | currency: '' : 'symbol' : '1.0-0' }}
+          </span>
+          <ng-template #noTotalDiscount>-</ng-template>
         </div>
+        <!-- <div class="row">
+          <strong>Impuesto:</strong>
+          <span>{{ taxAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
+        </div> -->
         <div class="row">
           <strong>Total:</strong>
-          <span>{{ invoice?.totalAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
+          <span>{{ totalAmount | currency: '' : 'symbol' : '1.0-0' }}</span>
         </div>
         <div class="row">
           <strong>Pago:</strong>

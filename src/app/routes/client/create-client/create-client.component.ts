@@ -62,8 +62,8 @@ export class CreateClientComponent implements OnInit {
         this.isEntitiLoading = false;
       },
       error: err => {
-        console.error(err);
-        this.toast.error('Error al cargar clientes', 'Error');
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('Error al cargar clientes', err);
         this.isEntitiLoading = false;
       },
     });
@@ -80,8 +80,8 @@ export class CreateClientComponent implements OnInit {
         this.loadClients();
       },
       error: err => {
-        console.error(err);
-        this.toast.error('No se pudo registrar el cliente');
+        // El interceptor global mostrará el mensaje de error del backend
+        console.error('No se pudo registrar el cliente', err);
       },
     });
   }

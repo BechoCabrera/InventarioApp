@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,7 +36,7 @@ import { MatSortModule } from '@angular/material/sort';
   ],
   standalone: true, // Asegúrate de que este componente sea standalone si estás usando Angular 14+
 })
-export class CashClosingHistoryComponent implements OnInit {
+export class CashClosingHistoryComponent implements OnInit, AfterViewInit {
   isLoading: boolean = false;
   cashClosings: any[] = [];
   displayedColumns: string[] = [
@@ -45,6 +45,7 @@ export class CashClosingHistoryComponent implements OnInit {
     'totalCredit',
     'totalCard',
     'totalTransfer',
+    'discountAmount',
     'totalAmount',
     'userName',
     'createdAt',
@@ -73,6 +74,14 @@ export class CashClosingHistoryComponent implements OnInit {
           createdAt: new Date(item.createdAt),
         }));
         this.dataSource.data = this.cashClosings;
+        // Asegurar que el paginador y el sort estén conectados después de cargar datos
+        if (this.paginator) {
+          this.dataSource.paginator = this.paginator;
+          this.paginator.firstPage();
+        }
+        if (this.sort) {
+          this.dataSource.sort = this.sort;
+        }
         this.isLoading = false;
       },
       error => {
@@ -93,6 +102,7 @@ export class CashClosingHistoryComponent implements OnInit {
         case 'totalCredit':
         case 'totalCard':
         case 'totalTransfer':
+        case 'discountAmount':
           return Number(item[property]);
         default:
           return item[property];

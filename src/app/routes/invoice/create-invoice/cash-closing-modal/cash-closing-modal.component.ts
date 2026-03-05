@@ -37,6 +37,7 @@ export class CashClosingModalComponent implements OnInit {
   totalCredit: number = 0;
   totalCard: number = 0;
   totalTransfer: number = 0;
+  totalDiscount: number = 0;
   invoices: InvoiceDto[] = [];
   private readonly toast = inject(ToastrService);
   constructor(
@@ -79,6 +80,7 @@ export class CashClosingModalComponent implements OnInit {
         this.totalCredit = 0;
         this.totalCard = 0;
         this.totalTransfer = 0;
+        this.totalDiscount = 0;
 
         // Sumamos los totales de cada tipo de pago para las facturas del día
         invoices.forEach((invoice: any) => {
@@ -92,10 +94,15 @@ export class CashClosingModalComponent implements OnInit {
           } else if (invoice.paymentMethod === 'Transferencia') {
             this.totalTransfer += invoice.totalAmount;
           }
+
+          // Acumular descuentos del día
+          if (invoice.discountAmount) {
+            this.totalDiscount += invoice.discountAmount;
+          }
         });
 
         // Calcular el total general
-        this.totalAmount = this.totalCash + this.totalCredit + this.totalCard + this.totalTransfer;
+        this.totalAmount = (this.totalCash + this.totalCredit + this.totalCard + this.totalTransfer - this.totalDiscount);
 
         // Actualizamos el formulario reactivo con los totales calculados
         this.cashClosingForm.patchValue({
@@ -135,6 +142,7 @@ export class CashClosingModalComponent implements OnInit {
       totalTransfer: this.totalTransfer,
       totalAmount: this.totalAmount,
       changeAmount: this.changeAmount,
+      discountAmount: this.totalDiscount,
     };
 
     // Llamar al servicio para guardar el cierre de caja

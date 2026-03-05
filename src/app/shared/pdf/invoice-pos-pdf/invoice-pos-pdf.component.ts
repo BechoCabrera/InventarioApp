@@ -32,6 +32,28 @@ export class InvoicePosPdfComponent {
     this.getDataEntiti();
   }
 
+  // Valores seguros en positivo para mostrar en el ticket
+  getLineTotal(item: any): number {
+    if (!item) return 0;
+    const total = (item.unitPrice || 0) * (item.quantity || 0);
+    return Math.abs(total);
+  }
+
+  get subtotalAmount(): number {
+    const value = this.invoice?.subtotalAmount ?? 0;
+    return Math.abs(value);
+  }
+
+  get taxAmount(): number {
+    const value = this.invoice?.taxAmount ?? 0;
+    return Math.abs(value);
+  }
+
+  get totalAmount(): number {
+    const value = this.invoice?.totalAmount ?? 0;
+    return Math.abs(value);
+  }
+
   download(): void {
   this.isLoading = true;
 
@@ -40,7 +62,13 @@ export class InvoicePosPdfComponent {
 
     // 🔥 CALCULA ALTO DINÁMICO en milímetros (1px = 0.264583 mm)
     const pixelHeight = element.scrollHeight;
-    const heightInMm = pixelHeight * 0.264583;
+    let heightInMm = pixelHeight * 0.264583;
+
+    // Altura mínima para evitar recortes en facturas muy cortas
+    const minHeightMm = 130;
+    if (heightInMm < minHeightMm) {
+      heightInMm = minHeightMm;
+    }
 
     const options = {
       margin: 0,

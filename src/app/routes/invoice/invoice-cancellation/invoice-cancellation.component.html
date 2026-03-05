@@ -149,7 +149,12 @@
   </table>
 </div>
 
-<mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+<mat-paginator
+  [length]="invoiceCancellations?.data?.length || 0"
+  [pageSize]="5"
+  [pageSizeOptions]="[5, 10, 25]"
+  showFirstLastButtons
+></mat-paginator>
 
 
 

@@ -24,6 +24,7 @@
       <tr>
         <th>Producto</th>
         <th>Cantidad</th>
+        <th>Desc.</th>
         <th>Precio Unitario</th>
         <th>Total</th>
       </tr>
@@ -32,8 +33,14 @@
       <tr *ngFor="let item of invoice?.details">
         <td>{{ item.productName }}</td>
         <td style="text-align: center;">{{ item.quantity }}</td>
+        <td style="text-align: right;">
+          <span *ngIf="item.discountAmount && item.discountAmount > 0; else noItemDiscount">
+            -{{ item.discountAmount | currency }}
+          </span>
+          <ng-template #noItemDiscount>-</ng-template>
+        </td>
         <td style="text-align: right;">{{ item.unitPrice | currency }}</td>
-        <td style="text-align: right;">{{ item.unitPrice * item.quantity | currency }}</td>
+        <td style="text-align: right;">{{ getLineTotal(item) | currency }}</td>
       </tr>
     </tbody>
   </table>
@@ -43,9 +50,15 @@
     <tr>
       <td style="width: 60%;"></td>
       <td style="text-align: right;">
-        <p><strong>Subtotal:</strong> {{ invoice?.subtotalAmount | currency }}</p>
-        <p><strong>Impuesto:</strong> {{ invoice?.taxAmount | currency }}</p>
-        <p><strong>Total:</strong> {{ invoice?.totalAmount | currency }}</p>
+        <p><strong>Subtotal:</strong> {{ subtotalAmount | currency }}</p>
+        <p><strong>Descuento total:</strong>
+          <span *ngIf="invoice?.discountAmount && invoice?.discountAmount > 0; else noTotalDiscount">
+            -{{ invoice?.discountAmount | currency }}
+          </span>
+          <ng-template #noTotalDiscount>-</ng-template>
+        </p>
+        <p><strong>Impuesto:</strong> {{ taxAmount | currency }}</p>
+        <p><strong>Total:</strong> {{ totalAmount | currency }}</p>
         <p><strong>Método de pago:</strong> {{ invoice?.paymentMethod }}</p>
       </td>
     </tr>

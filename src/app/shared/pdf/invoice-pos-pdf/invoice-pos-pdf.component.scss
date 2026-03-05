@@ -1,3 +1,7 @@
+// Asegura que el PDF tenga suficiente altura para mostrar todo el contenido, incluso si la factura es corta
+.pos-ticket {
+  min-height: 130mm;
+}
 @media print {
   @page {
     size: auto; /* Deja que se ajuste al contenido */
@@ -49,9 +53,9 @@
 
 .pos-ticket {
   font-family: monospace;
-  font-size: 11px;
+  font-size: 10px;
   width: 58mm;
-  padding: 10px 5px;
+  padding: 8px 4px;
   margin: 0;
   box-sizing: border-box;
 
@@ -68,7 +72,7 @@
 
   table {
     width: 100%;
-    font-size: 11px;
+    font-size: 10px;
     border-collapse: collapse;
 
     th,
