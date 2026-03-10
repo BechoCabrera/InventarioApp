@@ -85,6 +85,46 @@
           "type": "link"
         }
       ]
+    },
+    {
+      "route": "usuarios",
+      "name": "Usuarios",
+      "type": "sub",
+      "icon": "person",
+      "children": [
+        {
+          "route": "crear-usuario",
+          "name": "Crear usuario",
+          "type": "link",
+          "icon": "person_add"
+        }
+      ]
+    },
+    {
+      "route": "permissions",
+      "name": "Permisos",
+      "type": "sub",
+      "icon": "lock",
+      "children": [
+        {
+          "route": "crear-permiso",
+          "name": "Crear permiso",
+          "type": "link",
+          "icon": "vpn_key"
+        },
+        {
+          "route": "crear-rol",
+          "name": "Crear rol",
+          "type": "link",
+          "icon": "verified_user"
+        },
+        {
+          "route": "asignar-permisos-usuario",
+          "name": "Asignar permisos a usuarios",
+          "type": "link",
+          "icon": "people_alt"
+        }
+      ]
     }
   ]
 }

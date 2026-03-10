@@ -1,0 +1,44 @@
+@use '../../../../styles/helpers/api' as *;
+
+.assign-page {
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.assign-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+  min-width: 260px;
+}
+
+.btn-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.section-divider {
+  margin-bottom: 0.75rem;
+}

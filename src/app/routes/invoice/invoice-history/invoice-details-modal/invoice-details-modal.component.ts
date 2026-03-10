@@ -26,7 +26,7 @@ import { MatTableModule } from '@angular/material/table';
 export class InvoiceDetailsModalComponent {
   invoice: InvoiceDto; // Aquí almacenamos la factura que se va a mostrar
   invoiceDetail?: InvoiceDetailDto[];
-  displayedColumns: string[] = ['productName', 'quantity', 'totalPrice'];
+  displayedColumns: string[] = ['productName', 'quantity', 'total'];
   constructor(
     public dialogRef: MatDialogRef<InvoiceDetailsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any

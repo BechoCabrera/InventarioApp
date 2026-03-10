@@ -1,6 +1,33 @@
 // Asegura que el PDF tenga suficiente altura para mostrar todo el contenido, incluso si la factura es corta
+// --- PDF Responsive & Compact ---
 .pos-ticket {
-  min-height: 130mm;
+  min-height: 110mm;
+  max-width: 90vw;
+  width: 100%;
+  font-family: monospace;
+  font-size: 11px;
+  padding: 6px 2px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #0001;
+}
+
+@media screen and (max-width: 480px), print and (max-width: 480px) {
+  .pos-ticket {
+    font-size: 9px;
+    padding: 2px 0;
+    min-width: 0;
+    max-width: 100vw;
+  }
+  .totals-block .row {
+    font-size: 10px;
+    margin: 1px 0;
+  }
+  table {
+    font-size: 9px;
+  }
 }
 @media print {
   @page {
@@ -11,6 +38,33 @@
   body {
     margin: 0;
     padding: 0;
+@media print {
+  @page {
+    size: 72mm auto;
+    margin: 0mm;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #fff !important;
+  }
+  .pos-ticket {
+    width: 72mm !important;
+    min-width: 72mm !important;
+    max-width: 72mm !important;
+    font-size: 11px !important;
+    margin: 0 auto !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    padding: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .modal-content, .modal-footer, .modal-overlay {
+    display: none !important;
+  }
+}
   }
 }
 .dialog-wrapper {
@@ -121,8 +175,11 @@
   .row {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin: 2px 0;
     font-size: 12px;
+    gap: 4px;
+    word-break: break-all;
   }
 
   strong {
@@ -131,6 +188,9 @@
 
   span {
     text-align: right;
+    word-break: break-all;
+    max-width: 60%;
+    display: inline-block;
   }
 }
 

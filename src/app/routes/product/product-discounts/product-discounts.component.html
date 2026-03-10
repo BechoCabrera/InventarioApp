@@ -164,9 +164,9 @@
       <ng-container matColumnDef="productIds">
         <th mat-header-cell *matHeaderCellDef style="width: 180px;">Productos Registrados</th>
           <td mat-cell *matCellDef="let promo" style="width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            <span *ngIf="promo.productIds?.length; else noProducts">
-              {{ getProductNames(promo.productIds) }}
-            </span>
+
+              {{ promo.productName }}
+
             <ng-template #noProducts>
               <span class="text-muted">-</span>
             </ng-template>

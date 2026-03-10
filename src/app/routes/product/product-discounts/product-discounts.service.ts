@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { PromotionCreateDto, PromotionCalculationRequest, PromotionCalculationResponse } from '../../invoice/create-invoice/models';
+import { environment } from '@env/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ProductDiscountsService {
-  private readonly api = '/api/Promotions';
+  private readonly api = `${environment.apiUrl}/promotions`; // ← CORREGIDO
   constructor(private http: HttpClient) {}
 
   calculatePromotion(details: PromotionCalculationRequest[]): Observable<PromotionCalculationResponse[]> {

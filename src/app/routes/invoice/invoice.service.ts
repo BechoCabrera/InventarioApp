@@ -36,6 +36,10 @@ export class InvoiceService {
     return this.http.get<InvoiceDto[]>(`${this.api}/search?number=${invoiceNumber}`);
   }
 
+  searchInvoiceByNumberAndAnulation(invoiceNumber: string): Observable<InvoiceDto[]> {
+    return this.http.get<InvoiceDto[]>(`${this.api}/search?number=${invoiceNumber}&includeAnulations=true`);
+  }
+
   getInvoicesByFilter(filters: any): Observable<InvoiceDto[]> {
     console.log('🔍 Enviando filtros:', filters);
     return this.http.post<InvoiceDto[]>(`${this.api}/filter`, filters);

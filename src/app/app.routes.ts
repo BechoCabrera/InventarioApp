@@ -72,10 +72,14 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./routes/entiti-config/entiti-config.routes').then(m => m.entitiConfigRoutes),
       },
-         {
+      {
         path: 'caja',
         loadChildren: () =>
           import('./routes/cash-closing/cash-closing.routes').then(m => m.cashClosing),
+      },
+      {
+        path: 'usuarios',
+        loadChildren: () => import('./routes/user/user.routes').then(m => m.userRoutes),
       },
     ],
   },

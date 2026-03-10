@@ -15,6 +15,8 @@ import { MaterialModule } from '../../../../../schematics/ng-add/files/module-fi
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { InvoicePosDialogComponent } from '@shared/pdf/invoice-pos-dialog/invoice-pos-dialog.component';
 
 @Component({
   selector: 'app-invoice-cancellation',
@@ -31,12 +33,20 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  displayedColumns: string[] = ['productName', 'quantity', 'unitPrice', 'totalPrice'];
+  displayedColumns: string[] = [
+    'productName',
+    'quantity',
+    'unitPrice',
+    'discountAmount',
+    'promotionApplied',
+    'totalPrice',
+  ];
   cancellationdisplayedColumns: string[] = [
     'invoiceNumber',
     'reason',
     'cancellationDate',
     'cancelledByUser',
+    'actions',
   ];
 
   invoiceCancellations = new MatTableDataSource<InvoicesCancelledDto>(); // ✅ datasource real
@@ -47,10 +57,12 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
   filteredInvoices: InvoiceDto[] = [];
   searchControl = new FormControl('');
   isEntitiLoading = false;
+  showCancelledStatus = false;
 
   private readonly toast = inject(ToastrService);
   private readonly invoiceService = inject(InvoiceService);
   private readonly invoicesCancelled = inject(InvoicesCancelled);
+  private readonly dialog = inject(MatDialog);
 
   constructor(private fb: FormBuilder, private route: ActivatedRoute) {}
 
@@ -86,6 +98,13 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
     this.invoicesCancelled.getAllInvoiceCancellations().subscribe({
       next: data => {
         this.invoiceCancellations.data = data; // ✅ asignación correcta
+        // Reasignar paginador y ordenamiento por si la referencia cambia
+        if (this.paginator) {
+          this.invoiceCancellations.paginator = this.paginator;
+        }
+        if (this.sort) {
+          this.invoiceCancellations.sort = this.sort;
+        }
         this.isEntitiLoading = false;
       },
       error: err => {
@@ -108,6 +127,7 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
     if (selectedInvoice) {
       this.invoiceSelectedDetail = selectedInvoice.details ?? [];
       this.invoiceId = selectedInvoice.invoiceId;
+      this.showCancelledStatus = false;
     } else {
       this.toast.warning('Factura no encontrada.');
     }
@@ -131,6 +151,7 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
         next: () => {
           this.toast.success('Factura anulada correctamente.');
           this.loadInvoiceCancellations(); // 🔄 refrescar tabla
+          this.clearSelection();
           this.isEntitiLoading = false;
         },
         error: () => {
@@ -147,6 +168,81 @@ export class InvoiceCancellationComponent implements OnInit, AfterViewInit {
   }
 
   downloadPdf(cancellation: InvoicesCancelledDto) {
-    this.toast.info(`Descargando PDF de ${cancellation.invoice}`);
+    if (!cancellation?.invoiceNumber) {
+      this.toast.warning('No se encontró el número de factura para descargar.');
+      return;
+    }
+
+    this.loadInvoiceByNumber(cancellation.invoiceNumber, invoice => {
+      // Mostrar también el estado ANULADA cuando se descarga el PDF
+      this.showCancelledStatus = true;
+      this.dialog.open(InvoicePosDialogComponent, {
+        data: invoice,
+      });
+    });
+  }
+
+  // Muestra en la tabla superior los productos de la factura seleccionada
+  showInvoiceDetail(cancellation: InvoicesCancelledDto): void {
+    if (!cancellation?.invoiceNumber) {
+      this.toast.warning('No se encontró el número de factura asociado.');
+      return;
+    }
+
+    this.loadInvoiceByNumber(cancellation.invoiceNumber, invoice => {
+      this.invoiceSelectedDetail = invoice.details ?? [];
+      this.invoiceId = invoice.invoiceId;
+      this.showCancelledStatus = true;
+      // Desplazar suavemente el scroll hacia la parte superior del formulario
+      if (typeof document !== 'undefined') {
+        const topEl = document.getElementById('invoice-cancellation-top');
+        if (topEl && 'scrollIntoView' in topEl) {
+          topEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (typeof window !== 'undefined') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    });
+  }
+
+  /**
+   * Carga una factura por número reutilizando la misma consulta del buscador,
+   * y ejecuta una acción con la factura encontrada.
+   */
+  private loadInvoiceByNumber(
+    invoiceNumber: string,
+    onSuccess: (invoice: InvoiceDto) => void
+  ): void {
+    this.isEntitiLoading = true;
+    this.invoiceService.searchInvoiceByNumberAndAnulation(invoiceNumber).subscribe({
+      next: invoices => {
+        const invoice = invoices && invoices.length > 0 ? invoices[0] : null;
+        if (!invoice) {
+          this.toast.warning('Factura no encontrada.');
+        } else {
+          onSuccess(invoice);
+        }
+        this.isEntitiLoading = false;
+      },
+      error: err => {
+        console.error('Error buscando factura por número', err);
+        this.toast.error('No se pudo obtener la información de la factura.');
+        this.isEntitiLoading = false;
+      },
+    });
+  }
+
+  /**
+   * Limpia selección, motivo, buscador y oculta el estado.
+   */
+  clearSelection(): void {
+    this.invoiceSelectedDetail = [];
+    this.invoiceId = '';
+    this.filteredInvoices = [];
+    this.searchControl.reset();
+    if (this.cancellationForm) {
+      this.cancellationForm.reset({ reason: null });
+    }
+    this.showCancelledStatus = false;
   }
 }

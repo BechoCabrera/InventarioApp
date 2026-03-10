@@ -8,9 +8,11 @@ import { InvoiceDto } from './create-invoice/models';
 export interface InvoicesCancelledDto {
   invoiceCancelledId: string;
   invoiceId: string;
+  invoiceNumber: string;
   reason: string;
   cancellationDate: string;
   cancelledByUserId: string;
+  cancelledByUser: string;
   invoice: InvoiceDto;
 }
 

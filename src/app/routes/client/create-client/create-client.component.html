@@ -66,6 +66,9 @@
         <button mat-icon-button color="primary" (click)="editClient(client)">
           <mat-icon>edit</mat-icon>
         </button>
+          <button mat-icon-button color="warn" (click)="deleteClient(client)">
+            <mat-icon>delete</mat-icon>
+          </button>
       </td>
     </ng-container>
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

@@ -101,6 +101,27 @@ export class CreateClientComponent implements OnInit {
     });
   }
 
+  deleteClient(client: Client): void {
+    if (!client.clientId) {
+      return;
+    }
+
+    const confirmed = confirm(`¿Está seguro que desea eliminar al cliente "${client.name}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.clientService.delete(client.clientId).subscribe({
+      next: () => {
+        this.toast.success('Cliente eliminado con éxito');
+        this.loadClients();
+      },
+      error: err => {
+        console.error('No se pudo eliminar el cliente', err);
+      },
+    });
+  }
+
   clear(): void {
     this.form.reset();
   }

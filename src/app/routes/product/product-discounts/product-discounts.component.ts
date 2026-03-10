@@ -285,6 +285,9 @@ export class ProductDiscountsComponent implements OnInit, AfterViewInit {
   }
 
   deletePromotion(promo: any) {
+    if (!confirm('¿Estás seguro de que deseas eliminar esta promoción?')) {
+      return;
+    }
     this.loading = true;
     this.productDiscountsService.deletePromotion(promo.id || promo.promotionId).subscribe({
       next: () => {

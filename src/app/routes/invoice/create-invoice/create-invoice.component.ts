@@ -188,6 +188,14 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     } else return 0;
   }
 
+    // Previene que Enter con input vacío o sin coincidencias dispare acciones no deseadas
+  preventEnterIfEmpty(event: KeyboardEvent) {
+    const value = this.searchControl.value;
+    if (!value || this.filteredProducts.length === 0) {
+      event.preventDefault();
+    }
+  }
+
   searchProducts(value: string): Observable<Product[]> {
     this.checkPaymentDeadline();
     // Si es un código de barras, devolvemos el producto dentro de un arreglo
@@ -237,18 +245,24 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   }
 
   onProductSelected(barCode?: string): void {
+    // Si no hay código, no hacer nada
+    if (!barCode) {
+      this.clearProductSearchInput();
+      return;
+    }
+
     // Verificar si el producto ya está en los productos filtrados
     const selectedProduct = this.filteredProducts.find(p => p.barCode === barCode);
 
-    if (!selectedProduct ) {
-        this.clearProductSearchInput();
-        return;
+    if (!selectedProduct) {
+      this.clearProductSearchInput();
+      return;
     }
 
     if (selectedProduct.stock - selectedProduct.stockSold <= 0) {
-        this.toast.error('No hay stock disponible para este producto.');
-        this.clearProductSearchInput();
-        return;
+      this.toast.error('No hay stock disponible para este producto.');
+      this.clearProductSearchInput();
+      return;
     }
 
     // Verificar si el producto ya está en la lista de detalles
@@ -284,6 +298,8 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       estimatedDiscount: [0],
       promotionApplied: [''],
       discountPercent: [0],
+      minQuantity: [0],
+      comboProductIds: [[] as string[]],
       addedFromSearch: [true],
     });
 
@@ -296,15 +312,31 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       },
     ];
     this.promotionService.calculatePromotion(promoRequest).subscribe({
-      next: (promoRes: any) => {
+      next: (promoResRaw: any) => {
+        const promoRes = Array.isArray(promoResRaw) ? promoResRaw[0] : promoResRaw;
         if (promoRes && promoRes.discountAmount > 0) {
+          const quantity = productGroup.get('quantity')?.value || 0;
+          const percent = promoRes.percentage || 0;
+          const minQty = promoRes.minQuantity || 0;
+          const unitPrice = selectedProduct.unitPrice || 0;
+          const estimatedDiscount =
+            minQty > 0 && quantity < minQty
+              ? 0
+              : Math.round(unitPrice * quantity * percent / 100);
+
+          const comboIds = (promoRes.idsProducts as string[]) || [];
+
           productGroup.patchValue({
-            estimatedDiscount: promoRes.discountAmount,
+            estimatedDiscount,
             promotionApplied: promoRes.promotionName || '',
             discountPercent: promoRes.percentage || 0,
+            minQuantity: minQty,
+            comboProductIds: comboIds,
           });
         }
         this.details.push(productGroup);
+        // Recalcular promociones combinadas (para combos con varios productos)
+        this.recalculateComboPromotions();
         this.toast.success('Producto agregado:', selectedProduct.name);
       },
       error: () => {
@@ -318,6 +350,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
           });
         }
         this.details.push(productGroup);
+        this.recalculateComboPromotions();
         this.toast.success('Producto agregado:', selectedProduct.name);
       },
     });
@@ -360,6 +393,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     } else {
       this.toast.warning('No se pudo eliminar el producto.');
     }
+    this.recalculateComboPromotions();
   }
 
   clearProductSearchInput() {
@@ -372,6 +406,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   removeDetails(index: number): void {
     this.details.removeAt(index);
+    this.recalculateComboPromotions();
   }
 
   cargarFacturas(): void {
@@ -499,8 +534,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                   next: savedInvoice => {
                     this.isSavingInvoice = false;
                     this.toast.success('Factura guardada');
+                    const printInvoice = this.buildInvoiceForPrint(savedInvoice);
                     this.dialog.open(InvoicePosDialogComponent, {
-                      data: savedInvoice,
+                      data: printInvoice,
                       width: '380px',
                       maxWidth: '95vw',
                       panelClass: 'custom-dialog-container',
@@ -534,8 +570,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
               next: savedInvoice => {
                 this.isSavingInvoice = false;
                 this.toast.success('Factura guardada');
+                const printInvoice = this.buildInvoiceForPrint(savedInvoice);
                 this.dialog.open(InvoicePosDialogComponent, {
-                  data: savedInvoice,
+                  data: printInvoice,
                   width: '380px',
                   maxWidth: '95vw',
                   panelClass: 'custom-dialog-container',
@@ -565,8 +602,9 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
           next: savedInvoice => {
             this.isSavingInvoice = false;
             this.toast.success('Factura guardada');
+            const printInvoice = this.buildInvoiceForPrint(savedInvoice);
             this.dialog.open(InvoicePosDialogComponent, {
-              data: savedInvoice,
+              data: printInvoice,
               width: '380px',
               maxWidth: '95vw',
               panelClass: 'custom-dialog-container',
@@ -657,11 +695,19 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     );
     if (valueResulto != null && valueResulto.stock >= quantity) {
       valueResulto.quantity = quantity;
+      const percent = (valueResulto as any).discountPercent || 0;
+      const unitPrice = (valueResulto as any).unitPrice || 0;
+      const minQty = (valueResulto as any).minQuantity || 0;
+      (valueResulto as any).estimatedDiscount =
+        percent && unitPrice && (!minQty || quantity >= minQty)
+          ? Math.round(unitPrice * quantity * percent / 100)
+          : 0;
     } else {
       this.toast.error('La cantidad no es permitida.');
       event.target.value = valueResulto.stock;
     }
     this.updateEstimatedSummary();
+    this.recalculateComboPromotions();
   }
 
   incrementQuantity(index: number, data: any) {
@@ -676,9 +722,14 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     // Calcular descuento estimado
     const percent = item.value.discountPercent || 0;
     const unitPrice = item.value.unitPrice || 0;
-    const estimatedDiscount = Math.round(unitPrice * newQuantity * percent / 100);
+    const minQty = item.value.minQuantity || 0;
+    const estimatedDiscount =
+      percent && unitPrice && (!minQty || newQuantity >= minQty)
+        ? Math.round(unitPrice * newQuantity * percent / 100)
+        : 0;
     item.patchValue({ quantity: newQuantity, estimatedDiscount });
     this.updateEstimatedSummary();
+    this.recalculateComboPromotions();
   }
 
   decrementQuantity(index: number) {
@@ -687,10 +738,91 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       const newQuantity = item.value.quantity - 1;
       const percent = item.value.discountPercent || 0;
       const unitPrice = item.value.unitPrice || 0;
-      const estimatedDiscount = Math.round(unitPrice * newQuantity * percent / 100);
+      const minQty = item.value.minQuantity || 0;
+      const estimatedDiscount =
+        percent && unitPrice && (!minQty || newQuantity >= minQty)
+          ? Math.round(unitPrice * newQuantity * percent / 100)
+          : 0;
       item.patchValue({ quantity: newQuantity, estimatedDiscount });
       this.updateEstimatedSummary();
     }
+  }
+
+  /**
+   * Recalcula las promociones combinadas (cuando idsProducts trae más de un producto).
+   * Sólo aplica el descuento si TODOS los productos del combo están en la factura
+   * y cada uno cumple con la cantidad mínima requerida.
+   */
+  private recalculateComboPromotions(): void {
+    if (!this.details || this.details.length === 0) {
+      return;
+    }
+
+    const controls = this.details.controls as FormGroup[];
+
+    // Agrupar por combo: misma promo + mismo conjunto de productos
+    const comboMap = new Map<
+      string,
+      {
+        productIds: string[];
+        percent: number;
+        minQty: number;
+      }
+    >();
+
+    controls.forEach(ctrl => {
+      const comboIds = (ctrl.get('comboProductIds')?.value as string[]) || [];
+      const promoName = ctrl.get('promotionApplied')?.value || '';
+      if (comboIds && comboIds.length > 1 && promoName) {
+        const sortedIds = [...comboIds].sort();
+        const key = `${promoName}|${sortedIds.join(',')}`;
+        if (!comboMap.has(key)) {
+          comboMap.set(key, {
+            productIds: sortedIds,
+            percent: ctrl.get('discountPercent')?.value || 0,
+            minQty: ctrl.get('minQuantity')?.value || 0,
+          });
+        }
+      }
+    });
+
+    if (comboMap.size === 0) {
+      return;
+    }
+
+    comboMap.forEach(combo => {
+      const involved = controls.filter(ctrl =>
+        combo.productIds.includes(ctrl.get('productId')?.value)
+      );
+
+      const allPresent = involved.length === combo.productIds.length;
+      const allWithQty =
+        allPresent &&
+        involved.every(ctrl => {
+          const qty = ctrl.get('quantity')?.value || 0;
+          const minQ = ctrl.get('minQuantity')?.value || combo.minQty || 0;
+          return qty >= minQ;
+        });
+
+      if (!allWithQty) {
+        // Si el combo no se cumple, se anula el descuento de esos productos
+        involved.forEach(ctrl => {
+          ctrl.patchValue({ estimatedDiscount: 0 }, { emitEvent: false });
+        });
+      } else {
+        // Combo completo: aplicar descuento porcentaje a cada producto
+        involved.forEach(ctrl => {
+          const qty = ctrl.get('quantity')?.value || 0;
+          const unitPrice = ctrl.get('unitPrice')?.value || 0;
+          const percent = ctrl.get('discountPercent')?.value || combo.percent || 0;
+          const discount = Math.round(unitPrice * qty * percent / 100);
+          ctrl.patchValue({ estimatedDiscount: discount }, { emitEvent: false });
+        });
+      }
+    });
+
+    // Actualizar resumen una sola vez luego de ajustar combos
+    this.updateEstimatedSummary();
   }
 
   clearClient(): void {
@@ -719,5 +851,39 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
         },
       });
     }
+  }
+
+  /**
+   * Construye una copia de la factura devuelta por el backend
+   * pero con los descuentos de línea y el descuento total
+   * iguales a los que se muestran en pantalla (estimatedDiscount).
+   */
+  private buildInvoiceForPrint(savedInvoice: any): any {
+    if (!savedInvoice || !Array.isArray(savedInvoice.details)) {
+      return savedInvoice;
+    }
+
+    const detailsControls = this.details?.controls as FormGroup[] | undefined;
+    let totalDiscount = 0;
+
+    const mappedDetails = savedInvoice.details.map((detail: any, index: number) => {
+      const ctrl = detailsControls && detailsControls[index];
+      const estimatedDiscount = ctrl?.get('estimatedDiscount')?.value || 0;
+      totalDiscount += estimatedDiscount;
+      return {
+        ...detail,
+        discountAmount: estimatedDiscount,
+      };
+    });
+
+    const subtotal = savedInvoice.subtotalAmount ?? 0;
+    const totalAmount = subtotal - totalDiscount;
+
+    return {
+      ...savedInvoice,
+      details: mappedDetails,
+      discountAmount: totalDiscount,
+      totalAmount,
+    };
   }
 }

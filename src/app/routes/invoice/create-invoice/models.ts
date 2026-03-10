@@ -26,6 +26,8 @@ export interface InvoiceDetailDto {
   unitPrice: number;
   totalPrice: number;
   productName: string;
+  discountAmount?: number;
+  promotionApplied?: string;
 }
 
 export interface InvoiceDetailCreateDto {

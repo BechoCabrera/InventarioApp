@@ -13,6 +13,14 @@
         </div>
       </div>
 
+      <!-- Estado de anulación visible en rojo cuando la factura está anulada -->
+      <p
+        *ngIf="invoice?.isCancelled || invoice?.status === 'Anulada'"
+        style="margin: 0 0 4px 0; text-align: center; color: #c62828; font-weight: 700; text-transform: uppercase;"
+      >
+        FACTURA ANULADA
+      </p>
+
       <p>
         <strong>Factura:</strong>
         {{ invoice?.invoiceNumber }}

@@ -52,7 +52,7 @@ import { MatMenuModule } from '@angular/material/menu';
     LoadingOverlayComponent,
     MatPaginatorModule,
     MatSortModule,
-     MatMenuModule,
+    MatMenuModule,
   ],
 })
 export class CreateProductComponent implements OnInit {
@@ -177,7 +177,7 @@ export class CreateProductComponent implements OnInit {
       },
       error: err => {
         // El interceptor global mostrará el mensaje de error del backend
-        console.error('Error creando producto', err);
+        console.error('Error creando producto', err.error);
       },
     });
   }
@@ -284,7 +284,10 @@ export class CreateProductComponent implements OnInit {
     this.products.filter = filterValue;
     if (this.products.filter.trim().length > 0) {
       this.products.filterPredicate = (data: Product, filter: string) => {
-        return data.name.toLowerCase().includes(filter); // Filtra por nombre
+        return (
+          data.name.toLowerCase().includes(filter) ||
+          (data.barCode ? data.barCode.toLowerCase().includes(filter) : false)
+        );
       };
     }
   }
