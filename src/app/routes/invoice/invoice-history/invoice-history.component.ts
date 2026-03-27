@@ -89,6 +89,7 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
     'client',
     'issueDate',
     'totalAmount',
+    'paymentMethods',
     'status',
     'entitiName',
     'actions',
@@ -130,7 +131,21 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    this.attachPaginator();
+  }
+
+  private attachPaginator(): void {
+    if (!this.paginator) {
+      return;
+    }
+
     this.dataSource.paginator = this.paginator;
+  }
+
+  private setTableData(data: InvoiceDto[]): void {
+    this.dataSource.data = data;
+    this.attachPaginator();
+    this.paginator?.firstPage();
   }
 
   applyFilter(event: Event): void {
@@ -138,16 +153,18 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
 
     // Si no hay texto -> restaurar la última búsqueda completa
     if (!filterValue) {
-      this.dataSource.data = [...this.allInvoices];
+      this.setTableData([...this.allInvoices]);
       return;
     }
 
     // Filtrar sobre los resultados actuales
-    this.dataSource.data = this.allInvoices.filter(
+    const filteredData = this.allInvoices.filter(
       inv =>
         inv.clientName?.toLowerCase().includes(filterValue) ||
         inv.invoiceNumber?.toLowerCase().includes(filterValue)
     );
+
+    this.setTableData(filteredData);
   }
 
   // Filtro avanzado
@@ -157,12 +174,17 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.dataSource.data = this.allInvoices.filter(inv => {
+    const filteredData = this.allInvoices.filter(inv => {
       const fecha = new Date(inv.issueDate);
       const matchFechaInicio = !this.startDate || fecha >= this.startDate;
       const matchFechaFin = !this.endDate || fecha <= this.endDate;
+      const selectedPayment = this.selectedPaymentMethod?.trim().toLowerCase();
+      const invoicePaymentMethod = inv.paymentMethod?.trim().toLowerCase();
+      const hasPaymentInBreakdown =
+        !!selectedPayment &&
+        !!inv.paymentBreakdown?.some(p => p.paymentMethod?.trim().toLowerCase() === selectedPayment);
       const matchPago =
-        !this.selectedPaymentMethod || inv.paymentMethod === this.selectedPaymentMethod;
+        !selectedPayment || invoicePaymentMethod === selectedPayment || hasPaymentInBreakdown;
       const matchEstado =
         !this.selectedStatus ||
         (this.selectedStatus === 'activa' && !inv.isCancelled) ||
@@ -170,6 +192,8 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
 
       return matchFechaInicio && matchFechaFin && matchPago && matchEstado;
     });
+
+    this.setTableData(filteredData);
   }
 
   openInvoiceDialog(invoice: InvoiceDto): void {
@@ -216,7 +240,7 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
     this.invoiceService.getInvoicesByFilter(filters).subscribe({
       next: data => {
         this.allInvoices = data;
-        this.dataSource.data = data;
+        this.setTableData(data);
         this.isEntitiLoading = false;
       },
       error: err => {
@@ -233,6 +257,19 @@ export class InvoiceHistoryComponent implements OnInit, AfterViewInit {
     this.selectedStatus = '';
     this.searchText = '';
     this.invoiceNumber = '';
-    this.dataSource.data = [];
+    this.allInvoices = [];
+    this.setTableData([]);
+  }
+
+  getPaymentMethodsLabel(invoice: InvoiceDto): string {
+    if (invoice.paymentMethod && invoice.paymentMethod.trim().length > 0) {
+      return invoice.paymentMethod;
+    }
+
+    if (invoice.paymentBreakdown && invoice.paymentBreakdown.length > 0) {
+      return 'MultiPago';
+    }
+
+    return 'No definido';
   }
 }

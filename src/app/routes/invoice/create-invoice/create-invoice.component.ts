@@ -54,6 +54,10 @@ import {
 import { GenericModalComponent } from '@shared/modal/generic-modal/generic-modal.component';
 import { PaymentWarningModalComponent } from '@shared/modal/payment-warning-modal/payment-warning-modal.component';
 import { LoadingOverlayComponent } from '@shared/loading-overlay/loading-overlay.component';
+import {
+  MultiPaymentItem,
+  MultiPaymentModalComponent,
+} from './multi-payment-modal/multi-payment-modal.component';
 
 registerLocaleData(localeCo, 'es-CO');
 @Component({
@@ -109,6 +113,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
   selectedClientId: string | null = null;
   dueDate = new Date('2026-06-26');
   isSavingInvoice = false;
+  multiPayments: MultiPaymentItem[] = [];
   constructor(
     private clientService: ClientService,
     private productService: ProductService,
@@ -241,6 +246,88 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('El modal se cerró', result);
+    });
+  }
+
+  openMultiPaymentModal(): void {
+    const dialogRef = this.dialog.open(MultiPaymentModalComponent, {
+      width: '700px',
+      maxWidth: '95vw',
+      data: {
+        totalAmount: this.estimatedTotal,
+        payments: this.multiPayments,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result?.payments) {
+        return;
+      }
+
+      this.multiPayments = result.payments;
+      this.selectedPaymentMethod = 'MultiPago';
+      this.form.patchValue({
+        paymentMethod: 'MultiPago',
+        amountPaid: this.totalMultiPayments,
+      });
+      this.calculateChangeAmount();
+    });
+  }
+
+  get totalMultiPayments(): number {
+    return this.roundMoney(this.multiPayments.reduce((sum, item) => sum + (item.amount || 0), 0));
+  }
+
+  private validateMultiPayments(): boolean {
+    if (this.selectedPaymentMethod !== 'MultiPago') {
+      return true;
+    }
+
+    if (this.multiPayments.length === 0) {
+      this.toast.warning('Debe agregar al menos un tipo de pago en Multi pagos.');
+      return false;
+    }
+
+    const assigned = this.totalMultiPayments;
+    const total = this.roundMoney(this.estimatedTotal || 0);
+
+    if (assigned !== total) {
+      this.toast.warning('La suma de Multi pagos debe ser igual al total de la factura.');
+      return false;
+    }
+
+    return true;
+  }
+
+  private buildInvoicePayload(): InvoiceCreateDto {
+    const base = this.form.getRawValue();
+    const isMulti = this.selectedPaymentMethod === 'MultiPago';
+
+    return {
+      ...base,
+      paymentMethod: isMulti ? 'MultiPago' : (base.paymentMethod || this.selectedPaymentMethod),
+      amountPaid: isMulti ? this.totalMultiPayments : base.amountPaid,
+      paymentBreakdown: isMulti ? this.multiPayments.map(item => ({ ...item })) : undefined,
+    } as InvoiceCreateDto;
+  }
+
+  private roundMoney(value: number): number {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  }
+
+  private resetInvoiceFormAfterSave(): void {
+    this.form.reset();
+    this.details.clear();
+    this.multiPayments = [];
+    this.selectedPaymentMethod = '';
+    this.changeAmount = 0;
+    this.form.patchValue({
+      subtotalAmount: 0,
+      taxAmount: 0,
+      totalAmount: 0,
+      status: 'Emitida',
+      issueDate: new Date(),
+      dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
     });
   }
 
@@ -485,8 +572,12 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     } else {
       if (this.form.invalid) return;
 
+      if (!this.validateMultiPayments()) {
+        return;
+      }
+
       const client: any = this.form.value;
-      const invoice: InvoiceCreateDto = this.form.value;
+      const invoice: InvoiceCreateDto = this.buildInvoicePayload();
 
       if (this.details.length === 0) {
         this.toast.warning('Debe agregar al menos un producto a la factura');
@@ -541,16 +632,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                       maxWidth: '95vw',
                       panelClass: 'custom-dialog-container',
                     });
-                    this.form.reset();
-                    this.details.clear();
-                    this.form.patchValue({
-                      subtotalAmount: 0,
-                      taxAmount: 0,
-                      totalAmount: 0,
-                      status: 'Emitida',
-                      issueDate: new Date(),
-                      dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-                    });
+                    this.resetInvoiceFormAfterSave();
                   },
                   error: err => {
                     this.isSavingInvoice = false;
@@ -577,16 +659,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
                   maxWidth: '95vw',
                   panelClass: 'custom-dialog-container',
                 });
-                this.form.reset();
-                this.details.clear();
-                this.form.patchValue({
-                  subtotalAmount: 0,
-                  taxAmount: 0,
-                  totalAmount: 0,
-                  status: 'Emitida',
-                  issueDate: new Date(),
-                  dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-                });
+                this.resetInvoiceFormAfterSave();
               },
               error: err => {
                 this.isSavingInvoice = false;
@@ -609,16 +682,7 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
               maxWidth: '95vw',
               panelClass: 'custom-dialog-container',
             });
-            this.form.reset();
-            this.details.clear();
-            this.form.patchValue({
-              subtotalAmount: 0,
-              taxAmount: 0,
-              totalAmount: 0,
-              status: 'Emitida',
-              issueDate: new Date(),
-              dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-            });
+            this.resetInvoiceFormAfterSave();
           },
           error: err => {
             this.isSavingInvoice = false;
@@ -659,6 +723,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
     this.selectedPaymentMethod = method;
     this.form.patchValue({ paymentMethod: method });
 
+    if (method !== 'MultiPago') {
+      this.multiPayments = [];
+    }
+
     const total = this.estimatedTotal || 0;
 
     if (method === 'Crédito' || method === 'Transferencia' || method === 'Tarjeta') {
@@ -685,6 +753,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
       taxAmount: this.estimatedTax,
       totalAmount: this.estimatedTotal,
     });
+
+    if (this.selectedPaymentMethod === 'MultiPago') {
+      this.form.patchValue({ amountPaid: this.totalMultiPayments });
+    }
 
     this.calculateChangeAmount();
   }

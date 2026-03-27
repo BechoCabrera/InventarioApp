@@ -31,6 +31,7 @@
         <mat-option value="Efectivo">Efectivo</mat-option>
         <mat-option value="Crédito">Crédito</mat-option>
         <mat-option value="Tarjeta">Tarjeta</mat-option>
+        <mat-option value="MultiPago">MultiPago</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -92,6 +93,13 @@
         <th mat-header-cell *matHeaderCellDef>Total</th>
         <td mat-cell *matCellDef="let invoice">
           $ {{ invoice.totalAmount | number: '1.0-0' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="paymentMethods">
+        <th mat-header-cell *matHeaderCellDef>Medio(s) de pago</th>
+        <td mat-cell *matCellDef="let invoice" class="payment-methods-cell">
+          {{ getPaymentMethodsLabel(invoice) }}
         </td>
       </ng-container>
 

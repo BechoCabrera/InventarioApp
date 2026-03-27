@@ -185,6 +185,7 @@ export class CreateProductComponent implements OnInit {
   editProduct(product: Product): void {
     const dialogRef = this.dialog.open(ProductModalComponent, {
       width: '500px',
+      maxHeight: '90vh',
       data: { product }, // Pasa el producto al modal
     });
 

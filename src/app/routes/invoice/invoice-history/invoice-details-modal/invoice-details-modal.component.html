@@ -23,6 +23,33 @@
       <strong>Nombre de la entidad:</strong>
       {{ invoice.entitiName }}
     </p>
+
+    <div *ngIf="hasPaymentBreakdown; else singlePaymentMethodBlock">
+      <h4>Desglose de pagos</h4>
+      <table mat-table [dataSource]="paymentBreakdown" class="mat-elevation-z2 full-width-table">
+        <ng-container matColumnDef="paymentMethod">
+          <th mat-header-cell *matHeaderCellDef>Tipo de pago</th>
+          <td mat-cell *matCellDef="let payment">{{ payment.paymentMethod }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Valor</th>
+          <td mat-cell *matCellDef="let payment">{{ payment.amount | currency }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
+      </table>
+    </div>
+
+    <ng-template #singlePaymentMethodBlock>
+      <p>
+        <strong>Método de pago:</strong>
+        {{ invoice.paymentMethod || 'No definido' }}
+      </p>
+    </ng-template>
+
+    <h4>Productos</h4>
     <!-- Tabla con detalles de los productos -->
     <table mat-table [dataSource]="invoice.details" class="mat-elevation-z2 full-width-table">
       <!-- Definimos las columnas de la tabla -->

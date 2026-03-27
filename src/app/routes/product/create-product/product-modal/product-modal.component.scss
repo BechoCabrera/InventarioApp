@@ -1,8 +1,20 @@
-mat-card {
-  padding: 20px;
-  margin: 10px;
+.product-modal-card {
+  padding: 16px;
+  margin: 8px;
   border-radius: 8px;
   animation: fade-in 0.3s ease-in-out;
+  max-height: 86vh;
+}
+
+.product-modal-form {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(86vh - 16px);
+}
+
+.form-scroll-area {
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .field {
@@ -21,6 +33,8 @@ mat-card {
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 1rem;
+  padding-top: 8px;
+  background: inherit;
 }
 
 mat-slide-toggle {
@@ -53,5 +67,23 @@ mat-button {
 
   100% {
     opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-modal-card {
+    max-height: 88vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .product-modal-form {
+    max-height: 88vh;
+  }
+
+  .btn-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
   }
 }

@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>Multi pagos</h2>
+
+<mat-dialog-content>
+  <div class="form-row" [formGroup]="paymentForm">
+    <mat-form-field appearance="fill" class="method-field">
+      <mat-label>Tipo de pago</mat-label>
+      <mat-select formControlName="paymentMethod">
+        <mat-option *ngFor="let method of paymentMethods" [value]="method">
+          {{ method }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="amount-field">
+      <mat-label>Valor</mat-label>
+      <input matInput type="number" formControlName="amount" />
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="button" (click)="addPayment()">
+      <mat-icon>add</mat-icon>
+      Agregar
+    </button>
+  </div>
+
+  <div class="helper-values">
+    <span>Total factura: ${{ data.totalAmount | number: '1.0-0' }}</span>
+    <span>Total asignado: ${{ totalAssigned | number: '1.0-0' }}</span>
+    <span>Restante: ${{ remainingAmount | number: '1.0-0' }}</span>
+  </div>
+
+  <div *ngIf="addError" class="error-text">{{ addError }}</div>
+
+  <div class="table-wrapper" *ngIf="payments.length > 0; else emptyState">
+    <table mat-table [dataSource]="payments" class="payments-table">
+      <ng-container matColumnDef="paymentMethod">
+        <th mat-header-cell *matHeaderCellDef>Tipo de pago</th>
+        <td mat-cell *matCellDef="let row">{{ row.paymentMethod }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="amount">
+        <th mat-header-cell *matHeaderCellDef>Valor</th>
+        <td mat-cell *matCellDef="let row">${{ row.amount | number: '1.0-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let row; let i = index">
+          <button mat-icon-button color="warn" type="button" (click)="removePayment(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">Aun no hay pagos agregados.</div>
+  </ng-template>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="close()">Cancelar</button>
+  <button mat-raised-button color="primary" type="button" (click)="confirm()">
+    Confirmar
+  </button>
+</mat-dialog-actions>

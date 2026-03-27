@@ -84,15 +84,31 @@ export class CashClosingModalComponent implements OnInit {
 
         // Sumamos los totales de cada tipo de pago para las facturas del día
         invoices.forEach((invoice: any) => {
-          // Sumar el total por cada tipo de pago
-          if (invoice.paymentMethod === 'Efectivo') {
-            this.totalCash += invoice.totalAmount;
-          } else if (invoice.paymentMethod === 'Crédito') {
-            this.totalCredit += invoice.totalAmount;
-          } else if (invoice.paymentMethod === 'Tarjeta') {
-            this.totalCard += invoice.totalAmount;
-          } else if (invoice.paymentMethod === 'Transferencia') {
-            this.totalTransfer += invoice.totalAmount;
+          // Si la factura trae desglose de pagos, se acumula por cada detalle.
+          if (invoice.paymentBreakdown && invoice.paymentBreakdown.length > 0) {
+            invoice.paymentBreakdown.forEach((payment: any) => {
+              const amount = Number(payment.amount) || 0;
+              if (payment.paymentMethod === 'Efectivo') {
+                this.totalCash += amount;
+              } else if (payment.paymentMethod === 'Crédito') {
+                this.totalCredit += amount;
+              } else if (payment.paymentMethod === 'Tarjeta') {
+                this.totalCard += amount;
+              } else if (payment.paymentMethod === 'Transferencia') {
+                this.totalTransfer += amount;
+              }
+            });
+          } else {
+            // Compatibilidad con facturas antiguas de un solo método.
+            if (invoice.paymentMethod === 'Efectivo') {
+              this.totalCash += invoice.totalAmount;
+            } else if (invoice.paymentMethod === 'Crédito') {
+              this.totalCredit += invoice.totalAmount;
+            } else if (invoice.paymentMethod === 'Tarjeta') {
+              this.totalCard += invoice.totalAmount;
+            } else if (invoice.paymentMethod === 'Transferencia') {
+              this.totalTransfer += invoice.totalAmount;
+            }
           }
 
           // Acumular descuentos del día

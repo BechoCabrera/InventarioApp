@@ -228,6 +228,11 @@ mat-card {
   border-radius: 10px;
 }
 
+.payment-methods .multi-payment-btn {
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
 .total-amount {
   display: flex;
   gap: 12px;

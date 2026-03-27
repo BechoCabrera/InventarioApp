@@ -217,6 +217,14 @@
             >
               💳 Tarjeta
             </button>
+            <button
+              mat-raised-button
+              [color]="selectedPaymentMethod === 'MultiPago' ? 'primary' : 'accent'"
+              [ngClass]="{ 'selected-method': selectedPaymentMethod === 'MultiPago', 'multi-payment-btn': true }"
+              (click)="openMultiPaymentModal()"
+            >
+              🧾 Multi pagos
+            </button>
           </div>
 
           <mat-card class="total-display-card" style="padding: 12px 18px; border-radius: 12px; box-shadow: 0 2px 8px #0001; min-width: 220px; max-width: 260px;">

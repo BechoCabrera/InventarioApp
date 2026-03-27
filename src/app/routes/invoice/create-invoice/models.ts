@@ -1,5 +1,10 @@
 // Tipos para Facturación y Promociones
 
+export interface InvoicePaymentDto {
+  paymentMethod: string;
+  amount: number;
+}
+
 export interface InvoiceCreateDto {
   invoiceNumber: string;
   clientId?: string;
@@ -16,6 +21,7 @@ export interface InvoiceCreateDto {
   details: InvoiceDetailCreateDto[];
   discountAmount: number;
   promotionApplied?: string;
+  paymentBreakdown?: InvoicePaymentDto[];
 }
 
 export interface InvoiceDetailDto {
@@ -56,6 +62,7 @@ export interface InvoiceDto {
   details: InvoiceDetailDto[];
   discountAmount: number;
   promotionApplied?: string;
+  paymentBreakdown?: InvoicePaymentDto[];
 }
 
 export interface PromotionCalculationRequest {
