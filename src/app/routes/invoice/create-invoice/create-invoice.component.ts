@@ -240,7 +240,10 @@ export class CreateInvoiceComponent implements OnInit, AfterViewInit {
 
   openCashClosingModal(): void {
     const dialogRef = this.dialog.open(CashClosingModalComponent, {
-      width: '400px',
+      width: '980px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      panelClass: 'cash-closing-dialog-panel',
       data: { totalAmount: this.form.get('totalAmount')?.value },
     });
 

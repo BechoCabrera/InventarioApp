@@ -1,51 +1,121 @@
 <mat-card class="cash-closing-card mat-elevation-z4">
   <form [formGroup]="cashClosingForm" (ngSubmit)="saveCashClosing()" class="form-container">
-    <div class="form-header">
-      <h2 class="title">💰 Cierre de Caja</h2>
-    </div>
-    <div class="form-header">
-      <div class="btn-row">
-        <button mat-raised-button color="primary" type="submit" [disabled]="cashClosingForm.invalid">
-          Guardar Cierre
-        </button>
-        <button mat-stroked-button color="warn" type="button" (click)="closeModal()">Volver</button>
+    <header class="form-header">
+      <div class="title-wrap">
+        <span class="icon-shell" aria-hidden="true">
+          <mat-icon>payments</mat-icon>
+        </span>
+        <div>
+          <h2 class="title">Dashboard de Cierre de Caja</h2>
+          <p class="subtitle">Vista consolidada de ventas y distribución por método de pago</p>
+        </div>
       </div>
-    </div>
+      <span class="date-chip">{{ data?.date || 'HOY' }}</span>
+    </header>
 
-    <div class="form-body">
+    <section class="dashboard-shell" aria-label="Dashboard de resumen del cierre de caja">
+      <div class="dashboard-main">
+        <section class="kpi-grid" aria-label="Totales por método de pago">
+          <article class="kpi-card cash">
+            <div class="kpi-head">
+              <span class="kpi-label">Efectivo</span>
+              <mat-icon>attach_money</mat-icon>
+            </div>
+            <p class="kpi-value">{{ totalCash | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+            <div class="kpi-track" aria-hidden="true">
+              <span [style.width.%]="totalAmount ? (totalCash / totalAmount) * 100 : 0"></span>
+            </div>
+          </article>
 
-        <mat-card class="summary-card">
-          <div class="summary-header">
-            <span class="summary-title">Resumen del Cierre</span>
+          <article class="kpi-card credit">
+            <div class="kpi-head">
+              <span class="kpi-label">Crédito</span>
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <p class="kpi-value">{{ totalCredit | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+            <div class="kpi-track" aria-hidden="true">
+              <span [style.width.%]="totalAmount ? (totalCredit / totalAmount) * 100 : 0"></span>
+            </div>
+          </article>
+
+          <article class="kpi-card card">
+            <div class="kpi-head">
+              <span class="kpi-label">Tarjetas</span>
+              <mat-icon>credit_card</mat-icon>
+            </div>
+            <p class="kpi-value">{{ totalCard | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+            <div class="kpi-track" aria-hidden="true">
+              <span [style.width.%]="totalAmount ? (totalCard / totalAmount) * 100 : 0"></span>
+            </div>
+          </article>
+
+          <article class="kpi-card transfer">
+            <div class="kpi-head">
+              <span class="kpi-label">Transferencias</span>
+              <mat-icon>swap_horiz</mat-icon>
+            </div>
+            <p class="kpi-value">{{ totalTransfer | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+            <div class="kpi-track" aria-hidden="true">
+              <span [style.width.%]="totalAmount ? (totalTransfer / totalAmount) * 100 : 0"></span>
+            </div>
+          </article>
+        </section>
+
+        <section class="distribution-panel" aria-label="Participación por método de pago">
+          <h3>Participación</h3>
+
+          <div class="dist-row cash">
+            <div class="dist-header">
+              <span>Efectivo</span>
+              <strong>{{ (totalAmount ? (totalCash / totalAmount) * 100 : 0) | number:'1.2-2' }}%</strong>
+            </div>
+            <div class="dist-track"><span [style.width.%]="totalAmount ? (totalCash / totalAmount) * 100 : 0"></span></div>
           </div>
-          <div class="summary-body">
-            <div class="summary-row">
-              <span class="label">Total en Efectivo:</span>
-              <span class="value">{{ totalCash | currency }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Total en Crédito:</span>
-              <span class="value">{{ totalCredit | currency }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Total en Tarjetas:</span>
-              <span class="value">{{ totalCard | currency }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Total en Transferencias:</span>
-              <span class="value">{{ totalTransfer | currency }}</span>
-            </div>
-            <div class="summary-row">
-              <span class="label">Total en Descuentos:</span>
-              <span class="value discount">-{{ totalDiscount | currency }}</span>
-            </div>
-            <div class="summary-row total">
-              <span class="label">Total General:</span>
-              <span class="value">{{ totalAmount | currency }}</span>
-            </div>
-          </div>
-        </mat-card>
 
-    </div>
+          <div class="dist-row credit">
+            <div class="dist-header">
+              <span>Crédito</span>
+              <strong>{{ (totalAmount ? (totalCredit / totalAmount) * 100 : 0) | number:'1.2-2' }}%</strong>
+            </div>
+            <div class="dist-track"><span [style.width.%]="totalAmount ? (totalCredit / totalAmount) * 100 : 0"></span></div>
+          </div>
+
+          <div class="dist-row card">
+            <div class="dist-header">
+              <span>Tarjetas</span>
+              <strong>{{ (totalAmount ? (totalCard / totalAmount) * 100 : 0) | number:'1.2-2' }}%</strong>
+            </div>
+            <div class="dist-track"><span [style.width.%]="totalAmount ? (totalCard / totalAmount) * 100 : 0"></span></div>
+          </div>
+
+          <div class="dist-row transfer">
+            <div class="dist-header">
+              <span>Transferencias</span>
+              <strong>{{ (totalAmount ? (totalTransfer / totalAmount) * 100 : 0) | number:'1.2-2' }}%</strong>
+            </div>
+            <div class="dist-track"><span [style.width.%]="totalAmount ? (totalTransfer / totalAmount) * 100 : 0"></span></div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="totals-panel" aria-label="Resumen final del cierre de caja">
+        <p class="panel-label">Resumen final</p>
+        <div class="totals-row">
+          <span>Total en descuentos</span>
+          <strong class="negative">-{{ totalDiscount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+        </div>
+        <div class="totals-row grand-total">
+          <span>Total general</span>
+          <strong>{{ totalAmount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="action-row">
+      <button mat-raised-button color="primary" type="submit" [disabled]="cashClosingForm.invalid" class="primary-action">
+        Guardar cierre
+      </button>
+      <button mat-stroked-button type="button" (click)="closeModal()" class="secondary-action">Volver</button>
+    </footer>
   </form>
 </mat-card>

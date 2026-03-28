@@ -99,6 +99,10 @@ print(): void {
   if (printWindow) {
     const style = `
       <style>
+        @page {
+          margin: 0;
+          size: auto;
+        }
         body {
           font-family: monospace;
           font-size: 11px;
